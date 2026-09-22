@@ -64,6 +64,18 @@ public class ClientInputFactory
         return answer;
     }
 
+    /** Opens an already verified copy without triggering unrelated online updates. */
+    public synchronized ClientInput openVerifiedCopy(File file, Client client)
+    {
+        if (cache.keySet().stream().anyMatch(input -> file.equals(input.getFile())))
+            throw new IllegalArgumentException("File is already open"); //$NON-NLS-1$
+        var answer = new ClientInput(file.getName(), file);
+        ContextInjectionFactory.inject(answer, context);
+        answer.setClient(client, false);
+        cache.put(answer, new AtomicInteger());
+        return answer;
+    }
+
     public synchronized void incrementEditorCount(ClientInput clientInput)
     {
         cache.computeIfAbsent(clientInput, i -> new AtomicInteger()).incrementAndGet();
