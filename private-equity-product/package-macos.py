@@ -78,11 +78,12 @@ archive = args.output.resolve() / "PortfolioPerformancePE-mac-arm64.zip"
 subprocess.run(["ditto", "-c", "-k", "--sequesterRsrc", "--keepParent", str(app), str(archive)], check=True)
 # Examples and the combined guide belong to the integration branch. Packaging
 # the platform by itself must also work without any optional feature installed.
-for source, name in [(module / "examples/PE-Demo.xml", "PE-Demo.xml"),
-                     (module / "examples/PE-Demo.portfolio", "PE-Demo.portfolio"),
-                     (module.parent / "PRIVATE_EQUITY.md", "Guide.md")]:
-    if source.exists():
-        shutil.copy2(source, args.output / name)
+for source in sorted((module / "examples").glob("*")):
+    if source.is_file() and source.suffix.lower() in {".xml", ".portfolio"}:
+        shutil.copy2(source, args.output / source.name)
+guide = module.parent / "PRIVATE_EQUITY.md"
+if guide.exists():
+    shutil.copy2(guide, args.output / "Guide.md")
 documentation = module.parent / "docs/fork"
 if documentation.exists():
     shutil.copytree(documentation, args.output / "docs/fork", dirs_exist_ok=True)
