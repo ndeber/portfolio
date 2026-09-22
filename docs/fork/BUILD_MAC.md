@@ -44,3 +44,13 @@ python3 -m unittest discover -s private-equity-product -p 'test_*.py' -v
 Pour une future fabrication sur une autre machine ou dans GitHub Actions, prévoir
 la même étape à partir d'une distribution officielle compatible, puis conserver
 la vérification d'empreinte. Ne jamais fournir un fichier de session utilisateur.
+
+### Écran de démarrage optionnel
+
+Le manifeste du répertoire passé à `--branding` peut contenir `"splash": "splash.bmp"`.
+Le fichier doit être un BMP RGB 24 bits. Le packaging le copie dans l'application
+et configure `osgi.splashPath=platform:/base/branding`, sans modifier le bundle UI.
+Ce chemin reste valable après déplacement de l'application. Sans cette entrée,
+l'écran de démarrage du produit reste inchangé.
+
+Référence : [configuration des produits Eclipse](https://help.eclipse.org/latest/topic/org.eclipse.platform.doc.isv/guide/product_configproduct.htm).

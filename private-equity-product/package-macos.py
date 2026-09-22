@@ -55,6 +55,17 @@ if args.branding:
     branding = json.loads((args.branding / "manifest.json").read_text())
     icon = app / "Contents/Resources" / plist["CFBundleIconFile"]
     shutil.copy2(args.branding / branding["icon"], icon)
+    if branding.get("splash"):
+        # Resolve from the installation root, so Finder moves and ZIP extraction
+        # do not leave an absolute build-machine path in the shipped application.
+        splash_dir = app / "Contents/Eclipse/branding"
+        splash_dir.mkdir()
+        shutil.copy2(args.branding / branding["splash"], splash_dir / "splash.bmp")
+        config = app / "Contents/Eclipse/configuration/config.ini"
+        lines = [line for line in config.read_text().splitlines()
+                 if not line.startswith(("osgi.splashPath=", "osgi.splashLocation="))]
+        lines.append("osgi.splashPath=platform:/base/branding")
+        config.write_text("\n".join(lines) + "\n")
     with ini.open("a") as stream:
         for key, value in branding.get("javaProperties", {}).items():
             stream.write(f"-D{key}={value}\n")
