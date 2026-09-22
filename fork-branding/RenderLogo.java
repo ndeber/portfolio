@@ -1,3 +1,4 @@
+import java.awt.Color;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.nio.file.Files;
@@ -15,12 +16,19 @@ public class RenderLogo
         if (document == null)
             throw new IllegalArgumentException("Cannot load SVG: " + args[0]);
         int size = Integer.parseInt(args[2]);
-        var image = new BufferedImage(size, size, BufferedImage.TYPE_INT_ARGB);
+        int height = args.length > 3 ? Integer.parseInt(args[3]) : size;
+        boolean bitmap = args[1].endsWith(".bmp");
+        var image = new BufferedImage(size, height, bitmap ? BufferedImage.TYPE_INT_RGB : BufferedImage.TYPE_INT_ARGB);
         var graphics = image.createGraphics();
         try
         {
+            if (bitmap)
+            {
+                graphics.setColor(Color.WHITE);
+                graphics.fillRect(0, 0, size, height);
+            }
             graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-            document.render(null, graphics, new ViewBox(size, size));
+            document.render(null, graphics, new ViewBox(size, height));
         }
         finally
         {
@@ -28,6 +36,7 @@ public class RenderLogo
         }
         var output = Path.of(args[1]);
         Files.createDirectories(output.getParent());
-        ImageIO.write(image, "png", output.toFile());
+        if (!ImageIO.write(image, bitmap ? "bmp" : "png", output.toFile()))
+            throw new IllegalStateException("No image writer for " + output);
     }
 }

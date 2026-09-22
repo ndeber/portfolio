@@ -6,6 +6,7 @@ from pathlib import Path
 import shutil
 import subprocess
 import tempfile
+import xml.etree.ElementTree as ET
 
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument("--java-home", type=Path, default=os.environ.get("JAVA_HOME"), required=False)
@@ -35,10 +36,29 @@ with tempfile.TemporaryDirectory(prefix="portfolio-branding-") as tmp:
     work = Path(tmp)
     subprocess.run([str(java / "javac"), "-cp", str(args.jsvg.resolve()), "-d", str(work),
                     str(here / "RenderLogo.java")], check=True)
-    def render(destination, size):
+    def render(destination, size, source=here / "logo.svg", height=None):
         subprocess.run([str(java / "java"), "-Djava.awt.headless=true", "-cp",
                         str(work) + os.pathsep + str(args.jsvg.resolve()), "RenderLogo",
-                        str(here / "logo.svg"), str(destination), str(size)], check=True)
+                        str(source), str(destination), str(size)] + ([str(height)] if height else []), check=True)
+    # Keep the splash composition vector-based and independent of UI assets.
+    svg = ET.fromstring(source)
+    svg.set("x", "20")
+    svg.set("y", "34")
+    svg.set("width", "142")
+    svg.set("height", "142")
+    splash = f'''<svg xmlns="http://www.w3.org/2000/svg" width="455" height="209" viewBox="0 0 455 209">
+<rect width="455" height="209" fill="#faf9fd"/>
+{ET.tostring(svg, encoding="unicode")}
+<g font-family="Helvetica, Arial, sans-serif" fill="#302a3d">
+<text x="182" y="86" font-size="25">Portfolio</text>
+<text x="182" y="119" font-size="25">Performance PE</text>
+<text x="183" y="148" font-size="12" fill="#756586">Version personnelle · Fork</text>
+</g>
+<rect y="205" width="455" height="4" fill="#7c3aed"/>
+</svg>'''
+    (here / "splash.svg").write_text(splash)
+    render(here / "splash.bmp", 455, here / "splash.svg", 209)
+    render(here / "splash-preview.png", 455, here / "splash.svg", 209)
     icons = repo / "name.abuchen.portfolio.ui/icons/fork-vivid"
     for size in (16, 32, 48, 64, 128, 256, 512):
         render(icons / f"pp_{size}.png", size)

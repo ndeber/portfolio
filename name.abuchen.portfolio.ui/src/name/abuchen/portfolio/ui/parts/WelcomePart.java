@@ -19,6 +19,8 @@ import org.eclipse.e4.core.commands.EHandlerService;
 import org.eclipse.e4.core.di.annotations.Optional;
 import org.eclipse.e4.ui.css.swt.theme.IThemeEngine;
 import org.eclipse.e4.ui.di.UIEventTopic;
+import org.eclipse.e4.ui.model.application.ui.basic.MPart;
+import org.eclipse.e4.ui.model.application.ui.basic.MWindow;
 import org.eclipse.e4.ui.workbench.modeling.EPartService;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.GridDataFactory;
@@ -72,13 +74,14 @@ public class WelcomePart
     private Composite container;
 
     @PostConstruct
-    public void createComposite(Composite parent)
+    public void createComposite(Composite parent, MPart part, MWindow window)
     {
+        ForkBranding.applyWindowIdentity(part, window);
+
         container = new Composite(parent, SWT.NONE);
         container.setBackground(Colors.theme().defaultBackground());
         GridLayoutFactory.fillDefaults().margins(20, 20).applyTo(container);
 
-        ForkBranding.createIdentityMarker(container);
         createHeader(container);
         createContent(container);
     }

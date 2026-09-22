@@ -2,14 +2,14 @@
 
 Cette extension conserve les tracés, les contours blancs et l'ombre du logo amont. Elle remplace uniquement sa palette par du violet, du rose vif et du cyan. Le SVG amont reste intact.
 
-Un bandeau permanent « Portfolio Performance PE · Fork » accompagne l'accueil et
-chaque portefeuille ouvert. Il reste au-dessus du contenu lorsque la navigation
-latérale est masquée. Son fond lavande clair ou violet grisé suit le thème clair/sombre,
-sans recolorer les tableaux ni les indicateurs de performance. Il utilise la même
-option d'activation que le logo ; sans cette option, aucun bandeau n'est créé.
+Le titre de fenêtre « Portfolio Performance PE · Fork » et le petit logo dans
+les onglets d'accueil et de portefeuille identifient le fork sans ajouter de
+bandeau. L'écran de démarrage reprend le même logo. Ces changements sont
+optionnels ; le packaging sélectionne le splash et active les repères de fenêtre.
 
 - `logo.svg` : variante vectorielle, dérivée de `portfolio-product/icons/logo.svg`.
 - `generate.py` et `RenderLogo.java` : génération des PNG standard/Retina et de l'icône macOS.
+- `splash.svg`, `splash.bmp` et `splash-preview.png` : composition vectorielle et écran de démarrage 24 bits.
 - `manifest.json` : identité choisie au moment de fabriquer la livraison Mac.
 - `ui/branding/ForkBranding.java` : sélection des logos dans l'accueil, À propos et les fenêtres, activée par `-Dportfolio.vividBranding=true`.
 

@@ -3,5 +3,6 @@
   "icon": "app.icns",
   "javaProperties": {
     "portfolio.vividBranding": "true"
-  }
+  },
+  "splash": "splash.bmp"
 }
