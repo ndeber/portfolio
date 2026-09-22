@@ -219,6 +219,11 @@ public final class UpdateHelper
 
     private NewVersion checkForUpdates(IProgressMonitor monitor) throws CoreException
     {
+        // This fork has a different file format. An upstream binary must not
+        // silently replace it; fork releases are installed separately.
+        if (Boolean.getBoolean("portfolio.privateEquity"))
+            return null;
+
         ProvisioningSession session = new ProvisioningSession(agent);
         operation = new UpdateOperation(session);
 
