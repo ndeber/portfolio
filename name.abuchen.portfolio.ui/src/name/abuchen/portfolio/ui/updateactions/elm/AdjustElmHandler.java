@@ -33,6 +33,7 @@ import name.abuchen.portfolio.ui.PortfolioPlugin;
 import name.abuchen.portfolio.ui.UIConstants;
 import name.abuchen.portfolio.ui.dialogs.PasswordDialog;
 import name.abuchen.portfolio.ui.editor.ClientInput;
+import name.abuchen.portfolio.ui.editor.ClientInputFactory;
 import name.abuchen.portfolio.ui.editor.ClientInputListener;
 import name.abuchen.portfolio.ui.handlers.MenuHelper;
 import name.abuchen.portfolio.ui.updateactions.UpdatePreviewDialog;
@@ -50,12 +51,12 @@ public final class AdjustElmHandler
 
     @Execute
     public void execute(@Optional @Named(IServiceConstants.ACTIVE_PART) MPart part,
-                    @Named(IServiceConstants.ACTIVE_SHELL) Shell shell, EPartService partService)
+                    @Named(IServiceConstants.ACTIVE_SHELL) Shell shell, EPartService partService, ClientInputFactory inputFactory)
     {
-        MenuHelper.getActiveClientInput(part, true).ifPresent(input -> run(input, part, shell, partService));
+        MenuHelper.getActiveClientInput(part, true).ifPresent(input -> run(input, part, shell, partService, inputFactory));
     }
 
-    private void run(ClientInput input, MPart part, Shell shell, EPartService partService)
+    private void run(ClientInput input, MPart part, Shell shell, EPartService partService, ClientInputFactory inputFactory)
     {
         var changed = new AtomicBoolean();
         var listener = new ClientInputListener()
@@ -155,12 +156,13 @@ public final class AdjustElmHandler
             }
             requireUnchanged(changed);
             ElmAdjustment.apply(snapshot, plan);
-            PortfolioUpdateCopy.save(snapshot, Path.of(selected), password);
+            var verified = PortfolioUpdateCopy.save(snapshot, Path.of(selected), password);
             // Loading a distinct file also keeps the source editor and its unsaved state.
             var copy = partService.createPart(UIConstants.Part.PORTFOLIO);
             copy.setLabel(new File(selected).getName());
             copy.setTooltip(selected);
             copy.getPersistedState().put(UIConstants.PersistedState.FILENAME, selected);
+            copy.getTransientData().put(ClientInput.class.getName(), inputFactory.openVerifiedCopy(new File(selected), verified));
             part.getParent().getChildren().add(copy);
             copy.setVisible(true);
             partService.showPart(copy, PartState.ACTIVATE);

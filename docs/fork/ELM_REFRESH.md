@@ -15,7 +15,7 @@ Les opérations PE, les widgets et l'identité visuelle sont indépendants.
    catégories de cette seule taxonomie, notamment du moteur statique.
 5. Récupérer les données puis examiner les poids avant/après, la source et la date.
 6. Créer une nouvelle copie, avec la même extension. L'application la relit puis
-   l'ouvre dans un autre onglet. Le fichier initial et ses modifications non
+   l'ouvre dans un autre onglet sans lancer d'autres mises à jour automatiques. Le fichier initial et ses modifications non
    enregistrées restent intacts. Une destination existante est refusée.
 
 Pour un fichier chiffré, définir le mot de passe de la nouvelle copie ; elle reste
