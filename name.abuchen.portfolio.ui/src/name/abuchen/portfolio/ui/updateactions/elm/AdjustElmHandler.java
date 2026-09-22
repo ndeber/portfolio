@@ -1,13 +1,8 @@
 package name.abuchen.portfolio.ui.updateactions.elm;
 
-import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import java.nio.file.Path;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
 import java.util.Locale;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
@@ -19,25 +14,17 @@ import org.eclipse.e4.core.di.annotations.Execute;
 import org.eclipse.e4.core.di.annotations.Optional;
 import org.eclipse.e4.ui.model.application.ui.basic.MPart;
 import org.eclipse.e4.ui.services.IServiceConstants;
-import org.eclipse.e4.ui.workbench.modeling.EPartService;
-import org.eclipse.e4.ui.workbench.modeling.EPartService.PartState;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.jface.window.Window;
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Shell;
 
 import name.abuchen.portfolio.model.ClientFactory;
 import name.abuchen.portfolio.ui.PortfolioPlugin;
-import name.abuchen.portfolio.ui.UIConstants;
-import name.abuchen.portfolio.ui.dialogs.PasswordDialog;
 import name.abuchen.portfolio.ui.editor.ClientInput;
-import name.abuchen.portfolio.ui.editor.ClientInputFactory;
 import name.abuchen.portfolio.ui.editor.ClientInputListener;
 import name.abuchen.portfolio.ui.handlers.MenuHelper;
 import name.abuchen.portfolio.ui.updateactions.UpdatePreviewDialog;
-import name.abuchen.portfolio.updates.PortfolioUpdateCopy;
 import name.abuchen.portfolio.updates.elm.ElmAdjustment;
 import name.abuchen.portfolio.updates.elm.ElmAllocation;
 
@@ -51,12 +38,12 @@ public final class AdjustElmHandler
 
     @Execute
     public void execute(@Optional @Named(IServiceConstants.ACTIVE_PART) MPart part,
-                    @Named(IServiceConstants.ACTIVE_SHELL) Shell shell, EPartService partService, ClientInputFactory inputFactory)
+                    @Named(IServiceConstants.ACTIVE_SHELL) Shell shell)
     {
-        MenuHelper.getActiveClientInput(part, true).ifPresent(input -> run(input, part, shell, partService, inputFactory));
+        MenuHelper.getActiveClientInput(part, true).ifPresent(input -> run(input, shell));
     }
 
-    private void run(ClientInput input, MPart part, Shell shell, EPartService partService, ClientInputFactory inputFactory)
+    private void run(ClientInput input, Shell shell)
     {
         var changed = new AtomicBoolean();
         var listener = new ClientInputListener()
@@ -86,7 +73,6 @@ public final class AdjustElmHandler
             }
         };
         input.addListener(listener);
-        char[] password = null;
         try
         {
             // Capture unsaved edits as well. Network work never mutates the live model.
@@ -129,43 +115,11 @@ public final class AdjustElmHandler
             var age = data.date().isBefore(LocalDate.now().minusDays(45)) ? "\nAttention : publication de plus de 45 jours." : "";
             String summary = ElmAdjustment.security(snapshot, plan.options().securityId()).getName()
                             + " — allocation cible publiée le " + data.date() + "\n" + ElmAllocation.SOURCE
-                            + age + "\nPoids du titre affecté à chaque catégorie ; vos objectifs restent inchangés.";
-            if (new UpdatePreviewDialog(shell, "Ajuster ELM — aperçu", summary, rows).open() != Window.OK)
+                            + age + "\nPoids du titre affecté à chaque catégorie ; vos objectifs restent inchangés.\nLa validation modifie le portefeuille actuellement ouvert.";
+            if (new UpdatePreviewDialog(shell, "Ajuster ELM — aperçu", summary, rows, "Appliquer au portefeuille ouvert").open() != Window.OK)
                 return;
-            var source = input.getFile();
-            String extension = extension(source);
-            var dialog = new FileDialog(shell, SWT.SAVE);
-            dialog.setText("Enregistrer une nouvelle copie ajustée ELM");
-            dialog.setFilterExtensions(new String[] { "*" + extension });
-            dialog.setOverwrite(false);
-            if (source != null)
-                dialog.setFilterPath(source.getParent());
-            String base = source == null ? "Portefeuille" : source.getName().replaceFirst("\\.[^.]+$", "");
-            dialog.setFileName(base + "-ELM-" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss")) + extension);
-            String selected = dialog.open();
-            if (selected == null)
-                return;
-            if (!selected.toLowerCase(Locale.ROOT).endsWith(extension))
-                throw new IOException("Conservez l'extension " + extension + " pour la copie.");
-            if (source != null && ClientFactory.isEncrypted(source))
-            {
-                var passwordDialog = new PasswordDialog(shell);
-                if (passwordDialog.open() != Window.OK)
-                    return;
-                password = passwordDialog.getPassword().toCharArray();
-            }
             requireUnchanged(changed);
-            ElmAdjustment.apply(snapshot, plan);
-            var verified = PortfolioUpdateCopy.save(snapshot, Path.of(selected), password);
-            // Loading a distinct file also keeps the source editor and its unsaved state.
-            var copy = partService.createPart(UIConstants.Part.PORTFOLIO);
-            copy.setLabel(new File(selected).getName());
-            copy.setTooltip(selected);
-            copy.getPersistedState().put(UIConstants.PersistedState.FILENAME, selected);
-            copy.getTransientData().put(ClientInput.class.getName(), inputFactory.openVerifiedCopy(new File(selected), verified));
-            part.getParent().getChildren().add(copy);
-            copy.setVisible(true);
-            partService.showPart(copy, PartState.ACTIVATE);
+            ElmAdjustment.apply(input.getClient(), plan);
         }
         catch (InterruptedException e)
         {
@@ -181,8 +135,6 @@ public final class AdjustElmHandler
         }
         finally
         {
-            if (password != null)
-                Arrays.fill(password, '\0');
             input.removeListener(listener);
         }
     }
@@ -191,17 +143,6 @@ public final class AdjustElmHandler
     {
         if (changed.get())
             throw new IOException("Le portefeuille a changé pendant la préparation. Relancez Ajuster ELM pour inclure ces changements.");
-    }
-
-    private static String extension(File source) throws IOException
-    {
-        if (source == null)
-            return ".portfolio";
-        var name = source.getName().toLowerCase(Locale.ROOT);
-        for (var extension : new String[] { ".portfolio", ".xml", ".zip" })
-            if (name.endsWith(extension))
-                return extension;
-        throw new IOException("Format du portefeuille non pris en charge pour cette copie.");
     }
 
     private static String percent(int weight)

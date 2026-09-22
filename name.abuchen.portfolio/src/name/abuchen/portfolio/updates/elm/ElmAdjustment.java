@@ -125,6 +125,9 @@ public final class ElmAdjustment
         client.setProperty(AUDIT, new Gson().toJson(Map.of("date", plan.allocation().date().toString(),
                         "source", ElmAllocation.SOURCE, "cash", plan.allocation().cash(), "bonds", plan.allocation().bonds(),
                         "equities", plan.allocation().equities(), "securityId", security.getUUID())));
+        plan.changes().stream().map(Change::taxonomyId).distinct()
+                        .forEach(id -> taxonomy(client, id).notifyAssignmentsChanged());
+        client.markDirty();
     }
 
     public static Security security(Client client, String id)

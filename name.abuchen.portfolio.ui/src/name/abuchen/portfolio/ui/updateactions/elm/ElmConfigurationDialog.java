@@ -72,7 +72,7 @@ public final class ElmConfigurationDialog extends TitleAreaDialog
         var area = (Composite) super.createDialogArea(parent);
         setTitle("Ajuster ELM");
         setMessage("Actualiser les affectations d'ELM depuis sa répartition cible publiée.\n"
-                        + "Les objectifs des catégories et les autres titres seront conservés. Une copie sera créée après l'aperçu.");
+                        + "Les objectifs des catégories et les autres titres seront conservés. La validation mettra à jour le portefeuille ouvert.");
         var body = new Composite(area, SWT.NONE);
         GridLayoutFactory.fillDefaults().margins(12, 12).applyTo(body);
         GridDataFactory.fillDefaults().grab(true, true).applyTo(body);

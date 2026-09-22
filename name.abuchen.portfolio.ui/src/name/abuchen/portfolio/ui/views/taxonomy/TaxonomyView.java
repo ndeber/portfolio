@@ -225,7 +225,16 @@ public class TaxonomyView extends AbstractFinanceView implements PropertyChangeL
     @Override
     public void propertyChange(PropertyChangeEvent event)
     {
-        updateTitle(getDefaultTitle());
+        if (Taxonomy.PROPERTY_ASSIGNMENTS.equals(event.getPropertyName()))
+        {
+            // Assignment nodes are cached by the view. Recreate them after an
+            // external bulk adjustment, preserving the selected taxonomy/page.
+            getPart().activateView(TaxonomyView.class, taxonomy);
+        }
+        else
+        {
+            updateTitle(getDefaultTitle());
+        }
     }
 
     @Override
