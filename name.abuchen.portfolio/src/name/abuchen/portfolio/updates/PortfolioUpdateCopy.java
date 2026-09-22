@@ -19,7 +19,7 @@ public final class PortfolioUpdateCopy
     {
     }
 
-    public static void save(Client snapshot, Path destination, char[] password) throws IOException
+    public static Client save(Client snapshot, Path destination, char[] password) throws IOException
     {
         if (Files.exists(destination))
             throw new IOException("Choisissez un nouveau fichier : la destination existe déjà.");
@@ -53,9 +53,10 @@ public final class PortfolioUpdateCopy
         try
         {
             ClientFactory.exportAs(snapshot, staging.toFile(), password, flags);
-            ClientFactory.load(staging.toFile(), password, new NullProgressMonitor());
+            var verified = ClientFactory.load(staging.toFile(), password, new NullProgressMonitor());
             // Deliberately no REPLACE_EXISTING: a concurrent file creation must fail.
             Files.move(staging, destination);
+            return verified;
         }
         finally
         {
