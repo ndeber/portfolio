@@ -24,6 +24,7 @@ public class PortfolioUpdateCopyTest
     {
         var client = new Client();
         var security = new Security("Test", "EUR");
+        security.setUpdatedAt(java.time.Instant.parse("2026-09-18T00:00:00Z"));
         client.addSecurity(security);
         for (String extension : List.of(".xml", ".portfolio", ".zip"))
         {
