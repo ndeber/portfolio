@@ -64,4 +64,7 @@ for source, name in [(module / "examples/PE-Demo.xml", "PE-Demo.xml"),
                      (module.parent / "PRIVATE_EQUITY.md", "Guide.md")]:
     if source.exists():
         shutil.copy2(source, args.output / name)
+documentation = module.parent / "docs/fork"
+if documentation.exists():
+    shutil.copytree(documentation, args.output / "docs/fork", dirs_exist_ok=True)
 print(archive)
