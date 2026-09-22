@@ -13,18 +13,19 @@ import org.osgi.framework.Bundle;
 import org.osgi.framework.FrameworkUtil;
 
 import name.abuchen.portfolio.model.ImageManager;
+import name.abuchen.portfolio.ui.branding.ForkBranding;
 
 @SuppressWarnings("restriction")
 public enum Images
 {
     // logos
 
-    LOGO_16("pp_16.png"), //$NON-NLS-1$
-    LOGO_32("pp_32.png"), //$NON-NLS-1$
-    LOGO_48("pp_48.png"), //$NON-NLS-1$
-    LOGO_128("pp_128.png"), //$NON-NLS-1$
-    LOGO_256("pp_256.png"), //$NON-NLS-1$
-    LOGO_512("pp_512.png"), //$NON-NLS-1$
+    LOGO_16(ForkBranding.logo("pp_16.png")), //$NON-NLS-1$
+    LOGO_32(ForkBranding.logo("pp_32.png")), //$NON-NLS-1$
+    LOGO_48(ForkBranding.logo("pp_48.png")), //$NON-NLS-1$
+    LOGO_128(ForkBranding.logo("pp_128.png")), //$NON-NLS-1$
+    LOGO_256(ForkBranding.logo("pp_256.png")), //$NON-NLS-1$
+    LOGO_512(ForkBranding.logo("pp_512.png")), //$NON-NLS-1$
 
     // UX elements
 

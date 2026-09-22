@@ -1,0 +1,7 @@
+{
+  "name": "Vivid PE",
+  "icon": "app.icns",
+  "javaProperties": {
+    "portfolio.vividBranding": "true"
+  }
+}
