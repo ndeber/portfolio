@@ -4,8 +4,10 @@
 portefeuille et n'ajoute pas encore les commandes décrites ci-dessous.
 
 **Mise en œuvre :** la première commande [Ajuster ELM](ELM_REFRESH.md) est désormais
-disponible sur `feature/elm-refresh` et dans l’intégration v6, avec le socle
-`feature/update-actions`. Les deux autres traitements restent à développer.
+disponible sur `feature/elm-refresh`, avec le socle
+`feature/update-actions`. Depuis la v7, la validation applique ELM au portefeuille
+ouvert, à la demande de l’utilisateur ; le parcours en copie décrit plus bas
+correspond à la proposition initiale. Les deux autres traitements restent à développer.
 
 ## Résultat
 

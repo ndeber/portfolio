@@ -101,3 +101,22 @@ Aucun portefeuille utilisateur ni espace de travail habituel n'a servi aux essai
 
 Aucun portefeuille utilisateur n'a été lu ou modifié pour ces essais. L'exemple
 ELM fourni est synthétique et conserve les opérations de la démonstration PE.
+
+## Ajustement ELM dans le portefeuille ouvert — livraison v7
+
+À la demande de l'utilisateur, le bouton final applique maintenant les changements
+au portefeuille courant. Il ne crée plus de fichier ni d'onglet. L'enregistrement
+reste celui de l'éditeur : manuel ou automatique selon les préférences existantes.
+
+- Compilation indépendante de la branche ELM : succès, huit tests d'ajustement réussis.
+- Produit intégré : compilation réussie, 13 tests ciblés réussis (ajustement,
+  compatibilité PE et widgets).
+- Nouveaux contrôles : aperçu préparé sur un instantané puis appliqué au même
+  modèle courant, objets et modifications non enregistrées conservés, notification
+  des taxonomies après toutes les modifications puis recalcul des vues ; aucun
+  changement ni notification quand l'aperçu n'est plus valable.
+- Les vues de taxonomie ouvertes reconstruisent leurs nœuds d'affectation lors de
+  cette notification pour ne pas garder les anciennes catégories en cache.
+- Essai interactif non renouvelé : le Mac est toujours verrouillé. Le parcours v6
+  avait été confirmé fonctionnel par l'utilisateur ; la validation v7 ci-dessus
+  est automatisée.

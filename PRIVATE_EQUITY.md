@@ -55,8 +55,10 @@ les catégories monétaire/obligations/actions des taxonomies à actualiser. L'o
 Pilotage affecte ELM à 100 % au moteur dynamique et le retire des autres catégories
 de cette taxonomie, en conservant les objectifs existants.
 
-L'aperçu indique la date publiée et les poids avant/après. La validation crée une
-nouvelle copie puis l'ouvre ; l'original reste intact. Le fichier **ELM-Demo.xml**
+L'aperçu indique la date publiée et les poids avant/après. Le bouton **Appliquer au
+portefeuille ouvert** met à jour le portefeuille courant et rafraîchit ses vues.
+Enregistrer normalement (⌘S), ou laisser l'enregistrement automatique habituel agir.
+Le fichier **ELM-Demo.xml**
 permet un essai sans données personnelles. [Guide détaillé](docs/fork/ELM_REFRESH.md).
 
 ## Développement
