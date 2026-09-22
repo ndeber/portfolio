@@ -1,6 +1,12 @@
 
 /* Common DARK styles */
 
+.MPart .forkIdentity,
+.MPart .forkIdentity Label {
+    color: #D9CEEF;
+    background-color: #302A3D;
+}
+
 .MPartStack {
     padding: 0px;
 }

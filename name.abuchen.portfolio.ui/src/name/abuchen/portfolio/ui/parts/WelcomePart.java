@@ -40,6 +40,7 @@ import name.abuchen.portfolio.ui.Images;
 import name.abuchen.portfolio.ui.Messages;
 import name.abuchen.portfolio.ui.PortfolioPlugin;
 import name.abuchen.portfolio.ui.UIConstants;
+import name.abuchen.portfolio.ui.branding.ForkBranding;
 import name.abuchen.portfolio.ui.util.Colors;
 import name.abuchen.portfolio.ui.util.DesktopAPI;
 import name.abuchen.portfolio.ui.util.FormDataFactory;
@@ -77,6 +78,7 @@ public class WelcomePart
         container.setBackground(Colors.theme().defaultBackground());
         GridLayoutFactory.fillDefaults().margins(20, 20).applyTo(container);
 
+        ForkBranding.createIdentityMarker(container);
         createHeader(container);
         createContent(container);
     }
