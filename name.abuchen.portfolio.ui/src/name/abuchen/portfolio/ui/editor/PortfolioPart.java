@@ -25,6 +25,7 @@ import org.eclipse.e4.ui.di.Focus;
 import org.eclipse.e4.ui.di.Persist;
 import org.eclipse.e4.ui.model.application.ui.MDirtyable;
 import org.eclipse.e4.ui.model.application.ui.basic.MPart;
+import org.eclipse.e4.ui.model.application.ui.basic.MWindow;
 import org.eclipse.e4.ui.services.IServiceConstants;
 import org.eclipse.e4.ui.services.IStylingEngine;
 import org.eclipse.jface.action.IMenuManager;
@@ -96,8 +97,10 @@ public class PortfolioPart implements ClientInputListener
     private IStylingEngine stylingEngine;
 
     @PostConstruct
-    public void createComposite(Composite parent)
+    public void createComposite(Composite parent, MWindow window)
     {
+        ForkBranding.applyWindowIdentity(part, window);
+
         // is client available? (e.g. via new file wizard)
         clientInput = (ClientInput) part.getTransientData().get(ClientInput.class.getName());
 
@@ -146,18 +149,9 @@ public class PortfolioPart implements ClientInputListener
     private void createContainerWithViews(Composite parent)
     {
         container = new Composite(parent, SWT.NONE);
-        if (ForkBranding.isEnabled())
-        {
-            GridLayoutFactory.fillDefaults().spacing(0, 0).applyTo(container);
-            ForkBranding.createIdentityMarker(container);
-        }
-        else
-        {
-            container.setLayout(new FillLayout());
-        }
+        container.setLayout(new FillLayout());
 
         Composite sash = new Composite(container, SWT.NONE);
-        GridDataFactory.fillDefaults().grab(true, true).applyTo(sash);
         SashLayout sashLayout = new SashLayout(sash, SWT.HORIZONTAL | SWT.BEGINNING);
         sashLayout.setTag(UIConstants.Tag.SIDEBAR);
         sash.setLayout(sashLayout);
