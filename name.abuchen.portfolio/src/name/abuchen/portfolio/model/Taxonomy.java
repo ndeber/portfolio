@@ -11,6 +11,8 @@ import name.abuchen.portfolio.model.Classification.Assignment;
 
 public class Taxonomy
 {
+    public static final String PROPERTY_ASSIGNMENTS = "assignments"; //$NON-NLS-1$
+
     public static interface Visitor
     {
         default void visit(Classification classification)
@@ -188,6 +190,12 @@ public class Taxonomy
     {
         propertyChangeSupport = new PropertyChangeSupport(this);
         return this;
+    }
+
+    /** Notifies open taxonomy views after a bulk change outside their own model. */
+    public void notifyAssignmentsChanged()
+    {
+        propertyChangeSupport.firePropertyChange(PROPERTY_ASSIGNMENTS, false, true);
     }
 
     public void addPropertyChangeListener(PropertyChangeListener listener)

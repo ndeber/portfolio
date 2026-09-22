@@ -159,4 +159,54 @@ public class ElmAdjustmentTest
         assertNotNull(copy.getProperty(ElmAdjustment.AUDIT));
         assertNull(client.getProperty(ElmAdjustment.AUDIT));
     }
+    @Test
+    public void appliesSnapshotPreviewToCurrentClientAndNotifiesViewsAfterAllChanges() throws Exception
+    {
+        elm.setNote("Existing unsaved edit");
+        var preview = ClientFactory.duplicate(client);
+        var plan = ElmAdjustment.prepare(preview, options(null), published);
+        var notifications = new java.util.ArrayList<String>();
+        allocation.addPropertyChangeListener(event -> {
+            if (Taxonomy.PROPERTY_ASSIGNMENTS.equals(event.getPropertyName()))
+            {
+                assertEquals(List.of(2883, 1235, 5882), List.of(weight(cash), weight(bonds), weight(equities)));
+                assertNotNull(client.getProperty(ElmAdjustment.AUDIT));
+                notifications.add("taxonomy");
+            }
+        });
+        client.addPropertyChangeListener(event -> {
+            if ("dirty".equals(event.getPropertyName()))
+                notifications.add("client");
+        });
+
+        ElmAdjustment.apply(client, plan);
+
+        assertSame(elm, client.getSecurities().getFirst());
+        assertSame(allocation, client.getTaxonomies().getFirst());
+        assertSame(cash, allocation.getClassificationById(cash.getId()));
+        assertSame(elm, cash.getAssignments().getFirst().getInvestmentVehicle());
+        assertEquals("Existing unsaved edit", elm.getNote());
+        assertEquals(List.of("taxonomy", "client"), notifications);
+        assertEquals(10000, preview.getTaxonomies().getFirst().getClassificationById(equities.getId())
+                        .getAssignments().getFirst().getWeight());
+    }
+
+    @Test
+    public void outdatedPreviewLeavesCurrentClientAndObserversUntouched()
+    {
+        var plan = ElmAdjustment.prepare(client, options(null), published);
+        equities.getAssignments().getFirst().setWeight(9000);
+        var notifications = new java.util.ArrayList<String>();
+        client.addPropertyChangeListener(e -> notifications.add(e.getPropertyName()));
+        allocation.addPropertyChangeListener(e -> notifications.add(e.getPropertyName()));
+
+        assertThrows(IllegalArgumentException.class, () -> ElmAdjustment.apply(client, plan));
+
+        assertTrue(notifications.isEmpty());
+        assertNull(client.getProperty(ElmAdjustment.SETTINGS));
+        assertNull(client.getProperty(ElmAdjustment.AUDIT));
+        assertEquals(9000, weight(equities));
+        assertEquals(0, weight(cash));
+    }
+
 }
