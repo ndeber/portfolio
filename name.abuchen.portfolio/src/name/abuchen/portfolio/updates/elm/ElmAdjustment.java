@@ -25,11 +25,7 @@ public final class ElmAdjustment
     {
     }
 
-    public record Pilotage(String taxonomyId, String dynamicId)
-    {
-    }
-
-    public record Options(String securityId, List<Mapping> mappings, Pilotage pilotage)
+    public record Options(String securityId, List<Mapping> mappings)
     {
         public Options
         {
@@ -56,8 +52,8 @@ public final class ElmAdjustment
     public static Plan prepare(Client client, Options options, ElmAllocation allocation)
     {
         var security = security(client, options.securityId());
-        if (options.mappings().isEmpty() && options.pilotage() == null)
-            throw new IllegalArgumentException("Choisissez au moins une taxonomie ou l'option Pilotage.");
+        if (options.mappings().isEmpty())
+            throw new IllegalArgumentException("Choisissez au moins une taxonomie.");
         var desired = new LinkedHashMap<Taxonomy, Map<String, Integer>>();
         for (var mapping : options.mappings())
         {
@@ -75,14 +71,6 @@ public final class ElmAdjustment
             if (desired.put(taxonomy, Map.of(mapping.cashId(), allocation.cash(), mapping.bondsId(), allocation.bonds(),
                             mapping.equitiesId(), allocation.equities())) != null)
                 throw new IllegalArgumentException("Taxonomie sélectionnée plusieurs fois.");
-        }
-        if (options.pilotage() != null)
-        {
-            var pilotage = options.pilotage();
-            var taxonomy = taxonomy(client, pilotage.taxonomyId());
-            classification(taxonomy, pilotage.dynamicId());
-            if (desired.put(taxonomy, Map.of(pilotage.dynamicId(), 10000)) != null)
-                throw new IllegalArgumentException("Pilotage ne peut pas aussi recevoir la répartition par classe d'actifs.");
         }
         var changes = new ArrayList<Change>();
         desired.forEach((taxonomy, targets) -> {

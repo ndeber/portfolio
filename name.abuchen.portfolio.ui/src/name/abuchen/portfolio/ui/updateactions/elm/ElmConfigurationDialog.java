@@ -28,7 +28,6 @@ import name.abuchen.portfolio.model.Taxonomy;
 import name.abuchen.portfolio.updates.elm.ElmAdjustment;
 import name.abuchen.portfolio.updates.elm.ElmAdjustment.Mapping;
 import name.abuchen.portfolio.updates.elm.ElmAdjustment.Options;
-import name.abuchen.portfolio.updates.elm.ElmAdjustment.Pilotage;
 import name.abuchen.portfolio.updates.elm.ElmAllocation;
 
 public final class ElmConfigurationDialog extends TitleAreaDialog
@@ -42,10 +41,6 @@ public final class ElmConfigurationDialog extends TitleAreaDialog
     private final List<Row> rows = new ArrayList<>();
     private final Options saved;
     private Combo security;
-    private Button pilotageEnabled;
-    private Combo pilotage;
-    private Combo dynamic;
-    private List<Classification> dynamicCategories = List.of();
     private Options result;
 
     public ElmConfigurationDialog(Shell shell, Client client)
@@ -132,46 +127,7 @@ public final class ElmConfigurationDialog extends TitleAreaDialog
         scroll.setExpandVertical(true);
         scroll.setMinSize(grid.computeSize(SWT.DEFAULT, SWT.DEFAULT));
 
-        pilotageEnabled = new Button(body, SWT.CHECK);
-        pilotageEnabled.setText("Ajuster aussi Pilotage : ELM à 100 % dans le moteur dynamique");
-        label(body, "Les autres affectations d'ELM dans cette taxonomie seront retirées, notamment du moteur statique.");
-        var pilotageRow = new Composite(body, SWT.NONE);
-        GridLayoutFactory.fillDefaults().numColumns(2).applyTo(pilotageRow);
-        GridDataFactory.fillDefaults().grab(true, false).applyTo(pilotageRow);
-        pilotage = new Combo(pilotageRow, SWT.READ_ONLY);
-        dynamic = new Combo(pilotageRow, SWT.READ_ONLY);
-        GridDataFactory.fillDefaults().grab(true, false).applyTo(pilotage);
-        GridDataFactory.fillDefaults().grab(true, false).applyTo(dynamic);
-        for (var taxonomy : client.getTaxonomies())
-            pilotage.add(taxonomy.getName());
-        var suggested = client.getTaxonomies().stream().filter(t -> saved != null && saved.pilotage() != null
-                        ? t.getId().equals(saved.pilotage().taxonomyId()) : "Pilotage".equalsIgnoreCase(t.getName())).toList();
-        if (suggested.size() == 1)
-            pilotage.select(client.getTaxonomies().indexOf(suggested.getFirst()));
-        pilotage.addSelectionListener(SelectionListener.widgetSelectedAdapter(e -> populateDynamic()));
-        populateDynamic();
-        pilotageEnabled.setSelection(saved != null && saved.pilotage() != null);
-        Runnable enablePilotage = () -> {
-            pilotage.setEnabled(pilotageEnabled.getSelection());
-            dynamic.setEnabled(pilotageEnabled.getSelection());
-        };
-        pilotageEnabled.addSelectionListener(SelectionListener.widgetSelectedAdapter(e -> enablePilotage.run()));
-        enablePilotage.run();
         return area;
-    }
-
-    private void populateDynamic()
-    {
-        dynamic.removeAll();
-        dynamic.add("— choisir —");
-        dynamic.select(0);
-        dynamicCategories = pilotage.getSelectionIndex() < 0 ? List.of()
-                        : categories(client.getTaxonomies().get(pilotage.getSelectionIndex()));
-        dynamicCategories.forEach(c -> dynamic.add(ElmAdjustment.path(c)));
-        if (saved != null && saved.pilotage() != null)
-            selectId(dynamic, dynamicCategories, saved.pilotage().dynamicId());
-        else
-            selectName(dynamic, dynamicCategories, List.of("Moteur Dynamique"));
     }
 
     private static void label(Composite parent, String text)
@@ -227,14 +183,7 @@ public final class ElmConfigurationDialog extends TitleAreaDialog
                 if (row.enabled().getSelection())
                     mappings.add(new Mapping(row.taxonomy().getId(), selectedId(row.cash(), row.categories()),
                                     selectedId(row.bonds(), row.categories()), selectedId(row.equities(), row.categories())));
-            Pilotage p = null;
-            if (pilotageEnabled.getSelection())
-            {
-                if (pilotage.getSelectionIndex() < 0)
-                    throw new IllegalArgumentException("Choisissez la taxonomie de Pilotage.");
-                p = new Pilotage(client.getTaxonomies().get(pilotage.getSelectionIndex()).getId(), selectedId(dynamic, dynamicCategories));
-            }
-            result = new Options(securities.get(security.getSelectionIndex()).getUUID(), mappings, p);
+            result = new Options(securities.get(security.getSelectionIndex()).getUUID(), mappings);
             ElmAdjustment.prepare(client, result, new ElmAllocation(LocalDate.now(), 0, 0, 10000));
             super.okPressed();
         }

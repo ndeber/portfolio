@@ -16,7 +16,6 @@ import name.abuchen.portfolio.model.Security;
 import name.abuchen.portfolio.model.Taxonomy;
 import name.abuchen.portfolio.updates.elm.ElmAdjustment.Mapping;
 import name.abuchen.portfolio.updates.elm.ElmAdjustment.Options;
-import name.abuchen.portfolio.updates.elm.ElmAdjustment.Pilotage;
 
 public class ElmAdjustmentTest
 {
@@ -55,9 +54,9 @@ public class ElmAdjustmentTest
         return child;
     }
 
-    private Options options(Pilotage pilotage)
+    private Options options()
     {
-        return new Options(elm.getUUID(), List.of(new Mapping(allocation.getId(), cash.getId(), bonds.getId(), equities.getId())), pilotage);
+        return new Options(elm.getUUID(), List.of(new Mapping(allocation.getId(), cash.getId(), bonds.getId(), equities.getId())));
     }
 
     private int weight(Classification category)
@@ -73,7 +72,7 @@ public class ElmAdjustmentTest
         var unchanged = taxonomy("Unselected");
         unchanged.getRoot().addAssignment(new Assignment(elm));
         client.addTaxonomy(unchanged);
-        var plan = ElmAdjustment.prepare(client, options(null), published);
+        var plan = ElmAdjustment.prepare(client, options(), published);
         assertEquals(10000, weight(equities)); // Preview is read-only.
         ElmAdjustment.apply(client, plan);
         assertEquals(List.of(2883, 1235, 5882), List.of(weight(cash), weight(bonds), weight(equities)));
@@ -81,31 +80,7 @@ public class ElmAdjustmentTest
         assertEquals(List.of(2000, 3000, 5000), List.of(cash.getWeight(), bonds.getWeight(), equities.getWeight()));
         assertSame(otherAssignment, equities.getAssignments().stream().filter(a -> a.getInvestmentVehicle().equals(other)).findFirst().get());
         assertEquals(10000, weight(unchanged.getRoot()));
-        assertTrue(ElmAdjustment.prepare(client, options(null), published).changes().isEmpty());
-    }
-
-    @Test
-    public void pilotageMovesOnlyElmAndPreservesExistingCategoryIdsAndTargets()
-    {
-        var pilotage = taxonomy("Pilotage");
-        client.addTaxonomy(pilotage);
-        var statique = child(pilotage.getRoot(), "Moteur Statique");
-        var dynamic = child(pilotage.getRoot(), "Moteur Dynamique");
-        var otherCategory = child(pilotage.getRoot(), "Other");
-        statique.setWeight(6500);
-        dynamic.setWeight(2500);
-        otherCategory.setWeight(1000);
-        statique.addAssignment(new Assignment(elm, 5000));
-        statique.addAssignment(new Assignment(other, 10000));
-        dynamic.addAssignment(new Assignment(elm, 5000));
-        var ids = pilotage.getAllClassifications().stream().map(Classification::getId).toList();
-        var plan = ElmAdjustment.prepare(client, options(new Pilotage(pilotage.getId(), dynamic.getId())), published);
-        ElmAdjustment.apply(client, plan);
-        assertEquals(0, weight(statique));
-        assertEquals(10000, weight(dynamic));
-        assertEquals(1, statique.getAssignments().size());
-        assertEquals(ids, pilotage.getAllClassifications().stream().map(Classification::getId).toList());
-        assertEquals(List.of(6500, 2500, 1000), List.of(statique.getWeight(), dynamic.getWeight(), otherCategory.getWeight()));
+        assertTrue(ElmAdjustment.prepare(client, options(), published).changes().isEmpty());
     }
 
     @Test
@@ -114,7 +89,7 @@ public class ElmAdjustmentTest
         equities.addAssignment(new Assignment(elm, 500));
         allocation.getRoot().addAssignment(new Assignment(elm, 1000));
         var allBonds = new ElmAllocation(published.date(), 0, 10000, 0);
-        ElmAdjustment.apply(client, ElmAdjustment.prepare(client, options(null), allBonds));
+        ElmAdjustment.apply(client, ElmAdjustment.prepare(client, options(), allBonds));
         assertEquals(0, weight(allocation.getRoot()));
         assertEquals(0, weight(equities));
         assertEquals(10000, weight(bonds));
@@ -125,18 +100,17 @@ public class ElmAdjustmentTest
     @Test
     public void rejectsInvalidMappingsBeforeChangingAnything()
     {
-        var duplicate = new Options(elm.getUUID(), List.of(new Mapping(allocation.getId(), cash.getId(), cash.getId(), equities.getId())), null);
+        var duplicate = new Options(elm.getUUID(), List.of(new Mapping(allocation.getId(), cash.getId(), cash.getId(), equities.getId())));
         assertThrows(IllegalArgumentException.class, () -> ElmAdjustment.prepare(client, duplicate, published));
-        var missing = new Options(elm.getUUID(), List.of(new Mapping(allocation.getId(), "removed", bonds.getId(), equities.getId())), null);
+        var missing = new Options(elm.getUUID(), List.of(new Mapping(allocation.getId(), "removed", bonds.getId(), equities.getId())));
         assertThrows(IllegalArgumentException.class, () -> ElmAdjustment.prepare(client, missing, published));
-        assertThrows(IllegalArgumentException.class, () -> ElmAdjustment.prepare(client, options(new Pilotage(allocation.getId(), cash.getId())), published));
         assertEquals(10000, weight(equities));
     }
 
     @Test
     public void rejectsAnOutdatedPreview()
     {
-        var plan = ElmAdjustment.prepare(client, options(null), published);
+        var plan = ElmAdjustment.prepare(client, options(), published);
         equities.getAssignments().getFirst().setWeight(9000);
         assertThrows(IllegalArgumentException.class, () -> ElmAdjustment.apply(client, plan));
         assertEquals(0, weight(cash));
@@ -149,7 +123,7 @@ public class ElmAdjustmentTest
         client.setProperty("widget.category", cash.getId());
         elm.setNote("An unsaved note");
         var copy = ClientFactory.duplicate(client);
-        ElmAdjustment.apply(copy, ElmAdjustment.prepare(copy, options(null), published));
+        ElmAdjustment.apply(copy, ElmAdjustment.prepare(copy, options(), published));
         assertEquals(10000, weight(equities));
         assertEquals(0, weight(cash));
         assertEquals("An unsaved note", copy.getSecurities().getFirst().getNote());
@@ -164,7 +138,7 @@ public class ElmAdjustmentTest
     {
         elm.setNote("Existing unsaved edit");
         var preview = ClientFactory.duplicate(client);
-        var plan = ElmAdjustment.prepare(preview, options(null), published);
+        var plan = ElmAdjustment.prepare(preview, options(), published);
         var notifications = new java.util.ArrayList<String>();
         allocation.addPropertyChangeListener(event -> {
             if (Taxonomy.PROPERTY_ASSIGNMENTS.equals(event.getPropertyName()))
@@ -194,7 +168,7 @@ public class ElmAdjustmentTest
     @Test
     public void outdatedPreviewLeavesCurrentClientAndObserversUntouched()
     {
-        var plan = ElmAdjustment.prepare(client, options(null), published);
+        var plan = ElmAdjustment.prepare(client, options(), published);
         equities.getAssignments().getFirst().setWeight(9000);
         var notifications = new java.util.ArrayList<String>();
         client.addPropertyChangeListener(e -> notifications.add(e.getPropertyName()));
