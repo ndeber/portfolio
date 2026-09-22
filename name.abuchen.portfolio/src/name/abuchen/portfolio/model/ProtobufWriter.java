@@ -308,6 +308,16 @@ import name.abuchen.portfolio.money.Money;
     {
         for (PTransaction newTransaction : newClient.getTransactionsList())
         {
+            if (newTransaction.getTypeValue() == PrivateEquityValuation.PROTO_CAPITAL_CALL
+                            || newTransaction.getTypeValue() == PrivateEquityValuation.PROTO_DISTRIBUTION)
+            {
+                var flow = new AccountTransaction(newTransaction.getUuid());
+                flow.setType(newTransaction.getTypeValue() == PrivateEquityValuation.PROTO_CAPITAL_CALL
+                                ? AccountTransaction.Type.CAPITAL_CALL : AccountTransaction.Type.DISTRIBUTION);
+                loadCommonTransaction(newTransaction, flow, lookup, true);
+                lookup.getAccount(newTransaction.getAccount()).addTransaction(flow);
+                continue;
+            }
             PTransaction.Type type = newTransaction.getType();
 
             switch (type)
@@ -1116,6 +1126,12 @@ import name.abuchen.portfolio.money.Money;
 
         switch (t.getType())
         {
+            case CAPITAL_CALL:
+                newTransaction.setTypeValue(PrivateEquityValuation.PROTO_CAPITAL_CALL);
+                break;
+            case DISTRIBUTION:
+                newTransaction.setTypeValue(PrivateEquityValuation.PROTO_DISTRIBUTION);
+                break;
             case DEPOSIT:
                 newTransaction.setTypeValue(PTransaction.Type.DEPOSIT_VALUE);
                 break;

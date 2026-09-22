@@ -162,6 +162,7 @@ public class Account implements TransactionOwner<AccountTransaction>, Investment
                             switch (t.getType())
                             {
                                 case DEPOSIT:
+                                case DISTRIBUTION:
                                 case DIVIDENDS:
                                 case INTEREST:
                                 case SELL:
@@ -169,6 +170,7 @@ public class Account implements TransactionOwner<AccountTransaction>, Investment
                                 case TAX_REFUND:
                                 case FEES_REFUND:
                                     return t.getAmount();
+                                case CAPITAL_CALL:
                                 case FEES:
                                 case INTEREST_CHARGE:
                                 case TAXES:

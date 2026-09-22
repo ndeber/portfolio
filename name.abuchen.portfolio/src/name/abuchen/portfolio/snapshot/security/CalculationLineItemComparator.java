@@ -72,6 +72,8 @@ import name.abuchen.portfolio.model.PortfolioTransaction;
         }
         else if (tx.get() instanceof AccountTransaction txa)
         {
+            if (txa.getType().isCapitalFlow())
+                return 2;
             if (txa.getType() == AccountTransaction.Type.TRANSFER_IN
                             || txa.getType() == AccountTransaction.Type.TRANSFER_OUT)
                 return 2;

@@ -168,6 +168,8 @@ public class WithoutTaxesFilter implements ClientFilter
                 case TRANSFER_OUT:
                     // skip -> handled by inbound transfer
                     break;
+                case CAPITAL_CALL:
+                case DISTRIBUTION:
                 case FEES_REFUND:
                 case FEES:
                 case DEPOSIT:

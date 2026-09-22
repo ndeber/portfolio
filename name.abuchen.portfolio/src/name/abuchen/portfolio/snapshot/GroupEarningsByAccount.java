@@ -127,6 +127,8 @@ public class GroupEarningsByAccount
                         case TAX_REFUND:
                             taxes.subtract(at.getMonetaryAmount());
                             break;
+                        case CAPITAL_CALL:
+                        case DISTRIBUTION:
                         case BUY:
                         case SELL:
                             CrossEntry crossEntry = at.getCrossEntry();

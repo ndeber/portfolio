@@ -14,6 +14,8 @@ import java.util.Optional;
 import name.abuchen.portfolio.math.IRR;
 import name.abuchen.portfolio.model.Adaptable;
 import name.abuchen.portfolio.model.Client;
+import name.abuchen.portfolio.model.AccountTransaction;
+import name.abuchen.portfolio.model.PrivateEquityValuation;
 import name.abuchen.portfolio.model.CostMethod;
 import name.abuchen.portfolio.model.Named;
 import name.abuchen.portfolio.model.Portfolio;
@@ -153,15 +155,59 @@ public class Trade implements Adaptable
         // re-set start date from first entry after sorting
         this.setStart(transactions.get(0).getTransaction().getDateTime());
 
-        calculateIRR(converter);
-
+        var fundFlows = capitalFlows(client, converter);
+        calculateIRR(converter, fundFlows);
+        Money distributions = Money.of(converter.getTermCurrency(), 0);
+        for (var flow : fundFlows)
+        {
+            if (flow.contribution())
+            {
+                entryValue = entryValue.add(flow.amount());
+                entryValueWithoutTaxesAndFees = entryValueWithoutTaxesAndFees.add(flow.amount());
+            }
+            else
+            {
+                distributions = distributions.add(flow.amount());
+                exitValue = exitValue.add(flow.amount());
+                exitValueWithoutTaxesAndFees = exitValueWithoutTaxesAndFees.add(flow.amount());
+            }
+        }
+        Money distributed = distributions;
         this.entryValueMovingAverage = new LazyValue<>(
-                        () -> getMovingAverageCost(client, converter, snapshotCache, TaxesAndFees.INCLUDED));
+                        () -> getMovingAverageCost(client, converter, snapshotCache, TaxesAndFees.INCLUDED).add(distributed));
         this.entryValueMovingAverageWithoutTaxesAndFees = new LazyValue<>(
-                        () -> getMovingAverageCost(client, converter, snapshotCache, TaxesAndFees.NOT_INCLUDED));
+                        () -> getMovingAverageCost(client, converter, snapshotCache, TaxesAndFees.NOT_INCLUDED).add(distributed));
     }
 
-    private void calculateIRR(CurrencyConverter converter)
+    private record FundFlow(LocalDate date, Money amount, boolean contribution) {}
+
+    private List<FundFlow> capitalFlows(Client client, CurrencyConverter converter)
+    {
+        var flows = new ArrayList<FundFlow>();
+        if (!isLong())
+            return flows;
+        var until = end == null ? LocalDate.now().atTime(23, 59, 59) : end;
+        for (var account : client.getAccounts())
+            for (var flow : account.getTransactions())
+            {
+                if (flow.getSecurity() != security || !flow.getType().isCapitalFlow()
+                                || flow.getDateTime().isBefore(start) || flow.getDateTime().isAfter(until))
+                    continue;
+                long totalUnits = PrivateEquityValuation.sharesAt(client, security, flow.getDateTime());
+                long tradeUnits = transactions.stream().map(TransactionPair::getTransaction)
+                                .filter(t -> !t.getDateTime().isAfter(flow.getDateTime()))
+                                .mapToLong(t -> t.getType().isPurchase() ? t.getShares() : -t.getShares()).sum();
+                if (totalUnits <= 0 || tradeUnits <= 0)
+                    continue;
+                long amount = Math.round(PrivateEquityValuation.convert(flow, converter).getAmount()
+                                * (tradeUnits / (double) totalUnits));
+                flows.add(new FundFlow(flow.getDateTime().toLocalDate(), Money.of(converter.getTermCurrency(), amount),
+                                flow.getType() == AccountTransaction.Type.CAPITAL_CALL));
+            }
+        return flows;
+    }
+
+    private void calculateIRR(CurrencyConverter converter, List<FundFlow> fundFlows)
     {
         List<LocalDate> dates = new ArrayList<>();
         List<Double> values = new ArrayList<>();
@@ -219,6 +265,11 @@ public class Trade implements Adaptable
             values.add(totalCollateral[0]);
         }
 
+        for (var flow : fundFlows)
+        {
+            dates.add(flow.date());
+            values.add((flow.contribution() ? -1 : 1) * flow.amount().getAmount() / Values.Amount.divider());
+        }
         this.irr = IRR.calculate(dates, values);
     }
 

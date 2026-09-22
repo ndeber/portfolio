@@ -39,7 +39,9 @@ public class AccountContextMenu
                         AccountTransaction.Type.FEES, //
                         AccountTransaction.Type.FEES_REFUND, //
                         AccountTransaction.Type.INTEREST, //
-                        AccountTransaction.Type.INTEREST_CHARGE))
+                        AccountTransaction.Type.INTEREST_CHARGE, //
+                        AccountTransaction.Type.CAPITAL_CALL, //
+                        AccountTransaction.Type.DISTRIBUTION))
         {
             new OpenDialogAction(owner, type.toString() + "...") //$NON-NLS-1$
                             .type(AccountTransactionDialog.class) //

@@ -17,7 +17,8 @@ public class AccountTransaction extends Transaction
         FEES(true), FEES_REFUND(false), //
         TAXES(true), TAX_REFUND(false), //
         BUY(true), SELL(false), //
-        TRANSFER_IN(false), TRANSFER_OUT(true);
+        TRANSFER_IN(false), TRANSFER_OUT(true),
+        CAPITAL_CALL(true), DISTRIBUTION(false);
 
         private static final ResourceBundle RESOURCES = ResourceBundle.getBundle("name.abuchen.portfolio.model.labels"); //$NON-NLS-1$
 
@@ -36,6 +37,11 @@ public class AccountTransaction extends Transaction
         public boolean isCredit()
         {
             return !isDebit;
+        }
+
+        public boolean isCapitalFlow()
+        {
+            return this == CAPITAL_CALL || this == DISTRIBUTION;
         }
 
         @Override
@@ -80,7 +86,7 @@ public class AccountTransaction extends Transaction
     public AccountTransaction(LocalDateTime date, String currencyCode, long amount, Security security, Type type)
     {
         super(date, currencyCode, amount, security, 0, null);
-        this.type = type;
+        setType(type);
     }
 
     public Type getType()
@@ -91,7 +97,17 @@ public class AccountTransaction extends Transaction
     public void setType(Type type)
     {
         this.type = type;
+        if (type.isCapitalFlow() && getSecurity() != null)
+            getSecurity().markCapitalFlowSecurity();
         setUpdatedAt(Instant.now());
+    }
+
+    @Override
+    public void setSecurity(Security security)
+    {
+        super.setSecurity(security);
+        if (security != null && type != null && type.isCapitalFlow())
+            security.markCapitalFlowSecurity();
     }
 
     public LocalDateTime getExDate()

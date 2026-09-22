@@ -484,6 +484,8 @@ public class ClientPerformanceSnapshot
                         taxesBySecurity.computeIfAbsent(t.getSecurity(), s -> MutableMoney.of(termCurrency))
                                         .subtract(value);
                         break;
+                    case CAPITAL_CALL:
+                    case DISTRIBUTION:
                     case BUY:
                     case SELL:
                     case TRANSFER_IN:
@@ -627,6 +629,7 @@ public class ClientPerformanceSnapshot
                     case DEPOSIT:
                     case TAX_REFUND:
                     case SELL:
+                    case DISTRIBUTION:
                     case FEES_REFUND:
                         value.subtract(t.getMonetaryAmount().with(converter.at(t.getDateTime())));
                         break;
@@ -634,6 +637,7 @@ public class ClientPerformanceSnapshot
                     case FEES:
                     case INTEREST_CHARGE:
                     case TAXES:
+                    case CAPITAL_CALL:
                     case BUY:
                         value.add(t.getMonetaryAmount().with(converter.at(t.getDateTime())));
                         break;

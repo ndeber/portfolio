@@ -18,7 +18,7 @@ public class JTransaction
 {
     public enum Type
     {
-        PURCHASE, SALE, INBOUND_DELIVERY, OUTBOUND_DELIVERY, SECURITY_TRANSFER, CASH_TRANSFER, DEPOSIT, REMOVAL, DIVIDEND, INTEREST, INTEREST_CHARGE, TAX, TAX_REFUND, FEE, FEE_REFUND
+        PURCHASE, SALE, INBOUND_DELIVERY, OUTBOUND_DELIVERY, SECURITY_TRANSFER, CASH_TRANSFER, DEPOSIT, REMOVAL, DIVIDEND, INTEREST, INTEREST_CHARGE, TAX, TAX_REFUND, FEE, FEE_REFUND, CAPITAL_CALL, DISTRIBUTION
     }
 
     private Type type;
@@ -219,6 +219,12 @@ public class JTransaction
         name.abuchen.portfolio.model.AccountTransaction.Type tType = tx.getTransaction().getType();
         switch (tType)
         {
+            case CAPITAL_CALL:
+                jtx.type = JTransaction.Type.CAPITAL_CALL;
+                break;
+            case DISTRIBUTION:
+                jtx.type = JTransaction.Type.DISTRIBUTION;
+                break;
             case DEPOSIT:
                 jtx.type = JTransaction.Type.DEPOSIT;
                 break;

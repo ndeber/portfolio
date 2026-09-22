@@ -118,7 +118,7 @@ import name.abuchen.portfolio.money.Values;
 
             SecurityPrice price = position.security.getSecurityPrice(date);
 
-            if (price.getValue() == 0L)
+            if (price.getValue() == 0L && !position.security.hasCapitalFlowsAt(date))
             {
                 // try to fallback to the price of the last // transaction
                 PortfolioTransaction last = position.transactions.get(position.transactions.size() - 1);

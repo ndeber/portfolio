@@ -10,6 +10,7 @@ import java.time.LocalTime;
 import org.eclipse.core.databinding.validation.ValidationStatus;
 import org.eclipse.core.runtime.IStatus;
 
+import name.abuchen.portfolio.model.PrivateEquityValuation;
 import name.abuchen.portfolio.model.Account;
 import name.abuchen.portfolio.model.AccountTransaction;
 import name.abuchen.portfolio.model.AccountTransaction.Type;
@@ -88,7 +89,7 @@ public class AccountTransactionModel extends AbstractModel
     {
         switch (type)
         {
-            case DEPOSIT, REMOVAL, FEES, FEES_REFUND, TAXES, TAX_REFUND, INTEREST, INTEREST_CHARGE, DIVIDENDS:
+            case CAPITAL_CALL, DISTRIBUTION, DEPOSIT, REMOVAL, FEES, FEES_REFUND, TAXES, TAX_REFUND, INTEREST, INTEREST_CHARGE, DIVIDENDS:
                 return;
             case BUY, SELL, TRANSFER_IN, TRANSFER_OUT:
             default:
@@ -106,6 +107,9 @@ public class AccountTransactionModel extends AbstractModel
 
         if (exDate != null && (security == null || EMPTY_SECURITY.equals(security)))
             throw new UnsupportedOperationException(Messages.MsgExDateNotAllowed);
+
+        if (type.isCapitalFlow())
+            PrivateEquityValuation.validate(client, capitalFlowCandidate(), sourceTransaction);
 
         AccountTransaction t;
 
@@ -189,6 +193,17 @@ public class AccountTransactionModel extends AbstractModel
         setExDate(null);
     }
 
+    private AccountTransaction capitalFlowCandidate()
+    {
+        var candidate = new AccountTransaction(LocalDateTime.of(date, time), getAccountCurrencyCode(),
+                        total, security, type);
+        if (!getAccountCurrencyCode().equals(getSecurityCurrencyCode()))
+            candidate.addUnit(new Transaction.Unit(Transaction.Unit.Type.GROSS_VALUE,
+                            Money.of(getAccountCurrencyCode(), grossAmount),
+                            Money.of(getSecurityCurrencyCode(), fxGrossAmount), exchangeRate));
+        return candidate;
+    }
+
     public boolean supportsShares()
     {
         return type == AccountTransaction.Type.DIVIDENDS;
@@ -196,7 +211,7 @@ public class AccountTransactionModel extends AbstractModel
 
     public boolean supportsSecurity()
     {
-        return type == Type.DIVIDENDS //
+        return type.isCapitalFlow() || type == Type.DIVIDENDS //
                         || type == Type.TAXES //
                         || type == Type.TAX_REFUND //
                         || type == Type.FEES //
@@ -311,6 +326,17 @@ public class AccountTransactionModel extends AbstractModel
         if (grossAmount == 0L)
             return ValidationStatus.error(MessageFormat.format(Messages.MsgDialogInputRequired, Messages.ColumnTotal));
 
+        if (type.isCapitalFlow() && account != null && security != null)
+        {
+            try
+            {
+                PrivateEquityValuation.validate(client, capitalFlowCandidate(), sourceTransaction);
+            }
+            catch (IllegalArgumentException e)
+            {
+                return ValidationStatus.error(e.getMessage());
+            }
+        }
         return ValidationStatus.ok();
     }
 

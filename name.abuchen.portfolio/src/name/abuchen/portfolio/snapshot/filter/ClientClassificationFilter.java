@@ -327,6 +327,7 @@ public class ClientClassificationFilter implements ClientFilter
                         addSecurityRelatedAccountT(state, account, t);
                     break;
 
+                case DISTRIBUTION:
                 case FEES_REFUND:
                     if (t.getSecurity() != null && state.isCategorized(t.getSecurity()))
                         addSecurityRelatedAccountT(state, account, t);
@@ -337,6 +338,7 @@ public class ClientClassificationFilter implements ClientFilter
                         state.asReadOnly(account).internalAddTransaction(copyWithNote(t, amount, t.getType()));
                     break;
 
+                case CAPITAL_CALL:
                 case FEES:
                     if (t.getSecurity() != null && state.isCategorized(t.getSecurity()))
                         addSecurityRelatedAccountT(state, account, t);
@@ -516,18 +518,22 @@ public class ClientClassificationFilter implements ClientFilter
                     readOnlyAccount.internalAddTransaction(new AccountTransaction(t.getDateTime(), t.getCurrencyCode(),
                                     amount + taxes, null, AccountTransaction.Type.REMOVAL));
                     break;
+                case CAPITAL_CALL:
                 case FEES:
                     AccountTransaction feeCopy = new AccountTransaction(t.getDateTime(), t.getCurrencyCode(),
                                     value(t.getAmount(), weight), t.getSecurity(), t.getType());
                     feeCopy.setNote(t.getNote());
+                    t.getUnits().forEach(u -> feeCopy.addUnit(u.split(weight.doubleValue())));
                     readOnlyAccount.internalAddTransaction(feeCopy);
                     readOnlyAccount.internalAddTransaction(new AccountTransaction(t.getDateTime(), t.getCurrencyCode(),
                                     value(t.getAmount(), weight), null, AccountTransaction.Type.DEPOSIT));
                     break;
+                case DISTRIBUTION:
                 case FEES_REFUND:
                     AccountTransaction refundCopy = new AccountTransaction(t.getDateTime(), t.getCurrencyCode(),
                                     value(t.getAmount(), weight), t.getSecurity(), t.getType());
                     refundCopy.setNote(t.getNote());
+                    t.getUnits().forEach(u -> refundCopy.addUnit(u.split(weight.doubleValue())));
                     readOnlyAccount.internalAddTransaction(refundCopy);
                     readOnlyAccount.internalAddTransaction(new AccountTransaction(t.getDateTime(), t.getCurrencyCode(),
                                     value(t.getAmount(), weight), null, AccountTransaction.Type.REMOVAL));
