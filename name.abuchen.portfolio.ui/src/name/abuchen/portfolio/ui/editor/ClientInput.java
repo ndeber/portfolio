@@ -697,6 +697,11 @@ public class ClientInput
 
     /* package */ void setClient(Client client)
     {
+        setClient(client, true);
+    }
+
+    /* package */ void setClient(Client client, boolean updateOnline)
+    {
         if (this.client != null)
             throw new IllegalArgumentException("client is already set"); //$NON-NLS-1$
 
@@ -724,7 +729,8 @@ public class ClientInput
 
         upgradePreferences(preferenceStore, client);
 
-        scheduleOnlineUpdateJobs();
+        if (updateOnline)
+            scheduleOnlineUpdateJobs();
 
         scheduleAutoSaveJob();
 
