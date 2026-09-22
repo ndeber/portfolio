@@ -40,6 +40,10 @@ L'application s'appelle **PortfolioPerformancePE.app** et utilise un espace de t
 
 La livraison avec l'identité **Vivid PE** reprend le même dessin de logo dans une palette violet, rose vif et cyan, dans le Finder/Dock et dans les logos de l'application. Quitter une version PE déjà ouverte avant d'ouvrir la nouvelle livraison ; les deux versions du fork utilisent le même espace de travail.
 
+Un bandeau discret **Portfolio Performance PE · Fork** reste visible au-dessus du
+portefeuille, même lorsque la navigation latérale est masquée. Il adopte un fond
+lavande en thème clair et violet grisé en thème sombre.
+
 Commencer avec une **copie** du fichier de portefeuille et conserver l'original pour Portfolio Performance officiel. Le fork lit les fichiers existants et sauvegarde les nouveaux types dans les formats XML et `.portfolio`. Dès qu'ils contiennent ces opérations, les fichiers nécessitent le fork pour être rouverts. Cette version de développement n'est pas signée ou notariée par Apple.
 
 Pour essayer les fonctions, ouvrir **PE-Demo.portfolio** depuis le menu **Fichier > Ouvrir** du fork, puis choisir le tableau de bord **Allocation et objectifs**. Le fonds vaut 11 500 EUR pour 100 parts, les liquidités 13 500 EUR, l'allocation PE 46 % face à une cible de 60 %, et l'objectif PE de 20 000 EUR est atteint à 57,5 %. Le même exemple est fourni en XML pour inspection.

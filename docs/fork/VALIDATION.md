@@ -44,3 +44,21 @@ contenant des flux PE et la connexion au fournisseur de cours dans le programme 
 Les correctifs sont conservés sur leurs branches respectives et fusionnés dans
 l'intégration. La configuration importée reste ignorée par Git, conformément au
 projet amont. Consulter [BUILD_MAC.md](BUILD_MAC.md) avant une nouvelle fabrication.
+
+## Repère visuel permanent — livraison v4
+
+La branche `feature/vivid-branding` ajoute un bandeau d'identité dans l'accueil et
+au-dessus du portefeuille. Compilation propre de la branche seule réussie, puis
+compilation de l'intégration et 20 tests dédiés réussis. Les calculs financiers et
+les règles du script externe ne sont pas modifiés.
+
+Contrôle interactif sur une copie de l'application avec espace de travail isolé :
+accueil, ouverture de `PE-Demo.portfolio`, état des actifs, passage du thème clair
+au thème sombre. Le bandeau est visible dans les deux thèmes et le portefeuille
+affiche toujours 100 parts, un fonds de 11 500 EUR et 13 500 EUR de liquidités.
+Contraste calculé du texte du bandeau : 7,09:1 en clair et 9,20:1 en sombre.
+La copie de contrôle a été fermée après vérification.
+
+L'étude des commandes à la demande est dans [ON_DEMAND_UPDATES.md](ON_DEMAND_UPDATES.md).
+Ces commandes ne sont pas encore implémentées. Le script et les portefeuilles de
+l'utilisateur n'ont pas été exécutés ou modifiés dans le cadre de cette étude.
