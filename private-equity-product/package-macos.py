@@ -8,6 +8,8 @@ import plistlib
 import shutil
 import subprocess
 
+from oauth_config import validate_application
+
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument("output", type=Path, help="new output directory")
 parser.add_argument("--java-home", type=Path, default=os.environ.get("JAVA_HOME"))
@@ -19,6 +21,12 @@ module = Path(__file__).resolve().parent
 products = list((module / "target/products").glob("**/Contents/Info.plist"))
 if len(products) != 1:
     parser.error("Build the private-equity Maven profile first (one macOS product expected)")
+# Check the built artifact, not just the source resource: an incremental build
+# may still contain an old bundle. Fail before creating any delivery files.
+try:
+    validate_application(products[0].parent.parent, module.parent)
+except (OSError, ValueError) as exc:
+    parser.error(str(exc))
 args.output.mkdir(parents=True, exist_ok=True)
 app = args.output.resolve() / "PortfolioPerformancePE.app"
 if app.exists():
