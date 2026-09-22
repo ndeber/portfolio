@@ -1,3 +1,11 @@
+# Portfolio Performance PE
+
+Fork personnel pour macOS Apple Silicon : appels de fonds et distributions PE/VC sans modification du nombre de parts, comparaison de l'allocation réelle et cible, et objectifs fixes en EUR.
+
+Consulter le [guide du fork](PRIVATE_EQUITY.md) pour l'utilisation, la compatibilité des fichiers et la construction de l'application. Un [portefeuille de démonstration](private-equity-product/examples/PE-Demo.xml) est fourni. Les liens et indicateurs ci-dessous concernent le projet amont.
+
+Les opérations PE/VC, les widgets, la palette vive du logo et la fabrication Mac sont maintenus dans des branches indépendantes, réunies dans `fork/integration`. Le [guide de maintenance](docs/fork/MAINTENANCE.md) décrit leur périmètre, les tests et l'intégration des futures versions officielles.
+
 # About
 
 [Portfolio Performance](https://www.portfolio-performance.info): Track and evaluate the performance of your investment portfolio across stocks, cryptocurrencies, and other assets.
