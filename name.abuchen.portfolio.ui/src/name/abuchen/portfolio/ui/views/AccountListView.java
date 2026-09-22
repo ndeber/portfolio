@@ -366,9 +366,14 @@ public class AccountListView extends AbstractFinanceView implements Modification
 
     private void updateBalance(Account account)
     {
-        transaction2balance.clear();
+        transaction2balance = calculateBalances(account);
+    }
+
+    static Map<AccountTransaction, Money> calculateBalances(Account account)
+    {
+        var balances = new HashMap<AccountTransaction, Money>();
         if (account == null)
-            return;
+            return balances;
 
         var transactions = new ArrayList<>(account.getTransactions());
         Collections.sort(transactions, Transaction.BY_DATE);
@@ -376,20 +381,13 @@ public class AccountListView extends AbstractFinanceView implements Modification
         var balance = MutableMoney.of(account.getCurrencyCode());
         for (var transaction : transactions)
         {
-            var type = transaction.getType();
-            switch (type)
-            {
-                case DEPOSIT, INTEREST, DIVIDENDS, TAX_REFUND, SELL, TRANSFER_IN, FEES_REFUND:
-                    balance.add(transaction.getMonetaryAmount());
-                    break;
-                case REMOVAL, FEES, INTEREST_CHARGE, TAXES, BUY, TRANSFER_OUT:
-                    balance.subtract(transaction.getMonetaryAmount());
-                    break;
-                default:
-                    throw new IllegalArgumentException("unsupported type " + type + " for transaction " + transaction); //$NON-NLS-1$ //$NON-NLS-2$
-            }
+            if (transaction.getType().isDebit())
+                balance.subtract(transaction.getMonetaryAmount());
+            else
+                balance.add(transaction.getMonetaryAmount());
 
-            transaction2balance.put(transaction, balance.toMoney());
+            balances.put(transaction, balance.toMoney());
         }
+        return balances;
     }
 }
