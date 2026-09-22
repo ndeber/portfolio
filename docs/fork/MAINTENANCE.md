@@ -9,11 +9,18 @@ Le dépôt officiel reste le point de départ. Chaque ajout est une branche ind�
 | `feature/allocation-widgets` | Les deux widgets, configuration et traductions | `ui/views/dashboard/AllocationGoalWidget.java`, `WidgetFactory.java`, `allocationgoals*.properties`, `AllocationGoalWidgetTest` |
 | `feature/vivid-branding` | Palette vive du logo, sans changement financier | `fork-branding/`, `ui/branding/ForkBranding.java`, six références dans `Images.java` |
 | `fork/platform` | Fabrication Mac, Java embarqué, espace de travail distinct et protection contre les mises à jour officielles | `private-equity-product/`, profil Maven `private-equity`, initialisation des préférences et mises à jour |
-| `fork/integration` | Réunit les quatre branches, le guide et le portefeuille de démonstration | Ce document, `PRIVATE_EQUITY.md`, exemples |
+| `feature/update-actions` | Socle aperçu et copie vérifiée | `updates/PortfolioUpdateCopy`, `ui/updateactions/UpdatePreviewDialog` |
+| `feature/elm-refresh` | Ajuster ELM et option Pilotage ; dépend du socle uniquement | `updates/elm/`, `ui/updateactions/elm/`, fragment de menu |
+| `fork/integration` | Réunit les extensions, le guide et le portefeuille de démonstration | Ce document, `PRIVATE_EQUITY.md`, exemples |
 
 Les chemins `model/` et `snapshot/` sont dans le module `name.abuchen.portfolio/src/name/abuchen/portfolio/`. Les chemins `ui/` sont dans `name.abuchen.portfolio.ui/src/name/abuchen/portfolio/`.
 
-Les trois branches fonctionnelles et la branche de fabrication partent du même commit amont ; aucune n'intègre une autre fonctionnalité. Elles n'ont pas de fichiers modifiés en commun. Les opérations nécessitent néanmoins des points d'intégration dans les calculs existants : les déplacer entièrement dans un module externe masquerait cette dépendance. Leur logique de valorisation dédiée reste dans `PrivateEquityValuation` et leurs régressions dans une classe de tests propre.
+Les trois branches fonctionnelles initiales et la branche de fabrication partent du même commit amont ; aucune n'intègre une autre fonctionnalité. Elles n'ont pas de fichiers modifiés en commun. Les opérations nécessitent néanmoins des points d'intégration dans les calculs existants : les déplacer entièrement dans un module externe masquerait cette dépendance. Leur logique de valorisation dédiée reste dans `PrivateEquityValuation` et leurs régressions dans une classe de tests propre.
+
+Le socle `feature/update-actions` part également de la base amont.
+`feature/elm-refresh` dépend de ce socle, sans dépendre des opérations PE, des
+widgets ni du branding. Le test croisé ELM/PE et le fichier ELM-Demo restent sur
+l’intégration. Les futurs ajouts de commandes pourront réutiliser le socle.
 
 ## Développer un ajout
 
@@ -47,12 +54,19 @@ git switch fork/platform
 git merge upstream-baseline
 # Vérifier les numéros de version Maven/produit et le JDK requis.
 
+git switch feature/update-actions
+git merge upstream-baseline
+
+git switch feature/elm-refresh
+git merge feature/update-actions
+
 git switch fork/integration
 git merge upstream-baseline
 git merge feature/pe-operations
 git merge feature/allocation-widgets
 git merge feature/vivid-branding
 git merge fork/platform
+git merge feature/elm-refresh
 ```
 
 Ces fusions préservent les commits déjà publiés et ne nécessitent pas de publication forcée. Si la nouvelle base ne descend pas de la précédente, `--ff-only` s'arrête : examiner ce changement d'historique avant de continuer. La copie initiale est peu profonde ; pour une recherche dans des versions amont plus anciennes, utiliser d'abord `git fetch --unshallow upstream`.

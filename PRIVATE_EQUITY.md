@@ -48,6 +48,17 @@ Commencer avec une **copie** du fichier de portefeuille et conserver l'original 
 
 Pour essayer les fonctions, ouvrir **PE-Demo.portfolio** depuis le menu **Fichier > Ouvrir** du fork, puis choisir le tableau de bord **Allocation et objectifs**. Le fonds vaut 11 500 EUR pour 100 parts, les liquidités 13 500 EUR, l'allocation PE 46 % face à une cible de 60 %, et l'objectif PE de 20 000 EUR est atteint à 57,5 %. Le même exemple est fourni en XML pour inspection.
 
+## Ajuster ELM
+
+Choisir **Outils du portefeuille → Ajuster ELM…**, sélectionner le titre ELM et
+les catégories monétaire/obligations/actions des taxonomies à actualiser. L'option
+Pilotage affecte ELM à 100 % au moteur dynamique et le retire des autres catégories
+de cette taxonomie, en conservant les objectifs existants.
+
+L'aperçu indique la date publiée et les poids avant/après. La validation crée une
+nouvelle copie puis l'ouvre ; l'original reste intact. Le fichier **ELM-Demo.xml**
+permet un essai sans données personnelles. [Guide détaillé](docs/fork/ELM_REFRESH.md).
+
 ## Développement
 
 Prérequis : JDK 21 et Maven. Les dépendances sont téléchargées lors de la première compilation.

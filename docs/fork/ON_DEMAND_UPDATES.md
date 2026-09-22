@@ -3,6 +3,10 @@
 État au 22 septembre 2026. Cette étude ne déclenche aucune mise à jour d'un
 portefeuille et n'ajoute pas encore les commandes décrites ci-dessous.
 
+**Mise en œuvre :** la première commande [Ajuster ELM](ELM_REFRESH.md) est désormais
+disponible sur `feature/elm-refresh` et dans l’intégration v6, avec le socle
+`feature/update-actions`. Les deux autres traitements restent à développer.
+
 ## Résultat
 
 Trois commandes indépendantes sont réalisables dans un menu « Outils du portefeuille » :
@@ -129,7 +133,8 @@ Aucun cours ou catégorie sans lien avec la commande choisie ne doit être modif
 4. `feature/taxonomy-refresh` : familles Actions et Obligations sélectionnables,
    puis élargissement des profils et sources.
 
-Ces noms sont une proposition ; aucune de ces branches n'est créée par cette étude.
+Les branches du socle et ELM ont été créées lors de la mise en œuvre v6. Les deux
+autres noms restent une proposition.
 Le socle commun est une dépendance explicite des branches fonctionnelles. L'identité
 visuelle et les opérations PE restent séparées.
 

@@ -1,0 +1,432 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<client>
+  <version>70</version>
+  <baseCurrency>EUR</baseCurrency>
+  <securities>
+    <security>
+      <uuid>1df998a2-e7d8-4620-a886-8797bb03d77f</uuid>
+      <name>Fonds PE — démonstration</name>
+      <currencyCode>EUR</currencyCode>
+      <prices>
+        <price t="2026-01-01" v="10000000000" />
+      </prices>
+      <isRetired>false</isRetired>
+      <updatedAt>2026-09-21T12:51:32.747457Z</updatedAt>
+    </security>
+    <security>
+      <uuid>elm-demo-security</uuid>
+      <name>Elm Market Navigator ETF</name>
+      <currencyCode>USD</currencyCode>
+      <prices />
+      <isRetired>false</isRetired>
+      <updatedAt>2026-09-21T12:51:32.747457Z</updatedAt>
+      <isin />
+      <tickerSymbol>ELM</tickerSymbol>
+    </security>
+  </securities>
+  <watchlists />
+  <accounts>
+    <account>
+      <uuid>967092f7-4db9-4eaf-9095-f09334432e04</uuid>
+      <name>Espèces — démonstration</name>
+      <currencyCode>EUR</currencyCode>
+      <isRetired>false</isRetired>
+      <transactions>
+        <account-transaction>
+          <uuid>acf7c0d7-84b1-4650-a02b-0abb5c0ae2b1</uuid>
+          <date>2026-01-01T00:00</date>
+          <currencyCode>EUR</currencyCode>
+          <amount>1500000</amount>
+          <shares>0</shares>
+          <updatedAt>2026-09-21T12:51:32.747457Z</updatedAt>
+          <type>DEPOSIT</type>
+        </account-transaction>
+        <account-transaction>
+          <uuid>33dafcf6-37e1-44b9-913d-88393e3cc1d0</uuid>
+          <date>2026-01-02T12:00</date>
+          <currencyCode>EUR</currencyCode>
+          <amount>200000</amount>
+          <security reference="../../../../../securities/security" />
+          <shares>0</shares>
+          <updatedAt>2026-09-21T12:51:32.747457Z</updatedAt>
+          <type>CAPITAL_CALL</type>
+        </account-transaction>
+        <account-transaction>
+          <uuid>c3cfcc48-42de-4721-bd83-5131d8c996d9</uuid>
+          <date>2026-01-03T12:00</date>
+          <currencyCode>EUR</currencyCode>
+          <amount>50000</amount>
+          <security reference="../../../../../securities/security" />
+          <shares>0</shares>
+          <updatedAt>2026-09-21T12:51:32.747457Z</updatedAt>
+          <type>DISTRIBUTION</type>
+        </account-transaction>
+      </transactions>
+      <updatedAt>2026-09-21T12:51:32.747457Z</updatedAt>
+    </account>
+  </accounts>
+  <portfolios>
+    <portfolio>
+      <uuid>6d02b838-2c12-45bd-8ec7-7f631c21bd75</uuid>
+      <name>Private Equity</name>
+      <isRetired>false</isRetired>
+      <referenceAccount reference="../../../accounts/account" />
+      <transactions>
+        <portfolio-transaction>
+          <uuid>a95268df-8169-4ca4-bb69-a614c9922e97</uuid>
+          <date>2026-01-01T00:00</date>
+          <currencyCode>EUR</currencyCode>
+          <amount>1000000</amount>
+          <security reference="../../../../../securities/security" />
+          <shares>10000000000</shares>
+          <updatedAt>2026-09-21T12:51:32.747457Z</updatedAt>
+          <type>DELIVERY_INBOUND</type>
+        </portfolio-transaction>
+      </transactions>
+      <updatedAt>2026-09-21T12:51:32.747457Z</updatedAt>
+    </portfolio>
+  </portfolios>
+  <plans />
+  <taxonomies>
+    <taxonomy>
+      <id>c7b4f5a3-be93-43a9-acc3-f52972dbd44a</id>
+      <name>Allocation cible</name>
+      <root>
+        <id>demo-root</id>
+        <name>Patrimoine</name>
+        <color>#7fe190</color>
+        <children>
+          <classification>
+            <id>demo-pe</id>
+            <name>Private Equity</name>
+            <color>#bfc5d3</color>
+            <parent reference="../../.." />
+            <children />
+            <assignments>
+              <assignment>
+                <investmentVehicle class="security" reference="../../../../../../../../securities/security" />
+                <weight>10000</weight>
+                <rank>0</rank>
+              </assignment>
+            </assignments>
+            <weight>6000</weight>
+            <rank>0</rank>
+          </classification>
+          <classification>
+            <id>demo-cash</id>
+            <name>Liquidités</name>
+            <color>#ceaed1</color>
+            <parent reference="../../.." />
+            <children />
+            <assignments>
+              <assignment>
+                <investmentVehicle class="account" reference="../../../../../../../../accounts/account" />
+                <weight>10000</weight>
+                <rank>0</rank>
+              </assignment>
+            </assignments>
+            <weight>4000</weight>
+            <rank>0</rank>
+          </classification>
+        </children>
+        <assignments />
+        <weight>10000</weight>
+        <rank>0</rank>
+      </root>
+    </taxonomy>
+    <taxonomy>
+      <id>elm-demo-allocation</id>
+      <name>Classes d'actifs</name>
+      <dimensions>
+        <string>Classe d'actif</string>
+      </dimensions>
+      <root>
+        <id>elm-demo-allocation-root</id>
+        <name>Classes d'actifs</name>
+        <color>#c0c0c0</color>
+        <children>
+          <classification>
+            <id>elm-demo-allocation-0</id>
+            <name>Monétaire</name>
+            <color>#7c3aed</color>
+            <parent reference="../../.." />
+            <children />
+            <assignments />
+            <weight>2000</weight>
+            <rank>0</rank>
+          </classification>
+          <classification>
+            <id>elm-demo-allocation-1</id>
+            <name>Obligations</name>
+            <color>#00bdfa</color>
+            <parent reference="../../.." />
+            <children />
+            <assignments />
+            <weight>3000</weight>
+            <rank>1</rank>
+          </classification>
+          <classification>
+            <id>elm-demo-allocation-2</id>
+            <name>Actions</name>
+            <color>#ff2d82</color>
+            <parent reference="../../.." />
+            <children />
+            <assignments>
+              <assignment>
+                <investmentVehicle class="security" reference="../../../../../../../../securities/security[2]" />
+                <weight>10000</weight>
+                <rank>0</rank>
+              </assignment>
+            </assignments>
+            <weight>5000</weight>
+            <rank>2</rank>
+          </classification>
+        </children>
+        <assignments />
+        <weight>10000</weight>
+        <rank>0</rank>
+      </root>
+    </taxonomy>
+    <taxonomy>
+      <id>elm-demo-pilotage</id>
+      <name>Pilotage</name>
+      <dimensions>
+        <string>Classe d'actif</string>
+      </dimensions>
+      <root>
+        <id>elm-demo-pilotage-root</id>
+        <name>Pilotage</name>
+        <color>#c0c0c0</color>
+        <children>
+          <classification>
+            <id>elm-demo-pilotage-0</id>
+            <name>Moteur Statique</name>
+            <color>#7c3aed</color>
+            <parent reference="../../.." />
+            <children />
+            <assignments>
+              <assignment>
+                <investmentVehicle class="security" reference="../../../../../../../../securities/security[2]" />
+                <weight>5000</weight>
+                <rank>0</rank>
+              </assignment>
+            </assignments>
+            <weight>7000</weight>
+            <rank>0</rank>
+          </classification>
+          <classification>
+            <id>elm-demo-pilotage-1</id>
+            <name>Moteur Dynamique</name>
+            <color>#00bdfa</color>
+            <parent reference="../../.." />
+            <children />
+            <assignments>
+              <assignment>
+                <investmentVehicle class="security" reference="../../../../../../../../securities/security[2]" />
+                <weight>5000</weight>
+                <rank>0</rank>
+              </assignment>
+            </assignments>
+            <weight>3000</weight>
+            <rank>1</rank>
+          </classification>
+        </children>
+        <assignments />
+        <weight>10000</weight>
+        <rank>0</rank>
+      </root>
+    </taxonomy>
+  </taxonomies>
+  <dashboards>
+    <dashboard name="Allocation et objectifs">
+      <id>demo-dashboard</id>
+      <columns>
+        <column>
+          <weight>1</weight>
+          <widgets>
+            <widget type="ALLOCATION_TABLE">
+              <label>Allocation : réelle et cible</label>
+              <configuration>
+                <entry>
+                  <string>TAXONOMY</string>
+                  <string>c7b4f5a3-be93-43a9-acc3-f52972dbd44a</string>
+                </entry>
+              </configuration>
+            </widget>
+            <widget type="FIXED_EUR_GOAL">
+              <label>Objectif Private Equity</label>
+              <configuration>
+                <entry>
+                  <string>TAXONOMY</string>
+                  <string>c7b4f5a3-be93-43a9-acc3-f52972dbd44a</string>
+                </entry>
+                <entry>
+                  <string>ALLOCATION_GOAL_EUR_TARGET</string>
+                  <string>2000000</string>
+                </entry>
+                <entry>
+                  <string>ALLOCATION_GOAL_CATEGORY</string>
+                  <string>demo-pe</string>
+                </entry>
+              </configuration>
+            </widget>
+          </widgets>
+        </column>
+      </columns>
+    </dashboard>
+  </dashboards>
+  <properties />
+  <settings>
+    <bookmarks>
+      <bookmark>
+        <label>finance.yahoo.com</label>
+        <pattern>https://finance.yahoo.com/quote/{tickerSymbol}</pattern>
+      </bookmark>
+      <bookmark>
+        <label>onvista.de</label>
+        <pattern>https://www.onvista.de/suche.html?SEARCH_VALUE={isin}</pattern>
+      </bookmark>
+      <bookmark>
+        <label>finanzen.net</label>
+        <pattern>https://www.finanzen.net/suchergebnis.asp?frmAktiensucheTextfeld={isin}</pattern>
+      </bookmark>
+      <bookmark>
+        <label>ariva.de</label>
+        <pattern>https://www.ariva.de/{isin}</pattern>
+      </bookmark>
+      <bookmark>
+        <label>justetf.com  (ETF)</label>
+        <pattern>https://www.justetf.com/etf-profile.html?isin={isin}</pattern>
+      </bookmark>
+      <bookmark>
+        <label>fondsweb.com</label>
+        <pattern>https://www.fondsweb.com/{isin}</pattern>
+      </bookmark>
+      <bookmark>
+        <label>morningstar.de</label>
+        <pattern>https://www.morningstar.de/de/funds/SecuritySearchResults.aspx?type=ALL&amp;search={isin}</pattern>
+      </bookmark>
+      <bookmark>
+        <label>extraETF.com (ETF)</label>
+        <pattern>https://extraetf.com/etf-profile/{isin}</pattern>
+      </bookmark>
+      <bookmark>
+        <label>alleaktien.de (Action)</label>
+        <pattern>https://www.alleaktien.de/data/{isin}</pattern>
+      </bookmark>
+      <bookmark>
+        <label>comdirect.de (Action)</label>
+        <pattern>https://www.comdirect.de/inf/aktien/{isin}</pattern>
+      </bookmark>
+      <bookmark>
+        <label>comdirect.de (ETF)</label>
+        <pattern>https://www.comdirect.de/inf/etfs/{isin}</pattern>
+      </bookmark>
+      <bookmark>
+        <label>divvydiary.com</label>
+        <pattern>https://divvydiary.com/symbols/{isin}</pattern>
+      </bookmark>
+      <bookmark>
+        <label>trackingdifferences.com (ETF)</label>
+        <pattern>https://www.trackingdifferences.com/ETF/ISIN/{isin}</pattern>
+      </bookmark>
+      <bookmark>
+        <label>tradingview.com</label>
+        <pattern>https://www.tradingview.com/chart/?symbol=XETR:{tickerSymbolPrefix}</pattern>
+      </bookmark>
+      <bookmark>
+        <label>cnbc.com (Action)</label>
+        <pattern>https://www.cnbc.com/quotes/{tickerSymbolPrefix}</pattern>
+      </bookmark>
+      <bookmark>
+        <label>nasdaq.com (Action)</label>
+        <pattern>https://www.nasdaq.com/market-activity/stocks/{tickerSymbolPrefix}</pattern>
+      </bookmark>
+      <bookmark>
+        <label>aktienfinder.net (Action)</label>
+        <pattern>https://aktienfinder.net/aktien-profil/{isin}</pattern>
+      </bookmark>
+      <bookmark>
+        <label>aktien.guide (Action)</label>
+        <pattern>http://aktien.guide/isin/aktien/{isin}</pattern>
+      </bookmark>
+    </bookmarks>
+    <attributeTypes>
+      <attribute-type>
+        <id>logo</id>
+        <name>Logo</name>
+        <columnLabel>Logo</columnLabel>
+        <target>name.abuchen.portfolio.model.Security</target>
+        <type>java.lang.String</type>
+        <converterClass>name.abuchen.portfolio.model.AttributeType$ImageConverter</converterClass>
+      </attribute-type>
+      <attribute-type>
+        <id>logo</id>
+        <name>Logo</name>
+        <columnLabel>Logo</columnLabel>
+        <target>name.abuchen.portfolio.model.Account</target>
+        <type>java.lang.String</type>
+        <converterClass>name.abuchen.portfolio.model.AttributeType$ImageConverter</converterClass>
+      </attribute-type>
+      <attribute-type>
+        <id>logo</id>
+        <name>Logo</name>
+        <columnLabel>Logo</columnLabel>
+        <target>name.abuchen.portfolio.model.Portfolio</target>
+        <type>java.lang.String</type>
+        <converterClass>name.abuchen.portfolio.model.AttributeType$ImageConverter</converterClass>
+      </attribute-type>
+      <attribute-type>
+        <id>logo</id>
+        <name>Logo</name>
+        <columnLabel>Logo</columnLabel>
+        <target>name.abuchen.portfolio.model.InvestmentPlan</target>
+        <type>java.lang.String</type>
+        <converterClass>name.abuchen.portfolio.model.AttributeType$ImageConverter</converterClass>
+      </attribute-type>
+      <attribute-type>
+        <id>ter</id>
+        <name>Total Expense Ratio (TER)</name>
+        <columnLabel>TER</columnLabel>
+        <source>ter</source>
+        <target>name.abuchen.portfolio.model.Security</target>
+        <type>java.lang.Double</type>
+        <converterClass>name.abuchen.portfolio.model.AttributeType$PercentConverter</converterClass>
+      </attribute-type>
+      <attribute-type>
+        <id>aum</id>
+        <name>Actifs sous gestion</name>
+        <columnLabel>ASG</columnLabel>
+        <target>name.abuchen.portfolio.model.Security</target>
+        <type>java.lang.Long</type>
+        <converterClass>name.abuchen.portfolio.model.AttributeType$AmountPlainConverter</converterClass>
+      </attribute-type>
+      <attribute-type>
+        <id>vendor</id>
+        <name>Gestionnaire</name>
+        <columnLabel>Gestionnaire</columnLabel>
+        <source>vendor</source>
+        <target>name.abuchen.portfolio.model.Security</target>
+        <type>java.lang.String</type>
+        <converterClass>name.abuchen.portfolio.model.AttributeType$StringConverter</converterClass>
+      </attribute-type>
+      <attribute-type>
+        <id>acquisitionFee</id>
+        <name>Frais d'acquisition (pourcentage)</name>
+        <columnLabel>Frais d'acquisition</columnLabel>
+        <target>name.abuchen.portfolio.model.Security</target>
+        <type>java.lang.Double</type>
+        <converterClass>name.abuchen.portfolio.model.AttributeType$PercentConverter</converterClass>
+      </attribute-type>
+      <attribute-type>
+        <id>managementFee</id>
+        <name>Frais de gestion (pourcentage)</name>
+        <columnLabel>Frais de gestion</columnLabel>
+        <target>name.abuchen.portfolio.model.Security</target>
+        <type>java.lang.Double</type>
+        <converterClass>name.abuchen.portfolio.model.AttributeType$PercentConverter</converterClass>
+      </attribute-type>
+    </attributeTypes>
+    <configurationSets />
+  </settings>
+</client>
