@@ -30,7 +30,7 @@ public final class PortfolioUpdateCopy
         if (filename.endsWith(".portfolio"))
         {
             extension = ".portfolio";
-            flags.add(SaveFlag.BINARY);
+            flags.addAll(EnumSet.of(SaveFlag.BINARY, SaveFlag.COMPRESSED));
             if (password != null)
                 flags.addAll(EnumSet.of(SaveFlag.ENCRYPTED, SaveFlag.AES256));
         }
