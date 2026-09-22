@@ -80,3 +80,24 @@ Le splash optionnel utilise un BMP RGB 24 bits généré depuis le SVG du fork.
 - Signature locale de l'application vérifiée pendant le packaging.
 
 Aucun portefeuille utilisateur ni espace de travail habituel n'a servi aux essais.
+
+## Ajuster ELM — livraison v6
+
+- 34 tests ciblés réussis : 13 pour lecture ELM, ajustement et copies ; un test
+  croisé ELM/PE ; 20 régressions PE, soldes de compte et widgets.
+- Copies XML, ZIP, `.portfolio` binaire et `.portfolio` chiffré : écriture et
+  relecture, refus d'écrasement. Le test croisé conserve appels de fonds,
+  distributions, valorisation PE et identifiants du tableau de bord après ELM.
+- Source publique réellement appelée depuis les classes Java du produit le
+  22 septembre 2026 : allocation du 18 septembre, 28,83 % monétaire, 12,35 %
+  obligations et 58,82 % actions, cohérente avec la fixture de régression.
+- Fragment de menu chargé par EMF et handler Java résolu depuis les bibliothèques
+  effectivement livrées. Compilation du produit, packaging et signature locale
+  réussis ; six tests de contrôle de configuration OAuth réussis.
+- L'ouverture de la copie vérifiée ne lance pas les mises à jour automatiques de
+  cours, dividendes ou plans d'investissement. L'éditeur source est conservé.
+- **Limite :** l'essai interactif des nouvelles fenêtres n'a pas pu être effectué,
+  le Mac étant verrouillé. Ce contrôle reste à faire avec `ELM-Demo.xml`.
+
+Aucun portefeuille utilisateur n'a été lu ou modifié pour ces essais. L'exemple
+ELM fourni est synthétique et conserve les opérations de la démonstration PE.
