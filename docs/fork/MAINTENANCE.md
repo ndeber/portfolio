@@ -66,7 +66,7 @@ JDK 21 et Maven sont requis pour cette base amont. L'environnement de développe
 ```sh
 # Sur la branche PE (ou sur l'intégration)
 mvn -f portfolio-app/pom.xml -Plocal-dev verify \
-  -Dtest=PrivateEquityValuationTest -DfailIfNoTests=false \
+  -Dtest=PrivateEquityValuationTest,AccountListViewTest -DfailIfNoTests=false \
   -Dsurefire.failIfNoSpecifiedTests=false
 
 # Sur la branche widgets (ou sur l'intégration)
@@ -75,8 +75,10 @@ mvn -f portfolio-app/pom.xml -Plocal-dev verify \
   -Dsurefire.failIfNoSpecifiedTests=false
 
 # Application combinée : tests et fabrication du produit
-mvn -f portfolio-app/pom.xml -Pprivate-equity verify \
-  -Dtest=PrivateEquityValuationTest,AllocationGoalWidgetTest \
+python3 private-equity-product/prepare-oauth.py \
+  --from-app /Applications/PortfolioPerformance.app
+mvn -f portfolio-app/pom.xml -Pprivate-equity clean verify \
+  -Dtest=PrivateEquityValuationTest,AccountListViewTest,AllocationGoalWidgetTest \
   -DfailIfNoTests=false -Dsurefire.failIfNoSpecifiedTests=false
 
 # Archive Mac autonome, avec l'identité vive
@@ -87,6 +89,10 @@ python3 private-equity-product/package-macos.py /chemin/vers/nouvelle-livraison 
 Pour vérifier l'indépendance, repartir d'une compilation propre (`clean verify`) sur chaque branche. Pour une nouvelle version amont, étendre ensuite les tests aux calculs existants ; sur l'intégration, `mvn -f portfolio-app/pom.xml -Plocal-dev clean verify` lance l'ensemble des tests. Les tests dédiés ne remplacent pas cette régression lors d'une mise à jour majeure.
 
 Le paramètre `--branding` agit sur l'icône Finder/Dock et active les logos de l'accueil, À propos et des fenêtres. L'omettre conserve les couleurs officielles. Les fichiers amont du logo ne sont pas remplacés. Les images de la variante sont versionnées et régénérables depuis le SVG avec `fork-branding/generate.py`.
+
+Le [guide de fabrication Mac](BUILD_MAC.md) explique la préparation de la configuration
+publique du fournisseur de cours. Le contrôle de l'archive doit rester actif même
+pour une compilation de développement sans signature officielle.
 
 ## Publication GitHub
 

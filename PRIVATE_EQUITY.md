@@ -51,11 +51,15 @@ Prérequis : JDK 21 et Maven. Les dépendances sont téléchargées lors de la p
 ```sh
 # Tests des fonctionnalités (inclure les modules nécessaires au lancement OSGi)
 mvn -f portfolio-app/pom.xml -Plocal-dev verify \
-  -Dtest=PrivateEquityValuationTest,AllocationGoalWidgetTest \
+  -Dtest=PrivateEquityValuationTest,AccountListViewTest,AllocationGoalWidgetTest \
   -DfailIfNoTests=false -Dsurefire.failIfNoSpecifiedTests=false
 
+# Préparer la configuration publique du fournisseur intégré, sans session utilisateur
+python3 private-equity-product/prepare-oauth.py \
+  --from-app /Applications/PortfolioPerformance.app
+
 # Construire l'application PE pour Mac Apple Silicon
-mvn -f portfolio-app/pom.xml -Pprivate-equity -DskipTests verify
+mvn -f portfolio-app/pom.xml -Pprivate-equity -DskipTests clean verify
 
 # Ajouter un environnement Java embarqué et créer l'archive autonome
 python3 private-equity-product/package-macos.py /chemin/vers/nouvelle-livraison \
@@ -63,6 +67,11 @@ python3 private-equity-product/package-macos.py /chemin/vers/nouvelle-livraison 
 ```
 
 Le produit brut est créé dans `private-equity-product/target/products`. Le script de livraison utilise le JDK désigné par `JAVA_HOME`, ajoute un environnement Java embarqué, une signature locale ad hoc et le fichier d'exemple `PE-Demo.xml`. Il faut l'exécuter sur un Mac Apple Silicon. L'archive finale fonctionne sans installation de Java séparée.
+
+La préparation de la connexion et les contrôles de configuration sont détaillés dans
+[le guide de fabrication Mac](docs/fork/BUILD_MAC.md). L'archive contient cette
+configuration ; elle ne copie aucune session. Dans l'application, se connecter à
+son compte Portfolio Performance pour les instruments utilisant le fournisseur intégré.
 
 Les identifiants protobuf 1001 et 1002 sont réservés aux opérations du fork. Aucun changement de nombre de parts n'est encodé pour un appel ou une distribution.
 
