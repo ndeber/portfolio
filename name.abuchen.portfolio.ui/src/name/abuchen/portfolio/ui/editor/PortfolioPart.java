@@ -55,6 +55,7 @@ import name.abuchen.portfolio.ui.Images;
 import name.abuchen.portfolio.ui.Messages;
 import name.abuchen.portfolio.ui.PortfolioPlugin;
 import name.abuchen.portfolio.ui.UIConstants;
+import name.abuchen.portfolio.ui.branding.ForkBranding;
 import name.abuchen.portfolio.ui.editor.Navigation.Item;
 import name.abuchen.portfolio.ui.util.Colors;
 import name.abuchen.portfolio.ui.util.SimpleAction;
@@ -145,9 +146,18 @@ public class PortfolioPart implements ClientInputListener
     private void createContainerWithViews(Composite parent)
     {
         container = new Composite(parent, SWT.NONE);
-        container.setLayout(new FillLayout());
+        if (ForkBranding.isEnabled())
+        {
+            GridLayoutFactory.fillDefaults().spacing(0, 0).applyTo(container);
+            ForkBranding.createIdentityMarker(container);
+        }
+        else
+        {
+            container.setLayout(new FillLayout());
+        }
 
         Composite sash = new Composite(container, SWT.NONE);
+        GridDataFactory.fillDefaults().grab(true, true).applyTo(sash);
         SashLayout sashLayout = new SashLayout(sash, SWT.HORIZONTAL | SWT.BEGINNING);
         sashLayout.setTag(UIConstants.Tag.SIDEBAR);
         sash.setLayout(sashLayout);
