@@ -62,3 +62,21 @@ La copie de contrôle a été fermée après vérification.
 L'étude des commandes à la demande est dans [ON_DEMAND_UPDATES.md](ON_DEMAND_UPDATES.md).
 Ces commandes ne sont pas encore implémentées. Le script et les portefeuilles de
 l'utilisateur n'ont pas été exécutés ou modifiés dans le cadre de cette étude.
+
+## En-tête compact et écran de démarrage — livraison v5
+
+Le bandeau v4 est supprimé. Le titre natif affiche « Portfolio Performance PE · Fork »
+et les onglets d'accueil et de portefeuille portent le petit logo Vivid PE.
+Le splash optionnel utilise un BMP RGB 24 bits généré depuis le SVG du fork.
+
+- Compilation indépendante de `feature/vivid-branding` : succès.
+- Compilation du produit intégré : succès ; 20 tests PE, soldes de compte et widgets réussis.
+- Six tests de validation du packaging OAuth : succès.
+- Contrôle visuel sur macOS, accueil puis copie de PE-Demo : titre et logos visibles,
+  aucun bandeau, tableau de portefeuille chargé normalement.
+- Le résolveur du lanceur Equinox livré a retrouvé et décodé le nouveau splash dans
+  une copie déplacée de l'application. Le BMP et son aperçu ont été vérifiés ;
+  l'affichage transitoire du splash n'a pas été capturé à l'écran.
+- Signature locale de l'application vérifiée pendant le packaging.
+
+Aucun portefeuille utilisateur ni espace de travail habituel n'a servi aux essais.
