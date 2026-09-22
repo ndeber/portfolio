@@ -78,6 +78,16 @@
 	</repositories>
 
 	<profiles>
+        <profile>
+            <id>private-equity</id>
+            <properties>
+                <target-file-name>portfolio-target-definition-local-dev</target-file-name>
+                <jacoco.skip>true</jacoco.skip>
+                <checkstyle.skip>true</checkstyle.skip>
+                <protobuf.execution.phase>none</protobuf.execution.phase>
+            </properties>
+            <modules><module>../private-equity-product</module></modules>
+        </profile>
 		<profile>
 			<id>default</id>
 			<activation>

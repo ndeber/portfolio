@@ -18,7 +18,7 @@ public class PreferencesInitializer extends AbstractPreferenceInitializer
     public void initializeDefaultPreferences()
     {
         IPreferenceStore store = PortfolioPlugin.getDefault().getPreferenceStore();
-        store.setDefault(UIConstants.Preferences.AUTO_UPDATE, true);
+        store.setDefault(UIConstants.Preferences.AUTO_UPDATE, !Boolean.getBoolean("portfolio.privateEquity"));
         store.setDefault(UIConstants.Preferences.UPDATE_SITE, "https://updates.portfolio-performance.info/portfolio"); //$NON-NLS-1$
         store.setDefault(UIConstants.Preferences.FORMAT_SHARES_DIGITS, 1);
         store.setDefault(UIConstants.Preferences.FORMAT_CALCULATED_QUOTE_DIGITS, 2);
