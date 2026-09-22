@@ -519,6 +519,12 @@ public enum WidgetFactory
     REBALANCING_CHART(Messages.RebalancingChartActualVsTarget, Messages.LabelStatementOfAssets, Images.VIEW_BARCHART,
                     RebalancingChartWidget::new),
 
+    ALLOCATION_TABLE(AllocationGoalWidget.label("allocation"), Messages.LabelStatementOfAssets,
+                    (widget, data) -> new AllocationGoalWidget(widget, data, false)),
+
+    FIXED_EUR_GOAL(AllocationGoalWidget.label("goal"), Messages.LabelStatementOfAssets,
+                    (widget, data) -> new AllocationGoalWidget(widget, data, true)),
+
     // typo is API now!!
     VERTICAL_SPACEER(Messages.LabelVerticalSpacer, Messages.LabelCommon, VerticalSpacerWidget::new),
 
