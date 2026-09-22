@@ -37,7 +37,7 @@ public class PortfolioSnapshot
                         .map(e -> {
                             SecurityPrice price = e.getKey().getSecurityPrice(date);
 
-                            if (price.getValue() == 0L)
+                            if (price.getValue() == 0L && !e.getKey().hasCapitalFlowsAt(date))
                             {
                                 // try to fallback to the price of the last
                                 // transaction

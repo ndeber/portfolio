@@ -12,6 +12,8 @@ import java.util.stream.Collectors;
 
 import name.abuchen.portfolio.Messages;
 import name.abuchen.portfolio.PortfolioLog;
+import name.abuchen.portfolio.model.AccountTransaction;
+import name.abuchen.portfolio.model.PrivateEquityValuation;
 import name.abuchen.portfolio.model.Portfolio;
 import name.abuchen.portfolio.model.PortfolioTransaction;
 import name.abuchen.portfolio.model.TaxesAndFees;
@@ -45,20 +47,20 @@ import name.abuchen.portfolio.snapshot.trail.TrailRecord;
          */
         private long valueForex;
 
-        private final TrailRecord trail;
+        private TrailRecord trail;
 
         /**
          * Trail for {@link #valueForex}, i.e. the cost basis in the security's
          * currency.
          */
-        private final TrailRecord forexTrail;
+        private TrailRecord forexTrail;
 
         /**
          * Holds the original number of shares (of the transaction). The
          * original shares are needed to calculate fractions if the transaction
          * is split up multiple times
          */
-        private final long originalShares;
+        private long originalShares;
 
         private final CalculationLineItem source;
 
@@ -312,6 +314,40 @@ import name.abuchen.portfolio.snapshot.trail.TrailRecord;
                 break;
             default:
                 throw new UnsupportedOperationException();
+        }
+    }
+
+    @Override
+    public void visit(CurrencyConverter converter, CalculationLineItem.TransactionItem item, AccountTransaction flow)
+    {
+        if (!flow.getType().isCapitalFlow())
+            return;
+        long sign = flow.getType() == AccountTransaction.Type.CAPITAL_CALL ? 1 : -1;
+        long amount = sign * PrivateEquityValuation.convert(flow, converter).getAmount();
+        long forex = sign * PrivateEquityValuation.amountInSecurityCurrency(flow);
+        long totalShares = fifo.stream().mapToLong(lot -> lot.shares).sum();
+        long remainingShares = totalShares;
+        for (LineItem lot : fifo)
+        {
+            if (lot.shares <= 0)
+                continue;
+            long part = Math.round(amount * (lot.shares / (double) remainingShares));
+            long partForex = Math.round(forex * (lot.shares / (double) remainingShares));
+            var prior = lot.trail.fraction(Money.of(getTermCurrency(), lot.value), lot.shares, lot.originalShares);
+            var priorForex = lot.forexTrail.fraction(Money.of(getSecurity().getCurrencyCode(), lot.valueForex),
+                            lot.shares, lot.originalShares);
+            var adjustment = TrailRecord.ofTransaction(flow).fraction(Money.of(getTermCurrency(), Math.abs(part)),
+                            lot.shares, totalShares);
+            var adjustmentForex = TrailRecord.ofTransaction(flow).fraction(
+                            Money.of(getSecurity().getCurrencyCode(), Math.abs(partForex)), lot.shares, totalShares);
+            lot.trail = sign > 0 ? prior.add(adjustment) : prior.subtract(adjustment);
+            lot.forexTrail = sign > 0 ? priorForex.add(adjustmentForex) : priorForex.subtract(adjustmentForex);
+            lot.originalShares = lot.shares;
+            lot.value += part;
+            lot.valueForex += partForex;
+            amount -= part;
+            forex -= partForex;
+            remainingShares -= lot.shares;
         }
     }
 

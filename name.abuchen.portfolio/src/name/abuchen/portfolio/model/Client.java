@@ -120,6 +120,9 @@ public class Client
         // Add this missing initialization:
         if (extensions == null)
             extensions = new ArrayList<>();
+
+        if (securities != null)
+            securities.forEach(security -> security.attachValuationClient(this));
     }
 
     /* package */int getVersion()
@@ -236,6 +239,8 @@ public class Client
         Objects.requireNonNull(security);
 
         securities.add(security);
+
+        security.attachValuationClient(this);
 
         propertyChangeSupport.firePropertyChange("securities", null, security); //$NON-NLS-1$
     }

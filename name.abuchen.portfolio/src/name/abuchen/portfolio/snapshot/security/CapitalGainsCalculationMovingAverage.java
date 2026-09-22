@@ -8,6 +8,8 @@ import java.util.List;
 
 import name.abuchen.portfolio.Messages;
 import name.abuchen.portfolio.PortfolioLog;
+import name.abuchen.portfolio.model.AccountTransaction;
+import name.abuchen.portfolio.model.PrivateEquityValuation;
 import name.abuchen.portfolio.model.PortfolioTransaction;
 import name.abuchen.portfolio.model.TaxesAndFees;
 import name.abuchen.portfolio.money.CurrencyConverter;
@@ -139,6 +141,16 @@ import name.abuchen.portfolio.snapshot.SecurityPosition;
             default:
                 throw new UnsupportedOperationException();
         }
+    }
+
+    @Override
+    public void visit(CurrencyConverter converter, CalculationLineItem.TransactionItem item, AccountTransaction flow)
+    {
+        if (!flow.getType().isCapitalFlow())
+            return;
+        long sign = flow.getType() == AccountTransaction.Type.CAPITAL_CALL ? 1 : -1;
+        movingAverageCost += sign * PrivateEquityValuation.convert(flow, converter).getAmount();
+        movingAverageCostForex += sign * PrivateEquityValuation.amountInSecurityCurrency(flow);
     }
 
     @Override

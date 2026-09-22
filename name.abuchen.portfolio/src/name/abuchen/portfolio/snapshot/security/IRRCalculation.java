@@ -52,11 +52,13 @@ import name.abuchen.portfolio.money.Values;
                 // ignore tax and tax refunds when calculating the irr for a
                 // single security
                 break;
+            case CAPITAL_CALL:
             case FEES:
                 dates.add(t.getDateTime().toLocalDate());
                 values.add(-converter.convert(t.getDateTime(), t.getMonetaryAmount()).getAmount()
                                 / Values.Amount.divider());
                 break;
+            case DISTRIBUTION:
             case FEES_REFUND:
                 dates.add(t.getDateTime().toLocalDate());
                 values.add(converter.convert(t.getDateTime(), t.getMonetaryAmount()).getAmount()

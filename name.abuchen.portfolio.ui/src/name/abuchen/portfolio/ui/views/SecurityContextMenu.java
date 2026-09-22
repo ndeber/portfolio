@@ -90,6 +90,12 @@ public class SecurityContextMenu
                         .with(portfolio) //
                         .addTo(manager);
 
+        for (var flow : new AccountTransaction.Type[] { AccountTransaction.Type.CAPITAL_CALL,
+                        AccountTransaction.Type.DISTRIBUTION })
+            new OpenDialogAction(owner, flow + "...").type(AccountTransactionDialog.class).parameters(flow)
+                            .with(portfolio != null ? portfolio.getReferenceAccount() : null).with(security)
+                            .addTo(manager);
+
         new OpenDialogAction(owner, AccountTransaction.Type.TAXES + "...") //$NON-NLS-1$
                         .type(AccountTransactionDialog.class) //
                         .parameters(AccountTransaction.Type.TAXES) //

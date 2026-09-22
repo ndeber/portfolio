@@ -125,12 +125,14 @@ public class ClientSecurityFilter implements ClientFilter
                                 .internalAddTransaction(new AccountTransaction(t.getDateTime(), t.getCurrencyCode(),
                                                 amount + taxes, null, AccountTransaction.Type.REMOVAL));
                 break;
+            case CAPITAL_CALL:
             case FEES:
                 getAccount.apply((Account) pair.getOwner()).internalAddTransaction(t);
                 getAccount.apply((Account) pair.getOwner())
                                 .internalAddTransaction(new AccountTransaction(t.getDateTime(), t.getCurrencyCode(),
                                                 t.getAmount(), null, AccountTransaction.Type.DEPOSIT));
                 break;
+            case DISTRIBUTION:
             case FEES_REFUND:
                 getAccount.apply((Account) pair.getOwner()).internalAddTransaction(t);
                 getAccount.apply((Account) pair.getOwner())

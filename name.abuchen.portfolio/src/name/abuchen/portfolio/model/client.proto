@@ -163,6 +163,8 @@ message PTransaction {
     TAX_REFUND = 12;
     FEE = 13;
     FEE_REFUND = 14;
+    PRIVATE_EQUITY_CAPITAL_CALL = 1001;
+    PRIVATE_EQUITY_DISTRIBUTION = 1002;
   }
 	
   string uuid = 1;

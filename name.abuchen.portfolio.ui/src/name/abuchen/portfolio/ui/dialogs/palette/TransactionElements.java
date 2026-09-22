@@ -116,7 +116,9 @@ import name.abuchen.portfolio.ui.selection.SelectionService;
                         AccountTransaction.Type.FEES_REFUND, //
                         AccountTransaction.Type.INTEREST, //
                         AccountTransaction.Type.INTEREST_CHARGE, //
-                        AccountTransaction.Type.DIVIDENDS))
+                        AccountTransaction.Type.DIVIDENDS, //
+                        AccountTransaction.Type.CAPITAL_CALL, //
+                        AccountTransaction.Type.DISTRIBUTION))
         {
             elements.add(new AccountTransactionElement(AccountTransactionDialog.class, type, selection));
         }

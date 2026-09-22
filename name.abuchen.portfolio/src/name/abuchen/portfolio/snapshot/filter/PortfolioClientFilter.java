@@ -209,6 +209,44 @@ public class PortfolioClientFilter implements ClientFilter
         for (Account account : accounts)
             adaptAccountTransactions(account, account2pseudo, usedSecurities, securityWeightIndex);
 
+        // Capital flows apply to every unit of the fund, irrespective of the
+        // cash account or portfolio that originally booked the units.
+        for (Account account : client.getAccounts())
+        {
+            for (AccountTransaction flow : account.getTransactions())
+            {
+                if (!flow.getType().isCapitalFlow())
+                    continue;
+                long allShares = name.abuchen.portfolio.model.PrivateEquityValuation.sharesAt(client,
+                                flow.getSecurity(), flow.getDateTime());
+                double selectedShares = 0;
+                for (Portfolio p : portfolios)
+                    selectedShares += p.getTransactions().stream()
+                                    .filter(t -> t.getSecurity() == flow.getSecurity()
+                                                    && !t.getDateTime().isAfter(flow.getDateTime()))
+                                    .mapToLong(t -> t.getType().isPurchase() ? t.getShares() : -t.getShares()).sum()
+                                    * (getWeight(p) / (double) Classification.ONE_HUNDRED_PERCENT);
+                var securityWeight = allShares == 0 ? BigDecimal.ZERO : BigDecimal.valueOf(
+                                selectedShares / allShares * Classification.ONE_HUNDRED_PERCENT);
+                var accountWeight = accounts.contains(account) ? getWeightBD(account) : BigDecimal.ZERO;
+                if (securityWeight.signum() == 0 && accountWeight.signum() == 0)
+                    continue;
+                var pseudoAccount = account2pseudo.computeIfAbsent(account, computeReadOnlyAccount);
+                long securityAmount = ClientFilterHelper.value(flow.getAmount(), securityWeight);
+                long accountAmount = ClientFilterHelper.value(flow.getAmount(), accountWeight);
+                if (securityAmount != 0)
+                    pseudoAccount.internalAddTransaction(scaled(flow, securityWeight));
+                long delta = accountAmount - securityAmount;
+                if (delta != 0)
+                {
+                    var type = delta > 0 ^ flow.getType().isDebit() ? AccountTransaction.Type.DEPOSIT
+                                    : AccountTransaction.Type.REMOVAL;
+                    pseudoAccount.internalAddTransaction(new AccountTransaction(flow.getDateTime(),
+                                    flow.getCurrencyCode(), Math.abs(delta), null, type));
+                }
+            }
+        }
+
         for (Security security : usedSecurities)
             pseudoClient.internalAddSecurity(security);
 
@@ -378,6 +416,8 @@ public class PortfolioClientFilter implements ClientFilter
             if (!usedSecurities.contains(t.getSecurity()))
                 continue;
 
+            if (t.getType().isCapitalFlow())
+                continue;
             switch (t.getType())
             {
                 case TAX_REFUND:
@@ -431,6 +471,8 @@ public class PortfolioClientFilter implements ClientFilter
         {
             Object crossOwner = t.getCrossEntry() != null ? t.getCrossEntry().getCrossOwner(t) : null;
 
+            if (t.getType().isCapitalFlow())
+                continue;
             switch (t.getType())
             {
                 case BUY:

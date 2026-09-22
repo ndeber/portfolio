@@ -120,7 +120,7 @@ import name.abuchen.portfolio.util.Interval;
 
             switch (t.getType())
             {
-                case DIVIDENDS, INTEREST, TAXES, TAX_REFUND, FEES, FEES_REFUND:
+                case CAPITAL_CALL, DISTRIBUTION, DIVIDENDS, INTEREST, TAXES, TAX_REFUND, FEES, FEES_REFUND:
                     records.get(t.getSecurity()).addLineItem(CalculationLineItem.of(account, t));
                     break;
                 case BUY, SELL:

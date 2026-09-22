@@ -33,14 +33,14 @@ import name.abuchen.portfolio.snapshot.trail.TrailRecord;
         private long grossAmount;
         private long netAmount;
 
-        private final TrailRecord trail;
+        private TrailRecord trail;
 
         /**
          * Holds the original number of shares (of the transaction). The
          * original shares are needed to calculate fractions if the transaction
          * is split up multiple times
          */
-        private final long originalShares;
+        private long originalShares;
 
         public LineItem(TransactionOwner<?> owner, long shares, long grossAmount, long netAmount, TrailRecord trail)
         {
@@ -227,6 +227,37 @@ import name.abuchen.portfolio.snapshot.trail.TrailRecord;
     @Override
     public void visit(CurrencyConverter converter, CalculationLineItem.TransactionItem item, AccountTransaction t)
     {
+        if (t.getType().isCapitalFlow())
+        {
+            long amount = name.abuchen.portfolio.model.PrivateEquityValuation.convert(t, converter).getAmount();
+            if (t.getType() == AccountTransaction.Type.DISTRIBUTION)
+                amount = -amount;
+            movingRelativeCost += amount;
+            movingRelativeNetCost += amount;
+            long remainingShares = getSharesHeld();
+            long remainingAmount = amount;
+            TrailRecord flowTrail = TrailRecord.ofTransaction(t);
+            if (!t.getCurrencyCode().equals(getTermCurrency()))
+                flowTrail = flowTrail.convert(Money.of(getTermCurrency(), Math.abs(amount)),
+                                converter.getRate(t.getDateTime(), t.getCurrencyCode()));
+            for (LineItem lot : fifo)
+            {
+                if (lot.shares <= 0)
+                    continue;
+                long part = Math.round(remainingAmount * (lot.shares / (double) remainingShares));
+                var prior = lot.trail.fraction(Money.of(getTermCurrency(), lot.grossAmount), lot.shares,
+                                lot.originalShares);
+                var adjustment = flowTrail.fraction(Money.of(getTermCurrency(), Math.abs(part)),
+                                lot.shares, getSharesHeld());
+                lot.trail = part >= 0 ? prior.add(adjustment) : prior.subtract(adjustment);
+                lot.originalShares = lot.shares;
+                lot.grossAmount += part;
+                lot.netAmount += part;
+                remainingAmount -= part;
+                remainingShares -= lot.shares;
+            }
+            return;
+        }
         switch (t.getType())
         {
             case TAXES:
@@ -266,7 +297,7 @@ import name.abuchen.portfolio.snapshot.trail.TrailRecord;
 
     public TrailRecord getFifoCostTrail()
     {
-        return TrailRecord.of(fifo.stream().filter(entry -> entry.grossAmount > 0) //
+        return TrailRecord.of(fifo.stream().filter(entry -> entry.grossAmount != 0 && entry.shares != 0) //
                         .map(entry -> entry.trail.fraction(Money.of(getTermCurrency(), entry.grossAmount), entry.shares,
                                         entry.originalShares))
                         .toList());

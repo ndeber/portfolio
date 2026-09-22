@@ -532,6 +532,40 @@ public final class Security implements Attributable, InvestmentVehicle
 
     public SecurityPrice getSecurityPrice(LocalDate requestedDate)
     {
+        return valuationClient == null || !capitalFlowSecurity ? getUnadjustedSecurityPrice(requestedDate)
+                        : PrivateEquityValuation.price(valuationClient, this, requestedDate);
+    }
+
+    private transient Client valuationClient;
+    private transient boolean capitalFlowSecurity;
+
+    /* package */ void markCapitalFlowSecurity()
+    {
+        capitalFlowSecurity = true;
+    }
+
+    public boolean hasCapitalFlowsAt(LocalDate date)
+    {
+        return capitalFlowSecurity && valuationClient != null && valuationClient.getAccounts().stream()
+                        .flatMap(a -> a.getTransactions().stream())
+                        .anyMatch(t -> t.getSecurity() == this && t.getType() != null && t.getType().isCapitalFlow()
+                                        && !t.getDateTime().toLocalDate().isAfter(date));
+    }
+
+    /* package */ void attachValuationClient(Client client)
+    {
+        // Filtered clients share securities with their source. The NAV must
+        // always use all holdings and flows, even in a filtered report.
+        if (valuationClient == null)
+        {
+            valuationClient = client;
+            capitalFlowSecurity = client.getAccounts().stream().flatMap(a -> a.getTransactions().stream())
+                            .anyMatch(t -> t.getSecurity() == this && t.getType() != null && t.getType().isCapitalFlow());
+        }
+    }
+
+    /* package */ SecurityPrice getUnadjustedSecurityPrice(LocalDate requestedDate)
+    {
         // assumption: prefer historic quote over latest if there are more
         // up-to-date historic quotes
 
@@ -838,6 +872,7 @@ public final class Security implements Attributable, InvestmentVehicle
             account.getTransactions().stream() //
                             .filter(t -> this.equals(t.getSecurity()))
                             .filter(t -> t.getType() == AccountTransaction.Type.INTEREST
+                                            || t.getType().isCapitalFlow()
                                             || t.getType() == AccountTransaction.Type.DIVIDENDS
                                             || t.getType() == AccountTransaction.Type.TAXES
                                             || t.getType() == AccountTransaction.Type.TAX_REFUND

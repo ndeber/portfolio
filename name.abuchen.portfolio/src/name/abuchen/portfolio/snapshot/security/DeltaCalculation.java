@@ -46,10 +46,16 @@ import name.abuchen.portfolio.money.MutableMoney;
         Type type = t.getType();
         switch (type)
         {
+            case CAPITAL_CALL:
+                Money contribution = t.getMonetaryAmount().with(converter.at(t.getDateTime()));
+                delta.subtract(contribution);
+                cost.add(contribution);
+                break;
             case TAXES:
             case FEES:
                 delta.subtract(t.getMonetaryAmount().with(converter.at(t.getDateTime())));
                 break;
+            case DISTRIBUTION:
             case TAX_REFUND:
             case FEES_REFUND:
                 delta.add(t.getMonetaryAmount().with(converter.at(t.getDateTime())));
