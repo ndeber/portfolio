@@ -21,12 +21,19 @@ public final class UpdatePreviewDialog extends TitleAreaDialog
     }
 
     private final String title;
+    private final String applyLabel;
     private final String summary;
     private final List<Change> changes;
 
     public UpdatePreviewDialog(Shell parent, String title, String summary, List<Change> changes)
     {
+        this(parent, title, summary, changes, "Créer la copie…");
+    }
+
+    public UpdatePreviewDialog(Shell parent, String title, String summary, List<Change> changes, String applyLabel)
+    {
         super(parent);
+        this.applyLabel = applyLabel;
         this.title = title;
         this.summary = summary;
         this.changes = List.copyOf(changes);
@@ -61,7 +68,7 @@ public final class UpdatePreviewDialog extends TitleAreaDialog
     @Override
     protected void createButtonsForButtonBar(Composite parent)
     {
-        createButton(parent, IDialogConstants.OK_ID, "Créer la copie…", true);
+        createButton(parent, IDialogConstants.OK_ID, applyLabel, true);
         createButton(parent, IDialogConstants.CANCEL_ID, "Annuler", false);
     }
 }
