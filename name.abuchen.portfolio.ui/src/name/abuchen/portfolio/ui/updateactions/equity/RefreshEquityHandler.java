@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Map;
+import java.util.stream.Collectors;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -19,6 +21,9 @@ import org.eclipse.jface.window.Window;
 import org.eclipse.swt.widgets.Shell;
 
 import name.abuchen.portfolio.model.ClientFactory;
+import name.abuchen.portfolio.money.CurrencyConverterImpl;
+import name.abuchen.portfolio.snapshot.ClientSnapshot;
+import name.abuchen.portfolio.updates.equity.EquityTaxonomyOrder;
 import name.abuchen.portfolio.ui.PortfolioPlugin;
 import name.abuchen.portfolio.ui.editor.ClientInput;
 import name.abuchen.portfolio.ui.editor.ClientInputListener;
@@ -65,6 +70,8 @@ public final class RefreshEquityHandler
                 return;
             }
             var prepared = new AtomicReference<EquityAdjustment.Plan>();
+            var valuations = new AtomicReference<Map<String, Long>>();
+            var converter = new CurrencyConverterImpl(input.getExchangeRateProviderFacory(), snapshot.getBaseCurrency());
             new ProgressMonitorDialog(shell).run(true, true, monitor -> {
                 monitor.beginTask("Compositions Actions : régions, secteurs et transparence…", scope.size());
                 try
@@ -80,6 +87,9 @@ public final class RefreshEquityHandler
                         monitor.worked(1);
                     }
                     if (monitor.isCanceled()) throw new InterruptedException();
+                    valuations.set(ClientSnapshot.create(snapshot, converter, LocalDate.now()).getAssetPositions()
+                                    .collect(Collectors.toMap(p -> p.getInvestmentVehicle().getUUID(), p -> p.getValuation().getAmount())));
+                    if (monitor.isCanceled()) throw new InterruptedException();
                     prepared.set(EquityAdjustment.prepare(snapshot, outcomes));
                 }
                 catch (RuntimeException e) { throw new InvocationTargetException(e); }
@@ -87,10 +97,11 @@ public final class RefreshEquityHandler
             });
             var plan = prepared.get();
             if (changed.get()) throw new IOException("Le portefeuille a changé. Relancez l'actualisation pour inclure ces changements.");
-            if (new EquityPreviewDialog(shell, plan, scope.size()).open() != Window.OK || plan.isEmpty())
+            if (new EquityPreviewDialog(shell, plan, scope.size()).open() != Window.OK)
                 return;
             if (changed.get()) throw new IOException("Le portefeuille a changé depuis l'aperçu. Relancez l'actualisation.");
             EquityAdjustment.apply(input.getClient(), plan);
+            EquityTaxonomyOrder.apply(input.getClient(), valuations.get());
         }
         catch (InterruptedException e) { /* Cancellation never mutates the live portfolio. */ }
         catch (InvocationTargetException e) { error(shell, e.getCause()); }
