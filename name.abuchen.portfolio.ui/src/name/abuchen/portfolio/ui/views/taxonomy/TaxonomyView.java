@@ -291,6 +291,12 @@ public class TaxonomyView extends AbstractFinanceView implements PropertyChangeL
             toolBar.add(new SimpleAction("Actualiser les 3 taxonomies Actions…", a ->
                             name.abuchen.portfolio.ui.updateactions.equity.RefreshEquityHandler.run(getPart().getClientInput(), container.getShell())));
         }
+        if (name.abuchen.portfolio.updates.bondallocation.BondAllocationAdjustment.isBondTaxonomy(model.getTaxonomy().getName()))
+        {
+            toolBar.add(new Separator());
+            toolBar.add(new SimpleAction("Actualiser les 4 taxonomies Obligations…", a ->
+                            name.abuchen.portfolio.ui.updateactions.bondallocation.RefreshBondAllocationHandler.run(getPart().getClientInput(), container.getShell())));
+        }
     }
 
     private void addReportingPeriodDropDown(ToolBarManager toolBar)

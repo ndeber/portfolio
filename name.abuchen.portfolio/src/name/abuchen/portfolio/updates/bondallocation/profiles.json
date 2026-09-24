@@ -1,0 +1,580 @@
+{
+  "direct": [
+    {
+      "isin": "DE000BU2Z072",
+      "name": "DBR Govt 3.0 Aug15'36",
+      "rating": "AAA",
+      "country": "Allemagne",
+      "maturity": "2036-08-15",
+      "note": "Bundesrepublik Deutschland 3,00 % 15/08/2036\nhttps://www.deutsche-finanzagentur.de/bundeswertpapiere/factsheet/isin/DE000BU2Z072"
+    },
+    {
+      "isin": "DE000BU27014",
+      "name": "DBR Govt 2.5 Nov15'32",
+      "rating": "AAA",
+      "country": "Allemagne",
+      "maturity": "2032-11-15",
+      "note": "Bundesrepublik Deutschland 2,50 % 15/11/2032\nhttps://www.deutsche-finanzagentur.de/bundeswertpapiere/factsheet/isin/DE000BU27014"
+    },
+    {
+      "isin": "DE0001102622",
+      "name": "DBR Govt 2.1 Nov15'29",
+      "rating": "AAA",
+      "country": "Allemagne",
+      "maturity": "2029-11-15",
+      "note": "Bundesrepublik Deutschland 2,10 % 15/11/2029\nhttps://www.deutsche-finanzagentur.de/bundeswertpapiere/factsheet/isin/DE0001102622"
+    },
+    {
+      "isin": "FR0013327491",
+      "name": "FRTR Govt 0.1 Jul25'36",
+      "rating": "AA",
+      "country": "France",
+      "maturity": "2036-07-25",
+      "note": "OAT€i 0,10 % 25/07/2036\nhttps://www.aft.gouv.fr/fr/titre/fr0013327491"
+    },
+    {
+      "isin": "FR0000188799",
+      "name": "FRTR Govt 3.15 Jul25'32",
+      "rating": "AA",
+      "country": "France",
+      "maturity": "2032-07-25",
+      "note": "OAT€i 3,15 % 25/07/2032\nhttps://www.aft.gouv.fr/fr/titre/fr0000188799"
+    },
+    {
+      "isin": "FR0013410552",
+      "name": "FRTR Govt 0.1 Mar01'29",
+      "rating": "AA",
+      "country": "France",
+      "maturity": "2029-03-01",
+      "note": "OAT€i 0,10 % 01/03/2029\nhttps://www.aft.gouv.fr/fr/titre/fr0013410552"
+    },
+    {
+      "isin": "FR0000186413",
+      "name": "OATi 3,40 % 25 juillet 2029",
+      "rating": "AA",
+      "country": "France",
+      "maturity": "2029-07-25",
+      "note": "OATi 3,40 % 25/07/2029\nhttps://www.aft.gouv.fr/fr/titre/fr0000186413"
+    }
+  ],
+  "funds": {
+    "LU1041599405": {
+      "rating": [
+        [
+          "Cash",
+          815
+        ],
+        [
+          "AAA",
+          3919
+        ],
+        [
+          "AA",
+          267
+        ],
+        [
+          "A",
+          258
+        ],
+        [
+          "BBB",
+          1164
+        ],
+        [
+          "BB",
+          3577
+        ]
+      ],
+      "maturity": [
+        [
+          "< 4 ans",
+          10000
+        ]
+      ]
+    },
+    "FR001400UP68": {
+      "rating": [
+        [
+          "Cash",
+          300
+        ],
+        [
+          "A",
+          50
+        ],
+        [
+          "BBB",
+          930
+        ],
+        [
+          "BB",
+          4520
+        ],
+        [
+          "B",
+          3700
+        ],
+        [
+          "CCC et inférieur",
+          500
+        ]
+      ],
+      "maturity_date": "2031-12-31"
+    },
+    "FR001400S425": {
+      "rating": [
+        [
+          "BBB",
+          190
+        ],
+        [
+          "BB",
+          3340
+        ],
+        [
+          "B",
+          5920
+        ],
+        [
+          "CCC et inférieur",
+          550
+        ]
+      ],
+      "maturity_date": "2031-12-31"
+    },
+    "FR001400TS84": {
+      "rating": [
+        [
+          "A",
+          840
+        ],
+        [
+          "BBB",
+          960
+        ],
+        [
+          "BB",
+          3440
+        ],
+        [
+          "B",
+          4760
+        ]
+      ],
+      "maturity_date": "2031-12-31"
+    },
+    "LU1165644672": {
+      "rating": [
+        [
+          "Cash",
+          470
+        ],
+        [
+          "A",
+          760
+        ],
+        [
+          "BB",
+          3870
+        ],
+        [
+          "B",
+          3610
+        ],
+        [
+          "CCC et inférieur",
+          1290
+        ]
+      ],
+      "maturity": [
+        [
+          "< 4 ans",
+          10000
+        ]
+      ]
+    },
+    "FR001400S0P1": {
+      "rating": [
+        [
+          "Cash",
+          660
+        ],
+        [
+          "BBB",
+          210
+        ],
+        [
+          "BB",
+          1670
+        ],
+        [
+          "B",
+          6830
+        ],
+        [
+          "CCC et inférieur",
+          630
+        ]
+      ],
+      "maturity_date": "2030-12-31"
+    },
+    "FR001400U4U9": {
+      "rating": [
+        [
+          "AA",
+          40
+        ],
+        [
+          "A",
+          1390
+        ],
+        [
+          "BBB",
+          4800
+        ],
+        [
+          "BB",
+          2610
+        ],
+        [
+          "B",
+          1160
+        ]
+      ],
+      "maturity_date": "2031-12-31"
+    },
+    "FR001400UG93": {
+      "rating": [
+        [
+          "Cash",
+          700
+        ],
+        [
+          "BBB",
+          180
+        ],
+        [
+          "BB",
+          4160
+        ],
+        [
+          "B",
+          4730
+        ],
+        [
+          "CCC et inférieur",
+          230
+        ]
+      ],
+      "maturity_date": "2031-12-31"
+    },
+    "LU1995645790": {
+      "rating": [
+        [
+          "Non noté",
+          10000
+        ]
+      ],
+      "maturity": [
+        [
+          "Non déterminée",
+          10000
+        ]
+      ]
+    }
+  },
+  "issuers": {
+    "LU1041599405": [
+      [
+        "Gouvernement",
+        450
+      ],
+      [
+        "Agences publiques & supranationaux",
+        3690
+      ],
+      [
+        "Entreprises",
+        2190
+      ],
+      [
+        "Crédit titrisé",
+        2350
+      ],
+      [
+        "Cash & monétaire",
+        870
+      ],
+      [
+        "Autres",
+        450
+      ]
+    ],
+    "FR001400UP68": [
+      [
+        "Banques & institutions financières",
+        3000
+      ],
+      [
+        "Entreprises",
+        6750
+      ],
+      [
+        "Cash & monétaire",
+        250
+      ]
+    ],
+    "FR001400S425": [
+      [
+        "Banques & institutions financières",
+        470
+      ],
+      [
+        "Entreprises",
+        9100
+      ],
+      [
+        "Cash & monétaire",
+        430
+      ]
+    ],
+    "FR001400TS84": [
+      [
+        "Banques & institutions financières",
+        250
+      ],
+      [
+        "Entreprises",
+        9750
+      ]
+    ],
+    "LU1165644672": [
+      [
+        "Gouvernement",
+        50
+      ],
+      [
+        "Banques & institutions financières",
+        1710
+      ],
+      [
+        "Entreprises",
+        7560
+      ],
+      [
+        "Cash & monétaire",
+        550
+      ],
+      [
+        "Autres",
+        130
+      ]
+    ],
+    "FR001400S0P1": [
+      [
+        "Entreprises",
+        9810
+      ],
+      [
+        "Cash & monétaire",
+        190
+      ]
+    ],
+    "FR001400U4U9": [
+      [
+        "Banques & institutions financières",
+        4920
+      ],
+      [
+        "Entreprises",
+        4080
+      ],
+      [
+        "Crédit titrisé",
+        970
+      ],
+      [
+        "Cash & monétaire",
+        10
+      ],
+      [
+        "Autres",
+        20
+      ]
+    ],
+    "FR001400UG93": [
+      [
+        "Banques & institutions financières",
+        2050
+      ],
+      [
+        "Entreprises",
+        7840
+      ],
+      [
+        "Autres",
+        110
+      ]
+    ],
+    "LU1995645790": [
+      [
+        "Entreprises",
+        10000
+      ]
+    ]
+  },
+  "countries": {
+    "United States of America": "États-Unis",
+    "United States": "États-Unis",
+    "Etats-Unis": "États-Unis",
+    "United Kingdom": "Grande-Bretagne",
+    "Royaume-Uni": "Grande-Bretagne",
+    "Royaume Uni": "Grande-Bretagne",
+    "Germany": "Allemagne",
+    "France": "France",
+    "Japan": "Japon",
+    "Canada": "Canada",
+    "Italy": "Italie",
+    "Spain": "Espagne",
+    "Australia": "Australie",
+    "South Korea": "Corée du Sud",
+    "Netherlands": "Pays-Bas",
+    "Belgium": "Belgique",
+    "China": "Chine",
+    "India": "Inde",
+    "Brazil": "Brésil",
+    "South Africa": "Afrique du Sud",
+    "Indonesia": "Indonésie",
+    "Turkey": "Turquie",
+    "Mexico": "Mexique",
+    "Supranational": "Supranational",
+    "Other": "Autres",
+    "Norway": "Norvège",
+    "Austria": "Autriche",
+    "Denmark": "Danemark",
+    "Finland": "Finlande",
+    "Greece": "Grèce",
+    "Switzerland": "Suisse",
+    "Sweden": "Suède",
+    "Ireland": "Irlande",
+    "Luxembourg": "Luxembourg",
+    "New Zealand": "Nouvelle-Zélande",
+    "Singapore": "Singapour",
+    "Hong Kong": "Hong Kong",
+    "Taiwan": "Taïwan",
+    "Israel": "Israël"
+  },
+  "regionTree": [
+    [
+      "Europe",
+      [
+        "France",
+        "Allemagne",
+        "Italie",
+        "Espagne",
+        "Grande-Bretagne",
+        "Pays-Bas",
+        "Belgique",
+        "Suisse",
+        "Suède",
+        "Irlande",
+        "Luxembourg",
+        "Europe - Autres"
+      ]
+    ],
+    [
+      "Amérique du Nord",
+      [
+        "États-Unis",
+        "Canada"
+      ]
+    ],
+    [
+      "Asie-Pacifique",
+      [
+        "Japon",
+        "Australie",
+        "Corée du Sud",
+        "Nouvelle-Zélande",
+        "Singapour",
+        "Hong Kong",
+        "Asie-Pacifique - Autres"
+      ]
+    ],
+    [
+      "Marchés émergents",
+      [
+        "Chine",
+        "Inde",
+        "Brésil",
+        "Afrique du Sud",
+        "Indonésie",
+        "Turquie",
+        "Chili",
+        "Mexique",
+        "Marchés émergents - Autres"
+      ]
+    ],
+    [
+      "Supranational",
+      []
+    ],
+    [
+      "Autres",
+      []
+    ]
+  ],
+  "vanguardCountries": [
+    "United States of America",
+    "France",
+    "Japan",
+    "Germany",
+    "United Kingdom",
+    "Canada",
+    "Italy",
+    "Supranational",
+    "Spain",
+    "Australia",
+    "South Korea",
+    "Netherlands",
+    "Belgium",
+    "Other",
+    "China"
+  ],
+  "ratings": [
+    "Cash",
+    "AAA",
+    "AA",
+    "A",
+    "BBB",
+    "BB",
+    "B",
+    "CCC et inférieur",
+    "Non noté"
+  ],
+  "maturities": [
+    "Cash",
+    "< 6 mois",
+    "< 1 an",
+    "< 2 ans",
+    "< 3 ans",
+    "< 4 ans",
+    "< 5 ans",
+    "5-7 ans",
+    "7-10 ans",
+    "10-15 ans",
+    "15-20 ans",
+    "20-25 ans",
+    "Plus de 25 ans",
+    "Non déterminée"
+  ],
+  "issuerTypes": [
+    "Gouvernement",
+    "Agences publiques & supranationaux",
+    "Banques & institutions financières",
+    "Entreprises",
+    "Crédit titrisé",
+    "Cash & monétaire",
+    "Autres"
+  ]
+}

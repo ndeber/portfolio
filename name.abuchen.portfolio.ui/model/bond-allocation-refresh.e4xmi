@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fragment:ModelFragments xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:fragment="http://www.eclipse.org/ui/2010/UIModel/fragment" xmlns:menu="http://www.eclipse.org/ui/2010/UIModel/application/ui/menu" xmi:id="_bondAllocationFragments">
+  <fragments xsi:type="fragment:StringModelFragment" xmi:id="_bondAllocationMenuFragment" featurename="children" parentElementId="name.abuchen.portfolio.ui.menu.portfolioTools">
+    <elements xsi:type="menu:DirectMenuItem" xmi:id="_bondAllocationRefresh" elementId="name.abuchen.portfolio.ui.menu.refreshBondAllocation" label="Actualiser les taxonomies Obligations…" contributionURI="bundleclass://name.abuchen.portfolio.ui/name.abuchen.portfolio.ui.updateactions.bondallocation.RefreshBondAllocationHandler"/>
+  </fragments>
+</fragment:ModelFragments>

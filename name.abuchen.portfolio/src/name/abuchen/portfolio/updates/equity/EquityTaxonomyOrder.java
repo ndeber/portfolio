@@ -3,6 +3,8 @@ package name.abuchen.portfolio.updates.equity;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Locale;
+import java.util.List;
+import name.abuchen.portfolio.model.Taxonomy;
 import java.util.Map;
 
 import name.abuchen.portfolio.model.Classification;
@@ -18,17 +20,21 @@ public final class EquityTaxonomyOrder
 
     public static void apply(Client client, Map<String, Long> valuations)
     {
+        apply(client, java.util.Arrays.stream(Family.values()).map(f -> EquityAdjustment.taxonomy(client, f)).toList(), valuations);
+    }
+
+    public static void apply(Client client, List<Taxonomy> taxonomies, Map<String, Long> valuations)
+    {
         var amounts = new HashMap<Classification, Long>();
         // Compute all amounts before modifying any order. Assignment rounding matches TaxonomyModel.
-        for (var family : Family.values())
-            total(EquityAdjustment.taxonomy(client, family).getRoot(), valuations, amounts);
+        for (var taxonomy : taxonomies)
+            total(taxonomy.getRoot(), valuations, amounts);
         var order = Comparator.comparing((Classification c) -> isOther(c.getName()))
                         .thenComparing(Comparator.comparingLong((Classification c) -> amounts.get(c)).reversed())
                         .thenComparing(Classification::getName, TextUtil::compare)
                         .thenComparing(Classification::getId);
-        for (var family : Family.values())
+        for (var taxonomy : taxonomies)
         {
-            var taxonomy = EquityAdjustment.taxonomy(client, family);
             sort(taxonomy.getRoot(), order);
             taxonomy.notifyAssignmentsChanged();
         }
@@ -37,7 +43,7 @@ public final class EquityTaxonomyOrder
 
     private static boolean isOther(String name)
     {
-        return switch (name.strip().toLowerCase(Locale.ROOT))
+        return switch (name.strip().toLowerCase(Locale.ROOT).replaceFirst("^.* - ", ""))
         {
             case "other", "others", "autre", "autres" -> true;
             default -> false;
