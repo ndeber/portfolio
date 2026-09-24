@@ -118,4 +118,7 @@ For purposes of the EPL, &quot;Program&quot; will mean the Content.
    <plugin id="wrapped.com.zaxxer.SparseBitSet" download-size="0" install-size="0" version="0.0.0" unpack="false"/>
    <plugin id="org.apache.logging.log4j.api" download-size="0" install-size="0" version="0.0.0" unpack="false"/>
 
+   <!-- Provide the backend required by Log4j API under OSGi (POI and PDFBox). -->
+   <plugin id="org.apache.logging.log4j.to.slf4j" download-size="0" install-size="0" version="0.0.0" unpack="false"/>
+
 </feature>
