@@ -3,7 +3,7 @@ import argparse, subprocess, shutil, tempfile, zipfile
 parser=argparse.ArgumentParser(description="Check PDF initialization in the packaged OSGi runtime without opening a portfolio.")
 parser.add_argument("eclipse", type=Path, help="Built app Contents/Eclipse directory")
 parser.add_argument("--java-home", required=True, type=Path)
-parser.add_argument("--live-amundi", action="store_true", help="Also fetch the three public Amundi compositions")
+parser.add_argument("--live-msci", "--live-amundi", dest="live_amundi", action="store_true", help="Also fetch public Amundi and WPEA compositions")
 args=parser.parse_args()
 base=args.eclipse.resolve()
 workspace=tempfile.TemporaryDirectory(prefix="portfolio-pdf-check-")
@@ -34,13 +34,22 @@ public class Check implements IApplication {
   if(!result.contains("PDF startup verified")) throw new IllegalStateException(result);
   System.out.println("PACKAGED_OSGI_PDF_PASS: provider active; PDF parsed successfully");
   if(Boolean.getBoolean("probe.live")) {
+   for(String isin : new String[] {"FR0013412020", "IE0002XZSHO1"}) {
    var security=new name.abuchen.portfolio.model.Security();
-   security.setIsin("FR0013412020"); security.setName("Amundi PEA Emerging");
+   security.setIsin(isin); security.setName(isin);
    var outcomes=new name.abuchen.portfolio.updates.equity.EquitySources().fetch(security, () -> false);
    for(var outcome:outcomes) {
     if(outcome.error()!=null) throw new IllegalStateException(outcome.family()+": "+outcome.error());
-    System.out.println("AMUNDI_SOURCE_PASS: "+outcome.family()+" / "+outcome.slice().items().size()+" items");
+    System.out.println("MSCI_SOURCE_PASS: "+isin+" / "+outcome.family()+" / "+outcome.slice().items().size()+" items");
+    if(outcome.family()==name.abuchen.portfolio.updates.equity.EquityComposition.Family.HOLDINGS) {
+     for(var item:outcome.slice().items()) {
+      if(!item.name().equals(name.abuchen.portfolio.updates.equity.EquitySources.msciHoldingName(item.name())))
+       throw new IllegalStateException("Statistics in company name: "+item.name());
+      System.out.println("CONSTITUENT: "+item.name()+" / "+item.percent());
+     }
+    }
    }
+  }
   }
   return EXIT_OK;
  }
@@ -59,7 +68,7 @@ info=config/'org.eclipse.equinox.simpleconfigurator/bundles.info'
 with info.open('a') as out:out.write(f'\nprobe,1.0.0,{bundle.as_uri()},4,true\n')
 launcher=next((base/'plugins').glob('org.eclipse.equinox.launcher_*.jar'))
 cmd=[str(java/'java'),f'-Dprobe.pdf={pdf}',f'-Dprobe.live={str(args.live_amundi).lower()}','-jar',str(launcher),'-nosplash','-install',str(base),'-configuration',str(config),'-data',str(probe/'workspace'),'-application','probe.check','-consoleLog']
-r=subprocess.run(cmd,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,text=True,timeout=150 if args.live_amundi else 45)
+r=subprocess.run(cmd,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,text=True,timeout=285 if args.live_amundi else 45)
 print(r.stdout)
 if r.returncode or 'PACKAGED_OSGI_PDF_PASS' not in r.stdout:raise SystemExit(1)
-if args.live_amundi and r.stdout.count('AMUNDI_SOURCE_PASS:') != 3:raise SystemExit(1)
+if args.live_amundi and r.stdout.count('MSCI_SOURCE_PASS:') != 6:raise SystemExit(1)

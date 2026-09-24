@@ -193,3 +193,25 @@ Contrôles effectués :
 Le contrôle reproductible est `private-equity-product/check-packaged-pdf.py`.
 Ces tests n'ouvrent ni ne modifient le portefeuille personnel. Ils ne constituent
 pas une vérification visuelle de l'ensemble du parcours d'interface.
+
+## Noms des constituants MSCI — livraison v14 (24 septembre 2026)
+
+PDFBox restitue certaines lignes en réunissant les statistiques d'indice situées
+à gauche et les constituants à droite. Le parseur v13 capturait les statistiques
+dans le nom, malgré des poids corrects. Les libellés de statistiques connus sont
+maintenant retirés ; noms ambigus, doublons, tableau incomplet ou total incohérent
+font échouer cette composition sans remplacer ses affectations.
+
+Les deux extraits reproduisant les colonnes mélangées sont conservés comme
+fixtures. Les tests comparent les vingt noms et les vingt poids attendus. Les
+réparations sont présentées dans l'aperçu et limitées aux feuilles générées par
+notre fonction, sans objectif ni enfant, entièrement vidées par la réaffectation.
+Les tests couvrent notamment catégories existantes, personnalisation, source en
+échec, autre position, aperçu périmé, idempotence et relecture du modèle.
+
+Validation : 21 tests ciblés réussis. La construction complète avec ce filtre de
+tests rencontre ensuite « No tests found » dans le module UI, puisque les tests
+sélectionnés appartiennent au cœur ; l'assemblage séparé sans relancer les tests
+réussit. Le contrôle du produit OSGi avec `--live-msci` récupère les six compositions
+Amundi/WPEA et affiche les vingt noms nettoyés avec leurs poids. Aucune écriture
+n'est effectuée dans le portefeuille personnel.

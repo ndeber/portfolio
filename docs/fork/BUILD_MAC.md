@@ -66,6 +66,6 @@ python3 private-equity-product/check-packaged-pdf.py \
   /chemin/PortfolioPerformancePE.app/Contents/Eclipse --java-home "$JAVA_HOME"
 ```
 
-Ajouter `--live-amundi` pour vérifier aussi les trois compositions publiques de
-l'ETF Amundi PEA Emerging (accès réseau nécessaire). Le contrôle local est limité
-à 45 secondes et le contrôle avec sources à 150 secondes.
+Ajouter `--live-msci` pour vérifier aussi les compositions publiques des
+ETF Amundi PEA Emerging et WPEA (accès réseau nécessaire). Le contrôle local est limité
+à 45 secondes et le contrôle avec sources à 285 secondes.
