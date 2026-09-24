@@ -120,3 +120,33 @@ reste celui de l'éditeur : manuel ou automatique selon les préférences exista
 - Essai interactif non renouvelé : le Mac est toujours verrouillé. Le parcours v6
   avait été confirmé fonctionnel par l'utilisateur ; la validation v7 ci-dessus
   est automatisée.
+
+## Obligations à la demande — livraison v8 (24 septembre 2026)
+
+- Branche obligations indépendante : 17 tests ciblés réussis, dont lecture XLS
+  binaire dans le runtime OSGi (dépendances incluses).
+- Reconstruction propre du produit intégré : 52 tests réussis, aucun échec.
+  La régression croisée vérifie les cours et attributs dans les formats XML et
+  `.portfolio`, avec conservation de Pilotage, des widgets et des opérations PE.
+- Contrôle en ligne des sept ISIN réussi le 24 septembre : historiques allemands
+  jusqu'au 24 septembre et français jusqu'au 23 septembre. Ce sont les dates
+  publiées, pas une garantie de disponibilité future des serveurs.
+- Historique obtenu : DE000BU2Z072 (55 points), DE000BU27014 (274), DE0001102622
+  (1002), FR0013327491 (1712), FR0000188799 (1900), FR0013410552 (1769),
+  FR0000186413 (1898).
+- Deux variantes CSV Bundesbank, sélection de la publication AFT récente malgré
+  les anciens liens masqués et lecture XLS/XLSX selon la signature du fichier.
+- Packaging Mac Apple Silicon avec JDK embarqué et signature locale vérifiée.
+  Lancement d'une copie isolée du produit, ouverture du fichier de démonstration,
+  présence des commandes ELM et obligations dans un seul menu, sélection des sept
+  obligations vérifiés dans l'interface. L'aperçu a affiché les sept historiques
+  réels avec les mêmes dates et nombres de points que le contrôle en ligne.
+- Limite du contrôle interactif : après le clic de validation, l'outil de contrôle
+  macOS a renvoyé des délais dépassés, y compris après reconnexion. L'enregistrement
+  final du fichier de démonstration n'a donc pas été confirmé dans l'interface.
+  Le journal ne contient pas d'exception et la pile Java montre la boucle
+  événementielle au repos. L'application au modèle et la persistance restent
+  couvertes par les tests automatisés ci-dessus.
+
+Pilotage Global et l'option Pilotage d'ELM sont conservées. Aucun titre ni aucune
+taxonomie du portefeuille personnel n'a été modifié par les tests de la v8.

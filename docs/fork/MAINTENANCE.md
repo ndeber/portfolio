@@ -9,8 +9,9 @@ Le dépôt officiel reste le point de départ. Chaque ajout est une branche ind�
 | `feature/allocation-widgets` | Les deux widgets, configuration et traductions | `ui/views/dashboard/AllocationGoalWidget.java`, `WidgetFactory.java`, `allocationgoals*.properties`, `AllocationGoalWidgetTest` |
 | `feature/vivid-branding` | Palette vive du logo, sans changement financier | `fork-branding/`, `ui/branding/ForkBranding.java`, six références dans `Images.java` |
 | `fork/platform` | Fabrication Mac, Java embarqué, espace de travail distinct et protection contre les mises à jour officielles | `private-equity-product/`, profil Maven `private-equity`, initialisation des préférences et mises à jour |
-| `feature/update-actions` | Socle aperçu et copie vérifiée | `updates/PortfolioUpdateCopy`, `ui/updateactions/UpdatePreviewDialog` |
+| `feature/update-actions` | Menu commun, aperçu et copie vérifiée | `updates/PortfolioUpdateCopy`, `ui/updateactions/UpdatePreviewDialog` |
 | `feature/elm-refresh` | Ajuster ELM et option Pilotage ; dépend du socle uniquement | `updates/elm/`, `ui/updateactions/elm/`, fragment de menu |
+| `feature/bond-quotes` | Cours des obligations, conventions dirty, aperçu et mise à jour du portefeuille ouvert ; dépend du socle uniquement | `updates/bonds/`, `ui/updateactions/bonds/`, `BOND_QUOTES.md` |
 | `fork/integration` | Réunit les extensions, le guide et le portefeuille de démonstration | Ce document, `PRIVATE_EQUITY.md`, exemples |
 
 Les chemins `model/` et `snapshot/` sont dans le module `name.abuchen.portfolio/src/name/abuchen/portfolio/`. Les chemins `ui/` sont dans `name.abuchen.portfolio.ui/src/name/abuchen/portfolio/`.
@@ -60,6 +61,9 @@ git merge upstream-baseline
 git switch feature/elm-refresh
 git merge feature/update-actions
 
+git switch feature/bond-quotes
+git merge feature/update-actions
+
 git switch fork/integration
 git merge upstream-baseline
 git merge feature/pe-operations
@@ -67,6 +71,7 @@ git merge feature/allocation-widgets
 git merge feature/vivid-branding
 git merge fork/platform
 git merge feature/elm-refresh
+git merge feature/bond-quotes
 ```
 
 Ces fusions préservent les commits déjà publiés et ne nécessitent pas de publication forcée. Si la nouvelle base ne descend pas de la précédente, `--ff-only` s'arrête : examiner ce changement d'historique avant de continuer. La copie initiale est peu profonde ; pour une recherche dans des versions amont plus anciennes, utiliser d'abord `git fetch --unshallow upstream`.
@@ -130,3 +135,18 @@ git push -u origin upstream-baseline fork/platform feature/pe-operations \
 Pour limiter strictement l'accès à ce seul dépôt, l'alternative est un jeton personnel à permissions fines limité à `ndeber/portfolio`, avec `Contents: Read and write` et, si des pull requests sont souhaitées, `Pull requests: Read and write`. Le configurer localement via une saisie masquée et le trousseau, jamais dans l'URL Git ou l'historique des commandes. Une connexion OAuth GitHub CLI peut donner accès à davantage de dépôts selon les autorisations du compte.
 
 Références : [connexion GitHub CLI](https://cli.github.com/manual/gh_auth_login), [configuration de Git](https://cli.github.com/manual/gh_auth_setup-git), [jetons à permissions fines](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens).
+
+## Ajout v8 — obligations (24 septembre 2026)
+
+`feature/bond-quotes` et `feature/elm-refresh` contribuent chacun un fragment au
+menu défini par `feature/update-actions`. Lors d'une fusion, conserver les deux
+lignes de fragments dans `plugin.xml` et les deux exports de packages dans le
+manifeste. Le socle doit être fusionné avant les fonctions. Les bibliothèques XLS
+restent sur la branche obligations ; elles ne sont pas nécessaires à ELM seul.
+
+Pilotage Global et l'option Pilotage d'ELM sont conservées. Aucun portefeuille
+personnel n'est modifié par l'installation de la v8.
+
+Voir [BOND_QUOTES.md](BOND_QUOTES.md) pour le périmètre, les sources et la migration
+explicite des cours. `Bonds-Demo.xml` contient les sept titres sans historique,
+ainsi que l'exemple ELM/PE, pour essayer la commande sans données personnelles.

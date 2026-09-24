@@ -7,7 +7,8 @@ portefeuille et n'ajoute pas encore les commandes décrites ci-dessous.
 disponible sur `feature/elm-refresh`, avec le socle
 `feature/update-actions`. Depuis la v7, la validation applique ELM au portefeuille
 ouvert, à la demande de l’utilisateur ; le parcours en copie décrit plus bas
-correspond à la proposition initiale. Les deux autres traitements restent à développer.
+correspond à la proposition initiale. La commande [obligations individuelles](BOND_QUOTES.md) est désormais disponible sur
+`feature/bond-quotes` (v8). Les taxonomies détaillées restent à développer.
 
 ## Résultat
 

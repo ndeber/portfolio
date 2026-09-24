@@ -93,3 +93,21 @@ son compte Portfolio Performance pour les instruments utilisant le fournisseur i
 Les identifiants protobuf 1001 et 1002 sont réservés aux opérations du fork. Aucun changement de nombre de parts n'est encodé pour un appel ou une distribution.
 
 L'organisation des branches et la procédure de mise à jour sont décrites dans [le guide de maintenance](docs/fork/MAINTENANCE.md). Les opérations, widgets et logos peuvent être repris séparément. La fabrication avec la palette originale reste possible en omettant `--branding fork-branding`.
+
+## Actualiser les obligations individuelles — v8
+
+Choisir **Outils du portefeuille → Actualiser les obligations individuelles…**,
+cocher les titres, puis récupérer les données. L'aperçu montre les cours avec
+coupon couru et indexation, la période obtenue, les sources et les dates retirées
+lors d'une conversion d'historique. Le bouton final **Appliquer au portefeuille
+ouvert** met à jour la copie actuellement ouverte ; enregistrer ensuite normalement.
+
+Les sept obligations du script sont prises en charge. Les cours déjà gérés par le
+script sont conservés et complétés. Un historique dont la convention est inconnue
+nécessite de cocher explicitement son remplacement. Le fournisseur des titres
+actualisés devient Manuel pour conserver une convention homogène.
+
+**Pilotage Global est conservée**, ainsi que son option dans Ajuster ELM. La
+commande obligations ne modifie aucune taxonomie. Pour essayer cette fonction,
+ouvrir `Bonds-Demo.xml`, qui contient uniquement des données de démonstration.
+Voir [le guide détaillé](docs/fork/BOND_QUOTES.md) pour les ISIN et les règles.
