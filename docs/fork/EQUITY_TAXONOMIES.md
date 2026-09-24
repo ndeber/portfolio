@@ -17,6 +17,11 @@ affectations avant/après, puis les sources, leurs dates et les erreurs éventue
 compositions réussies. Les lignes signalées « inchangé » gardent leurs affectations.
 Enregistrer ensuite normalement avec ⌘S. Annuler ne modifie rien.
 
+La progression indique le titre et la taxonomie en cours. Chaque récupération et
+lecture est limitée à 45 secondes ; un dépassement conserve les affectations
+existantes et apparaît dans les avertissements. L’annulation libère la fenêtre
+sans attendre la fin d’un lecteur tiers qui ignorerait les interruptions.
+
 La portée est celle du script : titres non retirés, détenus en quantité positive
 aujourd'hui dans les portefeuilles actifs, affectés sous Actions dans Classes
  d'actifs. Vanguard All-World (IE00BK5BQT80) reste inclus même sans position positive.
@@ -76,4 +81,5 @@ La provenance et les avertissements sont mémorisés dans `fork.equity.lastUpdat
 Tests : conservation, idempotence, aperçu périmé, sources partielles, catégories
 ambiguës, consolidation des émetteurs, arrondis, dates, périmètre des positions et
 relecture du modèle. Les parseurs MSCI, Vanguard, Boursorama et DivvyDiary sont
-également vérifiés en direct avant livraison.
+également vérifiés en direct avant livraison. Les tests couvrent aussi les délais
+et l’annulation, y compris lorsqu’un lecteur ignore les interruptions.
