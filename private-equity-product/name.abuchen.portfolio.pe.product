@@ -48,6 +48,7 @@
    </features>
 
    <configurations>
+      <plugin id="org.apache.logging.log4j.to.slf4j" autoStart="true" startLevel="3" />
       <plugin id="name.abuchen.portfolio.ui" autoStart="false" startLevel="4" />
       <plugin id="com.twelvemonkeys.imageio.bmp" autoStart="true" startLevel="4" />
       <plugin id="org.eclipse.core.runtime" autoStart="true" startLevel="4" />
