@@ -10,6 +10,10 @@ Les opérations PE, les widgets et l'identité visuelle sont indépendants.
 3. Cocher les taxonomies à actualiser et choisir, pour chacune, les catégories
    Monétaire, Obligations et Actions. Les correspondances sans ambiguïté sont
    proposées ; les sélections enregistrées sont retrouvées par identifiant.
+   **Pilotage Global reste décoché à chaque ouverture**, même s'il était inclus
+   dans la configuration enregistrée. Ses catégories restent mémorisées et il
+   peut être coché manuellement pour cette actualisation. Cette règle s'applique
+   aussi à l'option facultative ci-dessous lorsqu'elle vise Pilotage Global.
 4. Facultatif : cocher **Ajuster aussi Pilotage**, choisir la taxonomie et sa
    catégorie **Moteur Dynamique**. ELM y sera affecté à 100 % et retiré des autres
    catégories de cette seule taxonomie, notamment du moteur statique.
