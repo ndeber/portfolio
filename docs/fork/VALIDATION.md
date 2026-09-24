@@ -150,3 +150,25 @@ reste celui de l'éditeur : manuel ou automatique selon les préférences exista
 
 Pilotage Global et l'option Pilotage d'ELM sont conservées. Aucun titre ni aucune
 taxonomie du portefeuille personnel n'a été modifié par les tests de la v8.
+
+## Flux PE en devises — livraison v9 (24 septembre 2026)
+
+Une copie migrée a révélé une `MonetaryException` dans le détail FIFO des
+plus-values d'un fonds USD présenté en EUR. `TrailRecord.fraction` renvoie la
+trace originale lorsqu'elle porte sur un lot entier ; le montant EUR passé en
+argument ne convertissait donc pas la trace USD. Le correctif convertit d'abord
+la trace, en devise du rapport et en devise du titre, puis répartit le flux.
+
+Quatre tests synthétiques couvrent appels et distributions, compte USD ou EUR
+avec montant USD enregistré, un ou plusieurs lots, rapports EUR et USD, FIFO
+et coût moyen, avec et sans frais. Avant correction : deux erreurs reproduites
+sur les lots uniques. Après correction : les quatre cas et les 13 tests PE
+existants passent. Aucune donnée personnelle n'est incluse dans ces tests.
+
+Reconstruction intégrée propre : 56 tests ciblés réussis, aucun échec. Sur une
+copie locale du portefeuille ayant déclenché l'erreur, les accesseurs des
+rapports de performance 2021–2026 (dont les plus-values FIFO) ne lèvent plus
+l'erreur monétaire après correction. Ce contrôle utilise un taux fixe pour
+isoler la cohérence des devises ; il ne valide pas les taux de marché. Un
+avertissement de performance sans titres, déjà présent sur le portefeuille
+avant migration, reste indépendant de ce correctif.

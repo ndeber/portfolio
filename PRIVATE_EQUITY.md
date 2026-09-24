@@ -111,3 +111,11 @@ actualisés devient Manuel pour conserver une convention homogène.
 commande obligations ne modifie aucune taxonomie. Pour essayer cette fonction,
 ouvrir `Bonds-Demo.xml`, qui contient uniquement des données de démonstration.
 Voir [le guide détaillé](docs/fork/BOND_QUOTES.md) pour les ISIN et les règles.
+
+## Correctif v9 — fonds en devise étrangère
+
+La v9 corrige une erreur monétaire du détail des plus-values après un appel de
+fonds ou une distribution en devise étrangère, notamment pour un fonds USD dans
+un rapport EUR. La copie de portefeuille déjà migrée peut être conservée :
+quitter la v8, ouvrir la v9 puis ouvrir la même copie. Aucune nouvelle conversion
+des opérations n'est nécessaire.
