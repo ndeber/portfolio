@@ -62,20 +62,25 @@ public final class EquityPreviewDialog extends TitleAreaDialog
                             String.format(Locale.FRANCE, "%.2f %%", change.before() / 100.0),
                             String.format(Locale.FRANCE, "%.2f %%", change.after() / 100.0) });
         }
+        for (var removal : plan.removals())
+        {
+            var row = new TableItem(table, SWT.NONE);
+            row.setText(new String[] { "Actions - Transparence / " + removal.categoryName(), "Catégorie erronée", "Supprimée" });
+        }
         changes.setControl(table);
         var provenance = new TabItem(tabs, SWT.NONE);
         provenance.setText("Sources et avertissements");
         var text = new Text(tabs, SWT.READ_ONLY | SWT.MULTI | SWT.WRAP | SWT.V_SCROLL | SWT.BORDER);
         text.setText(String.join("\n\n", plan.notices()));
         provenance.setControl(text);
-        if (plan.changes().isEmpty()) tabs.setSelection(provenance);
+        if (plan.isEmpty()) tabs.setSelection(provenance);
         return area;
     }
 
     @Override
     protected void createButtonsForButtonBar(Composite parent)
     {
-        createButton(parent, IDialogConstants.OK_ID, plan.changes().isEmpty() ? "Fermer — aucun changement"
+        createButton(parent, IDialogConstants.OK_ID, plan.isEmpty() ? "Fermer — aucun changement"
                         : "Appliquer au portefeuille ouvert", true);
         createButton(parent, IDialogConstants.CANCEL_ID, "Annuler", false);
     }

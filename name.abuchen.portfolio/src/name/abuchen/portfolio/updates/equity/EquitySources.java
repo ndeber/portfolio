@@ -209,8 +209,17 @@ public final class EquitySources
         return new Slice(items, LocalDate.parse(date.group(1), DateTimeFormatter.ofPattern("dd/MM/uuuu")), url, false);
     }
 
+    /** Remove only recognized labels from the adjacent INDEX CHARACTERISTICS column. */
+    public static String msciHoldingName(String name)
+    {
+        return name.strip().replaceFirst("^(?:Constituents|Weight \\(\\s*%\\s*\\)|Mkt Cap \\(\\s*USD (?:Millions|Billions)\\)|"
+                        + "(?:Number of|Index|Largest|Smallest|Average|Median)(?:\\s+[\\d,]+(?:\\.\\d+)?){1,2})\\s+", "");
+    }
+
     public static Slice parseMsci(String text, String parser, String url) throws IOException
     {
+        if (!List.of("msci_world", "msci_em_ex_egypt").contains(parser))
+            throw new IOException("Format MSCI inconnu.");
         int start = text.indexOf("TOP 10 CONSTITUENTS");
         if (start < 0) throw new IOException("Principales lignes MSCI absentes.");
         String section = text.substring(start).split("FACTORS - KEY EXPOSURES|SECTOR WEIGHTS|COUNTRY WEIGHTS", 2)[0];
@@ -220,9 +229,23 @@ public final class EquitySources
         for (String line : section.split("\\R"))
         {
             var match = pattern.matcher(line.strip());
-            if (match.matches()) items.add(new Item(match.group(1), new BigDecimal(match.group(2))));
+            if (match.matches())
+            {
+                String name = msciHoldingName(match.group(1));
+                // MSCI names in these tables are uppercase. Fail closed on a changed layout,
+                // rather than create categories containing statistics or adjacent headings.
+                if (!name.matches("[A-Z0-9][A-Z0-9 &'()./,-]*") || name.matches(".*[0-9][.,][0-9].*"))
+                    throw new IOException("Nom de constituant MSCI ambigu : " + name);
+                items.add(new Item(name, new BigDecimal(match.group(2))));
+            }
         }
-        if (items.size() != 10) throw new IOException("Les dix lignes MSCI ne sont pas lisibles.");
+        if (items.size() != 10 || items.stream().map(Item::name).distinct().count() != 10) throw new IOException("Les dix lignes MSCI ne sont pas lisibles.");
+        var total = Pattern.compile("(?m)^Total\\s+([\\d,]+\\.\\d+)\\s+([\\d,]+\\.\\d+)\\s*$").matcher(section);
+        if (!total.find()) throw new IOException("Total MSCI absent.");
+        var expected = new BigDecimal(total.group("msci_world".equals(parser) ? 2 : 1).replace(",", ""));
+        var actual = items.stream().map(Item::percent).reduce(BigDecimal.ZERO, BigDecimal::add);
+        if (expected.subtract(actual).abs().compareTo(new BigDecimal("0.05")) > 0)
+            throw new IOException("Poids MSCI incohérents avec le total publié.");
         var date = Pattern.compile("([A-Z]{3}\\s+\\d{1,2},\\s+\\d{4}) Index Factsheet").matcher(text.replaceAll("\\s+", " "));
         if (!date.find()) throw new IOException("Date MSCI absente.");
         var format = new DateTimeFormatterBuilder().parseCaseInsensitive().appendPattern("MMM d, uuuu").toFormatter(Locale.ENGLISH);

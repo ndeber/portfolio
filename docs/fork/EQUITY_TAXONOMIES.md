@@ -83,3 +83,18 @@ ambiguës, consolidation des émetteurs, arrondis, dates, périmètre des positi
 relecture du modèle. Les parseurs MSCI, Vanguard, Boursorama et DivvyDiary sont
 également vérifiés en direct avant livraison. Les tests couvrent aussi les délais
 et l’annulation, y compris lorsqu’un lecteur ignore les interruptions.
+
+## Réparation des libellés MSCI de la v13
+
+L'extraction reconnaît désormais les statistiques de la colonne voisine et vérifie
+les dix noms, leur unicité et la cohérence des poids avec le total du tableau.
+Une structure inconnue conserve les affectations et produit un avertissement.
+
+Relancer l'actualisation prépare aussi la réparation des catégories erronées
+(`Constituents NVIDIA`, `Average … BROADCOM`, etc.). Les positions rejoignent les
+catégories correctes, en réutilisant les catégories existantes lorsqu'elles sont
+reconnues. L'aperçu montre explicitement les catégories proposées à la suppression.
+Seules les feuilles créées par cette fonction, identifiées par leur identifiant
+déterministe, sans objectif ni enfant et devenant entièrement vides sont retirées.
+Les catégories personnalisées et celles conservant une position non actualisée
+restent présentes. Une annulation ne modifie rien.

@@ -87,7 +87,7 @@ public final class RefreshEquityHandler
             });
             var plan = prepared.get();
             if (changed.get()) throw new IOException("Le portefeuille a changé. Relancez l'actualisation pour inclure ces changements.");
-            if (new EquityPreviewDialog(shell, plan, scope.size()).open() != Window.OK || plan.changes().isEmpty())
+            if (new EquityPreviewDialog(shell, plan, scope.size()).open() != Window.OK || plan.isEmpty())
                 return;
             if (changed.get()) throw new IOException("Le portefeuille a changé depuis l'aperçu. Relancez l'actualisation.");
             EquityAdjustment.apply(input.getClient(), plan);
