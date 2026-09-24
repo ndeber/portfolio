@@ -75,7 +75,8 @@ public final class RefreshEquityHandler
                     {
                         if (monitor.isCanceled()) throw new InterruptedException();
                         monitor.subTask(security.getName());
-                        outcomes.addAll(sources.fetch(security, monitor::isCanceled));
+                        outcomes.addAll(sources.fetch(security, monitor::isCanceled,
+                                        family -> monitor.subTask(security.getName() + " — " + family.title())));
                         monitor.worked(1);
                     }
                     if (monitor.isCanceled()) throw new InterruptedException();

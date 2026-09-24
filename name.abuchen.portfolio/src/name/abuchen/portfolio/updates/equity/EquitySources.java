@@ -16,7 +16,8 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
 import java.util.ArrayList;
 import java.util.EnumMap;
-import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Consumer;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -48,7 +49,7 @@ public final class EquitySources
     }
     private final HttpClient http = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(15))
                     .followRedirects(HttpClient.Redirect.NORMAL).build();
-    private final Map<String, String> pages = new HashMap<>();
+    private final Map<String, String> pages = new ConcurrentHashMap<>();
 
     public static String alias(String group, String key)
     {
@@ -84,11 +85,21 @@ public final class EquitySources
 
     public List<Outcome> fetch(Security security, BooleanSupplier cancelled) throws InterruptedException
     {
+        return fetch(security, cancelled, family -> { });
+    }
+
+    public List<Outcome> fetch(Security security, BooleanSupplier cancelled, Consumer<Family> progress) throws InterruptedException
+    {
         var result = new ArrayList<Outcome>();
         for (var family : Family.values())
         {
             if (cancelled.getAsBoolean()) throw new InterruptedException();
-            try { result.add(new Outcome(security.getUUID(), family, fetch(security, family), null)); }
+            progress.accept(family);
+            try
+            {
+                var slice = EquityTask.run(() -> fetch(security, family), cancelled, Duration.ofSeconds(45));
+                result.add(new Outcome(security.getUUID(), family, slice, null));
+            }
             catch (IOException | RuntimeException e)
             {
                 result.add(new Outcome(security.getUUID(), family, null,
