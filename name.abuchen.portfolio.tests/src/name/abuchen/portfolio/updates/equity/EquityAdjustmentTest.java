@@ -126,4 +126,43 @@ public class EquityAdjustmentTest
         assertEquals(10000,total(EquityAdjustment.taxonomy(copy,Family.HOLDINGS),copy.getSecurities().getFirst()));
         assertEquals(3,EquityAdjustment.taxonomy(copy,Family.HOLDINGS).getAllClassifications().size());
     }
+    @Test public void repairMergesGeneratedGarbageIntoExistingCompanyAndIsIdempotent() throws Exception
+    {
+        var c = fixture(); var t = EquityAdjustment.taxonomy(c, Family.HOLDINGS); var security = c.getSecurities().getFirst();
+        var apple = child(t.getRoot(), "Apple"); apple.setWeight(1234);
+        var legacy = outcome(c, Family.HOLDINGS, slice(item("Mkt Cap ( USD Millions) APPLE", "5.07")));
+        EquityAdjustment.apply(c, EquityAdjustment.prepare(c, List.of(legacy)));
+        var corrected = outcome(c, Family.HOLDINGS, slice(item("APPLE", "5.07")));
+        var plan = EquityAdjustment.prepare(c, List.of(corrected));
+        assertEquals(1, plan.removals().size());
+        assertNotNull(t.getClassificationById(plan.removals().getFirst().categoryId())); // preview does not mutate
+        EquityAdjustment.apply(c, plan);
+        assertNull(t.getClassificationById(plan.removals().getFirst().categoryId()));
+        assertSame(apple, t.getClassificationById(apple.getId())); assertEquals(1234, apple.getWeight());
+        assertEquals(507, apple.getAssignments().getFirst().getWeight()); assertEquals(10000, total(t, security));
+        assertTrue(EquityAdjustment.prepare(c, List.of(corrected)).isEmpty());
+        var copy = ClientFactory.duplicate(c);
+        assertEquals(10000, total(EquityAdjustment.taxonomy(copy, Family.HOLDINGS), copy.getSecurities().getFirst()));
+    }
+    @Test public void repairProtectsCustomCategoriesTargetsChildrenAndFailedSources()
+    {
+        var c = fixture(); var t = EquityAdjustment.taxonomy(c, Family.HOLDINGS);
+        var legacy = outcome(c, Family.HOLDINGS, slice(item("Constituents NVIDIA", "5.56")));
+        EquityAdjustment.apply(c, EquityAdjustment.prepare(c, List.of(legacy)));
+        var bad = t.getAllClassifications().stream().filter(x -> x.getName().equals("Constituents NVIDIA")).findFirst().orElseThrow();
+        var corrected = outcome(c, Family.HOLDINGS, slice(item("NVIDIA", "5.56")));
+        var failure = new Outcome(c.getSecurities().getFirst().getUUID(), Family.HOLDINGS, null, "unavailable");
+        assertTrue(EquityAdjustment.prepare(c, List.of(failure)).removals().isEmpty());
+        bad.setWeight(100); assertTrue(EquityAdjustment.prepare(c, List.of(corrected)).removals().isEmpty());
+        bad.setWeight(0); child(bad, "Custom child"); assertTrue(EquityAdjustment.prepare(c, List.of(corrected)).removals().isEmpty());
+        bad.getChildren().clear();
+        var other = new Security("Other", "EUR"); c.addSecurity(other); bad.addAssignment(new Assignment(other, 50));
+        assertTrue(EquityAdjustment.prepare(c, List.of(corrected)).removals().isEmpty());
+        bad.getAssignments().removeIf(a -> a.getInvestmentVehicle() == other);
+        var custom = child(t.getRoot(), "Constituents NVIDIA"); custom.setWeight(0);
+        var plan = EquityAdjustment.prepare(c, List.of(corrected)); assertEquals(1, plan.removals().size());
+        bad.setWeight(1); assertThrows(IllegalArgumentException.class, () -> EquityAdjustment.apply(c, plan));
+        bad.setWeight(0); EquityAdjustment.apply(c, EquityAdjustment.prepare(c, List.of(corrected)));
+        assertNotNull(t.getClassificationById(custom.getId()));
+    }
 }

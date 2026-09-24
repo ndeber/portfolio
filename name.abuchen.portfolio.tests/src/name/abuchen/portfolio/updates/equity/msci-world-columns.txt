@@ -1,0 +1,17 @@
+AUG 31, 2026 Index Factsheet
+INDEX CHARACTERISTICS TOP 10 CONSTITUENTS
+MSCI World Float Adj Mkt Index Sector
+Number of 1,280 Cap Wt. (%)
+( USD Billions)
+Constituents NVIDIA 5,096.71 5.56 Info Tech
+Mkt Cap ( USD Millions) APPLE 4,651.72 5.07 Info Tech
+Index 91,704,810.20 MICROSOFT CORP 3,578.60 3.90 Info Tech
+Largest 5,096,706.30 AMAZON.COM 2,514.27 2.74 Cons Discr
+Smallest 2,405.10 ALPHABET A 1,975.70 2.15 Comm Srvcs
+Average 71,644.38 BROADCOM 1,665.77 1.82 Info Tech
+Median 24,317.55 ALPHABET C 1,550.37 1.69 Comm Srvcs
+META PLATFORMS A 1,256.88 1.37 Comm Srvcs
+MICRON TECHNOLOGY 1,081.19 1.18 Info Tech
+TESLA 1,035.53 1.13 Cons Discr
+Total 24,406.73 26.61
+SECTOR WEIGHTS
