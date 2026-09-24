@@ -8,7 +8,9 @@ disponible sur `feature/elm-refresh`, avec le socle
 `feature/update-actions`. Depuis la v7, la validation applique ELM au portefeuille
 ouvert, à la demande de l’utilisateur ; le parcours en copie décrit plus bas
 correspond à la proposition initiale. La commande [obligations individuelles](BOND_QUOTES.md) est désormais disponible sur
-`feature/bond-quotes` (v8). Les taxonomies détaillées restent à développer.
+`feature/bond-quotes` (v8). Les trois taxonomies Actions sont disponibles sur `feature/taxonomy-refresh`
+(v12) : [règles et utilisation](EQUITY_TAXONOMIES.md). Les taxonomies obligataires
+détaillées restent à développer.
 
 ## Résultat
 

@@ -32,6 +32,7 @@ Export-Package: name.abuchen.portfolio,
  name.abuchen.portfolio.updates,
  name.abuchen.portfolio.updates.elm,
  name.abuchen.portfolio.updates.bonds,
+ name.abuchen.portfolio.updates.equity,
  name.abuchen.portfolio.util
 Import-Package: com.auth0.jwt,
  com.auth0.jwt.interfaces,

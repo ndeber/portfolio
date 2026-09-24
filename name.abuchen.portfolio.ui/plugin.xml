@@ -469,5 +469,6 @@
       <fragment uri="model/update-actions.e4xmi" apply="always"/>
       <fragment uri="model/elm-refresh.e4xmi" apply="always"/>
       <fragment uri="model/bond-quotes.e4xmi" apply="always"/>
+      <fragment uri="model/equity-refresh.e4xmi" apply="always"/>
    </extension>
 </plugin>
