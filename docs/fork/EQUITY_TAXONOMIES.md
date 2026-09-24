@@ -57,12 +57,11 @@ et par taxonomie, et ne se transforment pas en exposition nulle.
 
 ## Conservation du portefeuille
 
-Les taxonomies, catégories existantes, objectifs, identifiants, couleurs et rangs
-sont conservés. Les nouvelles sociétés de la transparence sont ajoutées avec un
+Les taxonomies, catégories existantes, objectifs, identifiants et couleurs
+sont conservés. Les rangs sont actualisés par le tri décrit ci-dessous. Les nouvelles sociétés de la transparence sont ajoutées avec un
 objectif nul. Les catégories devenues vides ne sont pas supprimées : les widgets
 restent liés. Contrairement au script historique, l'arbre de transparence n'est
-pas détruit/recréé ni réordonné selon sa valeur ; le tri d'affichage reste disponible
- dans Portfolio Performance.
+pas détruit/recréé ; seules les positions relatives des catégories sont ajustées.
 
 Aucune transaction, quantité, cotation, classification obligataire, répartition
 ELM par classes d'actifs, ni affectation Pilotage Global n'est modifiée. Les données
@@ -98,3 +97,18 @@ Seules les feuilles créées par cette fonction, identifiées par leur identifia
 déterministe, sans objectif ni enfant et devenant entièrement vides sont retirées.
 Les catégories personnalisées et celles conservant une position non actualisée
 restent présentes. Une annulation ne modifie rien.
+
+## Tri après application
+
+Après application de l'aperçu, les trois taxonomies sont triées par montant actuel
+décroissant, à chaque niveau de catégories et de sous-catégories. Le calcul utilise
+la valeur des positions du portefeuille complet à la date du jour, convertie dans
+sa devise de base, multipliée par chaque poids d'affectation ; une catégorie inclut
+ses sous-catégories. Les objectifs ne servent pas de clé de tri.
+
+Les catégories nommées Other, Others, Autre ou Autres (sans distinction de casse)
+restent en dernier à chaque niveau. Les montants égaux sont départagés par le nom.
+Les catégories précèdent les positions, dont l'ordre relatif existant est conservé.
+L'ordre est persistant après enregistrement. Même si aucune composition ne change,
+l'aperçu permet d'appliquer le tri. Annuler ne modifie pas l'ordre. Les autres
+taxonomies, dont Pilotage Global, ne sont pas triées par cette commande.

@@ -39,7 +39,7 @@ public final class EquityPreviewDialog extends TitleAreaDialog
         setTitle("Taxonomies Actions — aperçu");
         long unchanged = plan.notices().stream().filter(n -> n.contains("— inchangé :")).count();
         setMessage(securities + " titres · " + plan.changes().size() + " affectations à modifier · " + unchanged + " compositions non actualisées.\n"
-                        + "Les trois taxonomies sont préparées ensemble. Les sources indisponibles restent inchangées.\n"
+                        + "Tri des catégories par montant décroissant dans les trois taxonomies ; Other / Others en dernier.\n"
                         + "Consultez les dates et les profils fixes dans l'onglet Sources et avertissements.");
         var tabs = new TabFolder(area, SWT.NONE);
         GridDataFactory.fillDefaults().grab(true, true).hint(900, 440).applyTo(tabs);
@@ -80,7 +80,7 @@ public final class EquityPreviewDialog extends TitleAreaDialog
     @Override
     protected void createButtonsForButtonBar(Composite parent)
     {
-        createButton(parent, IDialogConstants.OK_ID, plan.isEmpty() ? "Fermer — aucun changement"
+        createButton(parent, IDialogConstants.OK_ID, plan.isEmpty() ? "Appliquer le tri au portefeuille ouvert"
                         : "Appliquer au portefeuille ouvert", true);
         createButton(parent, IDialogConstants.CANCEL_ID, "Annuler", false);
     }
