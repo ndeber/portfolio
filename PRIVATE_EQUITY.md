@@ -119,3 +119,10 @@ fonds ou une distribution en devise étrangère, notamment pour un fonds USD dan
 un rapport EUR. La copie de portefeuille déjà migrée peut être conservée :
 quitter la v8, ouvrir la v9 puis ouvrir la même copie. Aucune nouvelle conversion
 des opérations n'est nécessaire.
+
+## Présentation v10 — couleurs des flux PE
+
+Les appels de fonds utilisent la couleur positive des achats (vert par défaut),
+et les distributions la couleur négative des ventes (rouge par défaut), dans
+les listes d'opérations. Les couleurs suivent le thème et le jeu de couleurs
+sélectionnés dans l'application. Aucun montant ni calcul n'est modifié.
