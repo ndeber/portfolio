@@ -112,4 +112,10 @@ For purposes of the EPL, &quot;Program&quot; will mean the Content.
          version="0.0.0"
          unpack="false"/>
 
+   <plugin id="wrapped.org.apache.poi.poi" download-size="0" install-size="0" version="0.0.0" unpack="false"/>
+   <plugin id="org.apache.commons.commons-collections4" download-size="0" install-size="0" version="0.0.0" unpack="false"/>
+   <plugin id="org.apache.commons.commons-io" download-size="0" install-size="0" version="0.0.0" unpack="false"/>
+   <plugin id="wrapped.com.zaxxer.SparseBitSet" download-size="0" install-size="0" version="0.0.0" unpack="false"/>
+   <plugin id="org.apache.logging.log4j.api" download-size="0" install-size="0" version="0.0.0" unpack="false"/>
+
 </feature>
