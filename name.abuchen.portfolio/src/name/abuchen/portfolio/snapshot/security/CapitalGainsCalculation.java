@@ -323,8 +323,21 @@ import name.abuchen.portfolio.snapshot.trail.TrailRecord;
         if (!flow.getType().isCapitalFlow())
             return;
         long sign = flow.getType() == AccountTransaction.Type.CAPITAL_CALL ? 1 : -1;
-        long amount = sign * PrivateEquityValuation.convert(flow, converter).getAmount();
-        long forex = sign * PrivateEquityValuation.amountInSecurityCurrency(flow);
+        var termValue = PrivateEquityValuation.convert(flow, converter);
+        var securityValue = Money.of(getSecurity().getCurrencyCode(),
+                        PrivateEquityValuation.amountInSecurityCurrency(flow));
+        long amount = sign * termValue.getAmount();
+        long forex = sign * securityValue.getAmount();
+        TrailRecord termTrail = TrailRecord.ofTransaction(flow);
+        TrailRecord securityTrail = TrailRecord.ofTransaction(flow);
+        // Convert before splitting: fraction() returns the original trail for
+        // a whole lot, so its supplied value cannot perform currency conversion.
+        if (!flow.getCurrencyCode().equals(termValue.getCurrencyCode()))
+            termTrail = termTrail.convert(termValue,
+                            impliedRate(flow.getMonetaryAmount(), termValue, flow.getDateTime().toLocalDate()));
+        if (!flow.getCurrencyCode().equals(securityValue.getCurrencyCode()))
+            securityTrail = securityTrail.convert(securityValue,
+                            impliedRate(flow.getMonetaryAmount(), securityValue, flow.getDateTime().toLocalDate()));
         long totalShares = fifo.stream().mapToLong(lot -> lot.shares).sum();
         long remainingShares = totalShares;
         for (LineItem lot : fifo)
@@ -336,9 +349,9 @@ import name.abuchen.portfolio.snapshot.trail.TrailRecord;
             var prior = lot.trail.fraction(Money.of(getTermCurrency(), lot.value), lot.shares, lot.originalShares);
             var priorForex = lot.forexTrail.fraction(Money.of(getSecurity().getCurrencyCode(), lot.valueForex),
                             lot.shares, lot.originalShares);
-            var adjustment = TrailRecord.ofTransaction(flow).fraction(Money.of(getTermCurrency(), Math.abs(part)),
+            var adjustment = termTrail.fraction(Money.of(getTermCurrency(), Math.abs(part)),
                             lot.shares, totalShares);
-            var adjustmentForex = TrailRecord.ofTransaction(flow).fraction(
+            var adjustmentForex = securityTrail.fraction(
                             Money.of(getSecurity().getCurrencyCode(), Math.abs(partForex)), lot.shares, totalShares);
             lot.trail = sign > 0 ? prior.add(adjustment) : prior.subtract(adjustment);
             lot.forexTrail = sign > 0 ? priorForex.add(adjustmentForex) : priorForex.subtract(adjustmentForex);
