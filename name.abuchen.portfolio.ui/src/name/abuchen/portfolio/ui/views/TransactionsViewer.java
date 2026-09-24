@@ -105,8 +105,14 @@ public final class TransactionsViewer implements ModificationListener
                 return t.getType().isLiquidation() ? ValueColorScheme.current().negativeForeground()
                                 : ValueColorScheme.current().positiveForeground();
             else if (tx instanceof AccountTransaction t)
+            {
+                if (t.getType().isCapitalFlow())
+                    return t.getType() == AccountTransaction.Type.CAPITAL_CALL
+                                    ? ValueColorScheme.current().positiveForeground()
+                                    : ValueColorScheme.current().negativeForeground();
                 return t.getType().isDebit() ? ValueColorScheme.current().negativeForeground()
                                 : ValueColorScheme.current().positiveForeground();
+            }
 
             throw new IllegalArgumentException("unsupported transaction type " + tx); //$NON-NLS-1$
         }
