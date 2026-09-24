@@ -228,3 +228,21 @@ déjà à jour. Les identifiants, objectifs, couleurs et poids sont conservés.
 23 tests ciblés réussis, dont deux tests de tri couvrant les trois taxonomies,
 les sous-catégories, les affectations partielles, les ex æquo, les valeurs nulles
 et négatives, la persistance après relecture, et la conservation de Pilotage Global.
+
+## Répartitions Obligations — livraison v16 (24 septembre 2026)
+
+Branche indépendante `feature/bond-taxonomy-refresh` : commande/menu et bouton dans
+les quatre vues Obligations, préparation en arrière-plan, aperçu, application au
+modèle ouvert et tri récursif. Les cotations et les autres taxonomies sont préservées.
+
+35 tests ciblés passent, dont 12 nouveaux cas obligataires : limites calendaires,
+profils fixes, sommes et arrondis, reliquats, pagination complète/incomplète/bloquée,
+dates des tables, distinction BBB / inférieur à BBB, catégories absentes ou ambiguës,
+aperçu périmé, identité des objets, objectifs, autres positions, périmètre, tri,
+idempotence et relecture. Les tests Actions existants restent valides.
+
+Essais des sources publiques pour VAGF et les neuf fonds du script : aucune erreur.
+Vanguard fournit 13 660 lignes pour les échéances. Contrôle dans le runtime OSGi
+assemblé, sans portefeuille personnel : douze résultats VAGF/M&G/Bund validés à
+100 %, et chargement du handler confirmé. Construction intégrée réussie.
+Ce contrôle ne remplace pas un test visuel complet du parcours de l'interface.

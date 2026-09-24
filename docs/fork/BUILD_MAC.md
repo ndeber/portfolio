@@ -68,4 +68,10 @@ python3 private-equity-product/check-packaged-pdf.py \
 
 Ajouter `--live-msci` pour vérifier aussi les compositions publiques des
 ETF Amundi PEA Emerging et WPEA (accès réseau nécessaire). Le contrôle local est limité
-à 45 secondes et le contrôle avec sources à 285 secondes.
+à 45 secondes et le contrôle avec sources à 300 secondes.
+
+Pour vérifier les répartitions obligataires dans le produit assemblé, ajouter
+`--live-bonds` au même contrôle. Il utilise uniquement trois exemples publics
+codés en dur (VAGF, M&G et Bund), vérifie les douze résultats et le chargement du
+handler. Il n'accepte aucun chemin de portefeuille et n'en lit aucun. Les contrôles
+avec sources réseau sont limités à 300 secondes.

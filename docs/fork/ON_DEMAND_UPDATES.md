@@ -153,3 +153,11 @@ Références publiques consultées : [ELM](https://www.elmfunds.com/elm-market-n
 [coefficients OAT€i AFT](https://www.aft.gouv.fr/fr/oateuroi-principaux-chiffres).
 La disponibilité générale de ces pages a été vérifiée ; tous les téléchargements et
 parseurs du moteur n'ont pas été exécutés ni revalidés en ligne pendant cette étude.
+
+## Traitements désormais disponibles
+
+Les quatre taxonomies Obligations disposent maintenant d'une commande indépendante
+sur `feature/bond-taxonomy-refresh` : voir [BOND_TAXONOMIES.md](BOND_TAXONOMIES.md).
+Comme les Actions, elle prépare un aperçu puis applique au portefeuille ouvert,
+avec tri persistant. Les profils fixes sont distingués des compositions téléchargées.
+Cette commande ne met pas à jour les cours des obligations.
