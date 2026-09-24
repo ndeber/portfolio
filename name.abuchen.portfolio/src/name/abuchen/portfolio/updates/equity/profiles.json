@@ -1,0 +1,307 @@
+{
+  "BOURSORAMA_COMPOSITION_URLS": {
+    "LU1832175001": "https://www.boursorama.com/bourse/opcvm/cours/composition/0P0001DKPN/",
+    "IE0002XZSHO1": "https://www.boursorama.com/bourse/trackers/cours/composition/1rTWPEA/",
+    "LU0552029232": "https://www.boursorama.com/bourse/opcvm/cours/composition/0P0000RRUT/",
+    "LU0565135745": "https://www.boursorama.com/bourse/opcvm/cours/composition/0P0000RXYQ/",
+    "LU0386882277": "https://www.boursorama.com/bourse/opcvm/cours/composition/MP-417651/",
+    "LU1983261782": "https://www.boursorama.com/bourse/opcvm/cours/composition/0P0001I1JM/",
+    "LU0245330005": "https://www.boursorama.com/bourse/opcvm/cours/composition/MP-974256/",
+    "LU0702159939": "https://www.boursorama.com/bourse/opcvm/cours/composition/0P0000UT4H/",
+    "LU0249411835": "https://www.boursorama.com/bourse/opcvm/cours/composition/MP-218220/",
+    "IE00BJCW7490": "https://www.boursorama.com/bourse/opcvm/cours/composition/0P0001T5ZE/",
+    "IE00BK5BQW10": "https://www.boursorama.com/bourse/trackers/cours/composition/1zVNRA/",
+    "IE00BK5BQX27": "https://www.boursorama.com/bourse/trackers/cours/composition/1zVWCG/",
+    "IE00BK5BR733": "https://www.boursorama.com/bourse/trackers/cours/composition/1zVFEA/",
+    "IE00BK5BQZ41": "https://www.boursorama.com/bourse/trackers/cours/composition/1uVAPU.L/",
+    "LU0280435388": "https://www.boursorama.com/bourse/opcvm/cours/composition/MP-990541/",
+    "LU1941681014": "https://www.boursorama.com/bourse/opcvm/cours/composition/0P0001HOFP/",
+    "FR0007054358": "https://www.boursorama.com/bourse/trackers/cours/composition/1rTMSE/",
+    "IE00B1FZS467": "https://www.boursorama.com/bourse/trackers/cours/composition/1uIDIN.L/",
+    "IE000CK5G8J7": "https://www.boursorama.com/bourse/trackers/cours/composition/1zCBUX/",
+    "FR0013412020": "https://www.boursorama.com/bourse/trackers/cours/composition/1rTPAEEM/"
+  },
+  "COUNTRY_NAMES": {
+    "Etats-Unis": "États-Unis",
+    "Royaume-Uni": "Grande-Bretagne",
+    "Royaume Uni": "Grande-Bretagne",
+    "Taiwan": "Taïwan",
+    "Macao": "Chine",
+    "Émirats arabes unis": "Emirats Arabes Unis",
+    "Emirats arabes unis": "Emirats Arabes Unis",
+    "Coree du Sud": "Corée du Sud"
+  },
+  "SECTOR_NAMES": {
+    "Services financiers": "Valeurs Financières",
+    "Industriels": "Industrie",
+    "Biens de consommation cyclique": "Consommation Discrétionaire",
+    "Services de communication": "Télécommunications",
+    "Biens de consommation défensif": "Biens de Consommation de base",
+    "Énergie": "Energie",
+    "Matières premières de base": "Matériaux de base",
+    "Services publics": "Service aux Collectivités",
+    "Information Technology": "Technologie",
+    "Financials": "Valeurs Financières",
+    "Industrials": "Industrie",
+    "Consumer Discretionary": "Consommation Discrétionaire",
+    "Communication Services": "Télécommunications",
+    "Consumer Staples": "Biens de Consommation de base",
+    "Energy": "Energie",
+    "Materials": "Matériaux de base",
+    "Health Care": "Santé",
+    "Utilities": "Service aux Collectivités",
+    "Real Estate": "Immobilier"
+  },
+  "DIRECT_STOCK_COUNTRIES": {
+    "CH0012549785": "Suisse",
+    "GB0002374006": "Grande-Bretagne",
+    "US2561631068": "États-Unis"
+  },
+  "DIRECT_STOCK_SECTORS": {
+    "CH0012549785": "Santé",
+    "GB0002374006": "Biens de Consommation de base",
+    "US2561631068": "Technologie"
+  },
+  "REGION_RESIDUAL_CLASSIFICATIONS": {
+    "LU1832175001": [
+      "Europe & Moyen-Orient",
+      null
+    ],
+    "FR0013412020": [
+      "Marchés émergents",
+      null
+    ],
+    "LU1941681014": [
+      "Marchés émergents",
+      null
+    ],
+    "IE00BK5BR733": [
+      "Marchés émergents",
+      null
+    ],
+    "IE00BK5BQX27": [
+      "Europe & Moyen-Orient",
+      null
+    ],
+    "IE00BK5BQW10": [
+      "Amériques",
+      0
+    ],
+    "IE00BJCW7490": [
+      "Japon",
+      null
+    ],
+    "LU0702159939": [
+      "Pacifique",
+      null
+    ],
+    "LU1261430877": [
+      "Pacifique",
+      null
+    ]
+  },
+  "TRANSPARENCY_HOLDING_LABELS": {
+    "ALPHABET": "Alphabet",
+    "ALIBABA GROUP HOLDING": "Alibaba Group Holding",
+    "AMAZON COM": "Amazon",
+    "APPLE": "Apple",
+    "BROADCOM": "Broadcom",
+    "CHINA CONSTRUCTION BANK": "China Construction Bank",
+    "DELTA ELECTRONICS": "Delta Electronics",
+    "JPMORGAN CHASE": "JPMorgan Chase",
+    "MEDIATEK": "MediaTek",
+    "META PLATFORMS": "Meta Platforms",
+    "MICRON TECHNOLOGY": "Micron Technology",
+    "MICROSOFT": "Microsoft",
+    "NVIDIA": "NVIDIA",
+    "RELIANCE INDUSTRIES": "Reliance Industries",
+    "SAMSUNG ELECTRONICS": "Samsung Electronics",
+    "SK HYNIX": "SK hynix",
+    "TAIWAN SEMICONDUCTOR MANUFACTURING": "Taiwan Semiconductor Manufacturing",
+    "TENCENT HOLDINGS": "Tencent Holdings",
+    "TESLA": "Tesla",
+    "TSMC": "Taiwan Semiconductor Manufacturing",
+    "VISA": "Visa"
+  },
+  "TRANSPARENCY_HOLDING_KEY_ALIASES": {
+    "ALPHABET A": "ALPHABET",
+    "ALPHABET C": "ALPHABET",
+    "CHINA CONSTRUCTION BANK H": "CHINA CONSTRUCTION BANK",
+    "META PLATFORMS A": "META PLATFORMS",
+    "TENCENT HOLDINGS LI": "TENCENT HOLDINGS",
+    "TSMC": "TAIWAN SEMICONDUCTOR MANUFACTURING"
+  },
+  "SPECIAL_COUNTRY_ALLOCATIONS": {
+    "IE00BYXVGY31": [
+      [
+        [
+          "États-Unis",
+          "0.996e2"
+        ],
+        [
+          "Suisse",
+          "0.4e0"
+        ]
+      ],
+      "2026-08-31",
+      "https://www.fidelityinternational.com/FILPS/Documents/en/current/pro.en.xx.IE00BYXVGY31.pdf"
+    ]
+  },
+  "SPECIAL_SECTOR_ALLOCATIONS": {
+    "IE00BYXVGY31": [
+      [
+        [
+          "Technologie",
+          "0.347e2"
+        ],
+        [
+          "Valeurs Financières",
+          "0.127e2"
+        ],
+        [
+          "Santé",
+          "0.99e1"
+        ],
+        [
+          "Industrie",
+          "0.99e1"
+        ],
+        [
+          "Consommation Discrétionaire",
+          "0.96e1"
+        ],
+        [
+          "Télécommunications",
+          "0.9e1"
+        ],
+        [
+          "Biens de Consommation de base",
+          "0.46e1"
+        ],
+        [
+          "Energie",
+          "0.34e1"
+        ],
+        [
+          "Matériaux de base",
+          "0.21e1"
+        ],
+        [
+          "Service aux Collectivités",
+          "0.2e1"
+        ],
+        [
+          "Immobilier",
+          "0.19e1"
+        ]
+      ],
+      "2026-08-31",
+      "https://www.fidelityinternational.com/FILPS/Documents/en/current/pro.en.xx.IE00BYXVGY31.pdf"
+    ]
+  },
+  "SPECIAL_TRANSPARENCY_ALLOCATIONS": {
+    "IE00BYXVGY31": [
+      [
+        [
+          "NVIDIA CORP",
+          "0.79e1"
+        ],
+        [
+          "APPLE INC",
+          "0.7e1"
+        ],
+        [
+          "MICROSOFT CORP",
+          "0.57e1"
+        ],
+        [
+          "ALPHABET INC",
+          "0.54e1"
+        ],
+        [
+          "BROADCOM INC",
+          "0.28e1"
+        ],
+        [
+          "META PLATFORMS INC",
+          "0.21e1"
+        ],
+        [
+          "JPMORGAN CHASE & CO",
+          "0.2e1"
+        ],
+        [
+          "ELI LILLY & CO",
+          "0.17e1"
+        ],
+        [
+          "VISA INC",
+          "0.16e1"
+        ],
+        [
+          "JOHNSON & JOHNSON",
+          "0.14e1"
+        ]
+      ],
+      "2026-08-31",
+      "https://www.fidelityinternational.com/FILPS/Documents/en/current/pro.en.xx.IE00BYXVGY31.pdf"
+    ]
+  },
+  "SYNTHETIC_ETF_INDEX_SOURCES": {
+    "IE0002XZSHO1": {
+      "name": "MSCI World Index",
+      "url": "https://www.msci.com/documents/10199/255599/msci-world-index.pdf",
+      "parser": "msci_world"
+    },
+    "FR0013412020": {
+      "name": "MSCI EM ex-Egypt ESG Broad CTB Select Index",
+      "url": "https://www.msci.com/documents/10199/40665199-32c4-7416-cb04-cd7d445c2e2e",
+      "parser": "msci_em_ex_egypt"
+    }
+  },
+  "VANGUARD_EMERGING_MARKETS_COUNTRIES": {
+    "Taiwan": "Taïwan",
+    "China": "Chine",
+    "India": "Inde",
+    "Brazil": "Brésil",
+    "South Africa": "Afrique du Sud",
+    "Saudi Arabia": "Arabie Saoudite",
+    "Mexico": "Mexique",
+    "United Arab Emirates": "Emirats Arabes Unis",
+    "Malaysia": "Malaisie",
+    "Thailand": "Thaïlande",
+    "Turkey": "Turquie",
+    "Greece": "Grèce",
+    "Indonesia": "Indonésie",
+    "Chile": "Chili",
+    "Kuwait": "Koweït"
+  },
+  "DIVVY_COUNTRY_PAGE_URLS": {
+    "FR0013412020": "https://divvydiary.com/en/amundi-pea-emergent-msci-emerging-esg-transition-ucits-etf-acc-FR0013412020"
+  },
+  "DIVVY_COUNTRY_CODES": {
+    "CN": "Chine",
+    "TW": "Taïwan",
+    "IN": "Inde",
+    "KR": "Corée du Sud",
+    "BR": "Brésil",
+    "ZA": "Afrique du Sud",
+    "MX": "Mexique",
+    "TH": "Thaïlande",
+    "ID": "Indonésie",
+    "MY": "Malaisie"
+  },
+  "DIVVY_SECTOR_NAMES": {
+    "Financials": "Valeurs Financières",
+    "Information Technology": "Technologie",
+    "Consumer Discretionary": "Consommation Discrétionaire",
+    "Communication Services": "Télécommunications",
+    "Materials": "Matériaux de base",
+    "Industrials": "Industrie",
+    "Consumer Staples": "Biens de Consommation de base",
+    "Energy": "Energie",
+    "Health Care": "Santé",
+    "Utilities": "Service aux Collectivités",
+    "Real Estate": "Immobilier"
+  }
+}

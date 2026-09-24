@@ -467,5 +467,6 @@
    </extension>
    <extension point="org.eclipse.e4.workbench.model">
       <fragment uri="model/update-actions.e4xmi" apply="always"/>
+      <fragment uri="model/equity-refresh.e4xmi" apply="always"/>
    </extension>
 </plugin>

@@ -30,6 +30,7 @@ Export-Package: name.abuchen.portfolio,
  name.abuchen.portfolio.snapshot.trail,
  name.abuchen.portfolio.support,
  name.abuchen.portfolio.updates,
+ name.abuchen.portfolio.updates.equity,
  name.abuchen.portfolio.util
 Import-Package: com.auth0.jwt,
  com.auth0.jwt.interfaces,
