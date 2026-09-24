@@ -215,3 +215,16 @@ sélectionnés appartiennent au cœur ; l'assemblage séparé sans relancer les 
 réussit. Le contrôle du produit OSGi avec `--live-msci` récupère les six compositions
 Amundi/WPEA et affiche les vingt noms nettoyés avec leurs poids. Aucune écriture
 n'est effectuée dans le portefeuille personnel.
+
+## Tri des taxonomies Actions — livraison v15 (24 septembre 2026)
+
+Après application de l'aperçu, catégories et sous-catégories des trois taxonomies
+Actions sont classées par valeur actuelle décroissante, avec Other / Others /
+Autre / Autres en dernier. Les valeurs sont celles du portefeuille complet en
+devise de base, pondérées par les affectations et additionnées récursivement comme
+dans la vue des taxonomies. Le tri reste disponible lorsque les compositions sont
+déjà à jour. Les identifiants, objectifs, couleurs et poids sont conservés.
+
+23 tests ciblés réussis, dont deux tests de tri couvrant les trois taxonomies,
+les sous-catégories, les affectations partielles, les ex æquo, les valeurs nulles
+et négatives, la persistance après relecture, et la conservation de Pilotage Global.
