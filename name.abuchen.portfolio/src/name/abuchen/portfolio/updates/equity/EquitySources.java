@@ -168,6 +168,15 @@ public final class EquitySources
         return parseBoursorama(html, family, url);
     }
 
+    public Slice fetchCountries(Security security) throws IOException, InterruptedException
+    {
+        String url = compositionUrl(security.getIsin());
+        String html = page(url);
+        if (!Jsoup.parse(html).text().contains(security.getIsin()))
+            throw new IOException("ISIN non confirmé sur la page de composition.");
+        return parseBoursorama(html, Family.REGIONS, url);
+    }
+
     private String compositionUrl(String isin) throws IOException, InterruptedException
     {
         var configured = PROFILES.getAsJsonObject("BOURSORAMA_COMPOSITION_URLS").get(isin);
