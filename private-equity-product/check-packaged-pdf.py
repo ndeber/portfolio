@@ -1,0 +1,65 @@
+from pathlib import Path
+import argparse, subprocess, shutil, tempfile, zipfile
+parser=argparse.ArgumentParser(description="Check PDF initialization in the packaged OSGi runtime without opening a portfolio.")
+parser.add_argument("eclipse", type=Path, help="Built app Contents/Eclipse directory")
+parser.add_argument("--java-home", required=True, type=Path)
+parser.add_argument("--live-amundi", action="store_true", help="Also fetch the three public Amundi compositions")
+args=parser.parse_args()
+base=args.eclipse.resolve()
+workspace=tempfile.TemporaryDirectory(prefix="portfolio-pdf-check-")
+probe=Path(workspace.name)
+java=args.java_home.resolve()/"bin"
+# A minimal local PDF exercises the same PDFBox initialization as the downloaded MSCI document.
+pdf=probe/'fixture.pdf'
+stream=b'BT /F1 12 Tf 20 80 Td (PDF startup verified) Tj ET'
+objects=[b'<< /Type /Catalog /Pages 2 0 R >>',b'<< /Type /Pages /Kids [3 0 R] /Count 1 >>',b'<< /Type /Page /Parent 2 0 R /MediaBox [0 0 300 100] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>',b'<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>',b'<< /Length '+str(len(stream)).encode()+b' >>\nstream\n'+stream+b'\nendstream']
+data=b'%PDF-1.4\n'; offsets=[0]
+for i,obj in enumerate(objects,1):
+    offsets.append(len(data)); data+=f'{i} 0 obj\n'.encode()+obj+b'\nendobj\n'
+xref=len(data); data+=b'xref\n0 6\n0000000000 65535 f \n'
+for offset in offsets[1:]: data+=f'{offset:010d} 00000 n \n'.encode()
+data+=f'trailer\n<< /Size 6 /Root 1 0 R >>\nstartxref\n{xref}\n%%EOF\n'.encode();pdf.write_bytes(data)
+source=probe/'Check.java'
+source.write_text('''package probe;
+import org.eclipse.equinox.app.*;
+import org.osgi.framework.*;
+import name.abuchen.portfolio.pdfbox3.PDFBox3Adapter;
+public class Check implements IApplication {
+ public Object start(IApplicationContext context) throws Exception {
+  Bundle provider=null;
+  for(Bundle b:FrameworkUtil.getBundle(Check.class).getBundleContext().getBundles())
+   if(b.getSymbolicName().equals("org.apache.logging.log4j.to.slf4j")) provider=b;
+  if(provider==null || provider.getState()!=Bundle.ACTIVE) throw new IllegalStateException("Provider not active at startup");
+  String result=new PDFBox3Adapter().convertToText(new java.io.File(System.getProperty("probe.pdf")));
+  if(!result.contains("PDF startup verified")) throw new IllegalStateException(result);
+  System.out.println("PACKAGED_OSGI_PDF_PASS: provider active; PDF parsed successfully");
+  if(Boolean.getBoolean("probe.live")) {
+   var security=new name.abuchen.portfolio.model.Security();
+   security.setIsin("FR0013412020"); security.setName("Amundi PEA Emerging");
+   var outcomes=new name.abuchen.portfolio.updates.equity.EquitySources().fetch(security, () -> false);
+   for(var outcome:outcomes) {
+    if(outcome.error()!=null) throw new IllegalStateException(outcome.family()+": "+outcome.error());
+    System.out.println("AMUNDI_SOURCE_PASS: "+outcome.family()+" / "+outcome.slice().items().size()+" items");
+   }
+  }
+  return EXIT_OK;
+ }
+ public void stop() {}
+}''')
+classes=probe/'classes';classes.mkdir(exist_ok=True)
+classpath=':'.join(str(p) for p in (base/'plugins').glob('*.jar'))
+subprocess.run([str(java/'javac'),'-cp',classpath,'-d',str(classes),str(source)],check=True)
+bundle=probe/'probe.jar'
+with zipfile.ZipFile(bundle,'w') as z:
+ z.writestr('META-INF/MANIFEST.MF','Manifest-Version: 1.0\nBundle-ManifestVersion: 2\nBundle-SymbolicName: probe;singleton:=true\nBundle-Version: 1.0.0\nRequire-Bundle: org.eclipse.equinox.app,name.abuchen.portfolio.pdfbox3,name.abuchen.portfolio\nImport-Package: org.osgi.framework\n\n')
+ z.writestr('plugin.xml','<plugin><extension point="org.eclipse.core.runtime.applications" id="check"><application><run class="probe.Check"/></application></extension></plugin>')
+ z.write(classes/'probe/Check.class','probe/Check.class')
+config=probe/'configuration';shutil.copytree(base/'configuration',config,dirs_exist_ok=True)
+info=config/'org.eclipse.equinox.simpleconfigurator/bundles.info'
+with info.open('a') as out:out.write(f'\nprobe,1.0.0,{bundle.as_uri()},4,true\n')
+launcher=next((base/'plugins').glob('org.eclipse.equinox.launcher_*.jar'))
+cmd=[str(java/'java'),f'-Dprobe.pdf={pdf}',f'-Dprobe.live={str(args.live_amundi).lower()}','-jar',str(launcher),'-nosplash','-install',str(base),'-configuration',str(config),'-data',str(probe/'workspace'),'-application','probe.check','-consoleLog']
+r=subprocess.run(cmd,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,text=True,timeout=150 if args.live_amundi else 45)
+print(r.stdout)
+if r.returncode or 'PACKAGED_OSGI_PDF_PASS' not in r.stdout:raise SystemExit(1)
+if args.live_amundi and r.stdout.count('AMUNDI_SOURCE_PASS:') != 3:raise SystemExit(1)

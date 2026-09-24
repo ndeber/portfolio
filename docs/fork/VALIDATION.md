@@ -172,3 +172,24 @@ l'erreur monétaire après correction. Ce contrôle utilise un taux fixe pour
 isoler la cohérence des devises ; il ne valide pas les taux de marché. Un
 avertissement de performance sans titres, déjà présent sur le portefeuille
 avant migration, reste indépendant de ce correctif.
+
+## Blocage PDF des taxonomies Actions — livraison v13 (24 septembre 2026)
+
+Le relevé des threads de la v12 bloquée sur Amundi PEA Emerging montre une attente
+indéfinie dans l'initialisation du fournisseur Log4j, appelée par PDFBox après le
+téléchargement MSCI. Le test précédent hors OSGi ne reproduisait pas cette attente.
+Le pont officiel Log4j vers SLF4J est désormais inclus et démarré au niveau 3,
+avant les consommateurs au niveau 4, dans les deux produits.
+
+Contrôles effectués :
+
+- Construction intégrée réussie ; 17 tests Actions réussis, dont 4 tests des délais
+  et de l'annulation (y compris un lecteur ignorant les interruptions).
+- Contrôle dans le runtime OSGi assemblé : fournisseur actif dès le démarrage,
+  lecture PDF réussie. Même contrôle réussi dans la livraison Mac.
+- Récupération réelle dans ce runtime des trois compositions Amundi PEA Emerging :
+  régions, secteurs et transparence réussies, dix lignes par composition.
+
+Le contrôle reproductible est `private-equity-product/check-packaged-pdf.py`.
+Ces tests n'ouvrent ni ne modifient le portefeuille personnel. Ils ne constituent
+pas une vérification visuelle de l'ensemble du parcours d'interface.

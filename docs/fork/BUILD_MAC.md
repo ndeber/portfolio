@@ -54,3 +54,18 @@ Ce chemin reste valable après déplacement de l'application. Sans cette entrée
 l'écran de démarrage du produit reste inchangé.
 
 Référence : [configuration des produits Eclipse](https://help.eclipse.org/latest/topic/org.eclipse.platform.doc.isv/guide/product_configproduct.htm).
+
+### Contrôle PDF dans l'application assemblée
+
+Le contrôle suivant lance le runtime OSGi du produit, sans interface ni portefeuille,
+vérifie que le fournisseur Log4j est actif et lit un PDF de test. Il utilise une
+configuration et un espace de travail temporaires ; l'application reste inchangée.
+
+```sh
+python3 private-equity-product/check-packaged-pdf.py \
+  /chemin/PortfolioPerformancePE.app/Contents/Eclipse --java-home "$JAVA_HOME"
+```
+
+Ajouter `--live-amundi` pour vérifier aussi les trois compositions publiques de
+l'ETF Amundi PEA Emerging (accès réseau nécessaire). Le contrôle local est limité
+à 45 secondes et le contrôle avec sources à 150 secondes.
