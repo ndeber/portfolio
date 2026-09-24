@@ -116,8 +116,11 @@ public final class ElmConfigurationDialog extends TitleAreaDialog
                 selectName(bonds, categories, List.of("Obligations"));
                 selectName(equities, categories, List.of("Actions"));
             }
-            enabled.setSelection(setting != null || (saved == null && !"Pilotage".equalsIgnoreCase(taxonomy.getName())
-                            && cash.getSelectionIndex() > 0 && bonds.getSelectionIndex() > 0 && equities.getSelectionIndex() > 0));
+            // Require an explicit opt-in on every run, including previously saved mappings.
+            enabled.setSelection(!isPilotageGlobal(taxonomy) && (setting != null
+                            || (saved == null && !"Pilotage".equalsIgnoreCase(taxonomy.getName())
+                                            && cash.getSelectionIndex() > 0 && bonds.getSelectionIndex() > 0
+                                            && equities.getSelectionIndex() > 0)));
             Runnable update = () -> {
                 cash.setEnabled(enabled.getSelection());
                 bonds.setEnabled(enabled.getSelection());
@@ -150,7 +153,9 @@ public final class ElmConfigurationDialog extends TitleAreaDialog
             pilotage.select(client.getTaxonomies().indexOf(suggested.getFirst()));
         pilotage.addSelectionListener(SelectionListener.widgetSelectedAdapter(e -> populateDynamic()));
         populateDynamic();
-        pilotageEnabled.setSelection(saved != null && saved.pilotage() != null);
+        pilotageEnabled.setSelection(saved != null && saved.pilotage() != null
+                        && client.getTaxonomies().stream().noneMatch(t -> isPilotageGlobal(t)
+                                        && t.getId().equals(saved.pilotage().taxonomyId())));
         Runnable enablePilotage = () -> {
             pilotage.setEnabled(pilotageEnabled.getSelection());
             dynamic.setEnabled(pilotageEnabled.getSelection());
@@ -158,6 +163,11 @@ public final class ElmConfigurationDialog extends TitleAreaDialog
         pilotageEnabled.addSelectionListener(SelectionListener.widgetSelectedAdapter(e -> enablePilotage.run()));
         enablePilotage.run();
         return area;
+    }
+
+    private static boolean isPilotageGlobal(Taxonomy taxonomy)
+    {
+        return "Pilotage Global".equalsIgnoreCase(taxonomy.getName().strip());
     }
 
     private void populateDynamic()
