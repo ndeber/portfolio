@@ -10,7 +10,7 @@ dans `ui/views/dashboard/CommitmentWidget.java`.
 Ouvrir **Outils du portefeuille → Renseigner les engagements PE…**, ou utiliser
 **Renseigner les engagements PE…** dans le menu d'un des widgets d'engagements.
 Choisir un fonds, saisir son engagement total et ses appels encore prévus en EUR
-pour 2026, 2027, 2028 et 2029+. La sélection permet aussi d'ajouter tout autre titre.
+pour 2026, 2027, 2028 et 2029+. La sélection permet aussi d'ajouter d'autres titres, hors exclusions ci-dessous.
 Les modifications sont préparées en mémoire ; **Appliquer au portefeuille** les
 valide, **Annuler** les abandonne. Enregistrer le portefeuille avec ⌘S.
 
@@ -50,7 +50,9 @@ pas être réparti arbitrairement au passage de l'année. Les prévisions d'ann�
 Ajouter dans la rubrique patrimoine :
 
 - **Engagements PE : détail par fonds** : total, réalisé, restant, quatre échéances,
-  montant non ventilé, avertissements et ligne de sommes.
+  total des prévisions, montant non ventilé et avertissements. La ligne de sommes
+  apparaît en tête ; **Agrandir le tableau — années et totaux** ouvre une vue large.
+  Le tableau de saisie présente également les sommes par année et le total des prévisions.
 - **Engagements PE : réserves et échéancier** : sommes, réserves actuelles,
   surplus/manque de financement, couverture du restant et réserves après les
   appels cumulés de chaque horizon. Aucun rendement ou revenu futur n'est supposé.
@@ -59,6 +61,9 @@ Le périmètre détecte les catégories Private Equity / Venture Capital (ainsi 
 Capital-investissement / Capital-risque), les titres ayant des appels de fonds,
 et tout titre ayant un engagement saisi. Chaque titre compte une fois, même s'il
 figure dans plusieurs taxonomies. Un titre retiré reste suivi s'il est configuré.
+**Cowboy (COWBOY BIKES), Phacet (Phacet - Chris) et Checkout (Checkout.com)**
+sont exclus du suivi et de la sélection, même si des engagements ont déjà été
+saisis. Leurs attributs et leurs opérations restent conservés.
 Les titres détectés sans total sont indiqués et exclus des sommes renseignées ;
 la couverture globale reste désactivée tant que ce périmètre est incomplet.
 Pour un investissement entièrement libéré, saisir un total égal à son réalisé.
@@ -67,6 +72,9 @@ Les réserves utilisent **Réserves appels de fonds**, toutes sous-catégories e
 pondérations incluses, valorisées aujourd'hui en EUR. Si ce nom existe dans
 plusieurs taxonomies, choisir la bonne dans le menu du widget. Une sélection
 explicite est enregistrée par identifiants et survit à un changement de nom.
+Les positions en devises sont construites dans leur devise native ; seules les
+réserves retenues sont ensuite converties strictement en EUR. Une devise étrangère
+ailleurs dans le portefeuille ne bloque donc plus les réserves en euros.
 Une catégorie absente ou supprimée n'est jamais remplacée par le portefeuille entier.
 
 Les identifiants d'attributs commencent par `fork.pe.commitment.`. Les identifiants
@@ -74,9 +82,9 @@ de widgets sont `PE_COMMITMENTS_DETAIL` et `PE_COMMITMENTS_RESERVES`.
 
 ## Validation
 
-8 tests métier et 3 tests de widgets/colonnes, plus les 4 tests des widgets
+10 tests métier et 3 tests de widgets/colonnes, plus les 4 tests des widgets
 allocation/objectifs existants : opérations, devises et contre-valeurs, frais,
-absence de taux, distributions, doublons, réserves imbriquées, ambiguïtés,
+exclusions explicites, réserves avec positions en devises, absence de taux, distributions, doublons, réserves imbriquées, ambiguïtés,
 persistance, lecture seule et recalcul après modification d'une opération.
 Les tests utilisent des données synthétiques ; aucun portefeuille personnel
 n'est lu ou modifié. La construction Mac est vérifiée séparément.

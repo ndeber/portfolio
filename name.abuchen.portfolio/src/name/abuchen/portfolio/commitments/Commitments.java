@@ -92,6 +92,10 @@ public final class Commitments
     {
         return Normalizer.normalize(text, Normalizer.Form.NFD).replaceAll("\\p{M}", "").toLowerCase(Locale.ROOT).replaceAll("[^a-z0-9]", "");
     }
+    public static boolean excluded(Security security)
+    {
+        return Set.of("cowboy", "cowboybikes", "phacet", "phacetchris", "checkout", "checkoutcom").contains(normalized(security.getName()));
+    }
     public static List<Security> scope(Client client)
     {
         var found = new HashSet<Security>();
@@ -101,7 +105,7 @@ public final class Commitments
         for (var account : client.getAccounts())
             for (var tx : account.getTransactions())
                 if (tx.getType() == AccountTransaction.Type.CAPITAL_CALL && tx.getSecurity() != null) found.add(tx.getSecurity());
-        return client.getSecurities().stream().filter(s -> s.getAttributes().getMap().containsKey(TOTAL) || !s.isRetired() && found.contains(s))
+        return client.getSecurities().stream().filter(s -> !excluded(s)).filter(s -> s.getAttributes().getMap().containsKey(TOTAL) || !s.isRetired() && found.contains(s))
                         .sorted(Comparator.comparing((Security s) -> s.getName()).thenComparing(Security::getUUID)).toList();
     }
     private static void collect(Classification category, Set<Security> securities)
@@ -198,18 +202,20 @@ public final class Commitments
     {
         var taxonomy = client.getTaxonomies().stream().filter(t -> t.getId().equals(reserve.taxonomyId())).findFirst().orElseThrow(() -> new IllegalArgumentException("Taxonomie des réserves absente."));
         var category = taxonomy.getAllClassifications().stream().filter(c -> c.getId().equals(reserve.categoryId())).findFirst().orElseThrow(() -> new IllegalArgumentException("Catégorie des réserves absente."));
-        var positions = ClientSnapshot.create(client, strictEur(converter), date).getPositionsByVehicle();
-        return reserveValue(category, positions);
+        // Snapshot construction needs native-currency converters for every holding.
+        // Enforce real EUR rates only when valuing the reserve assignments below.
+        var positions = ClientSnapshot.create(client, converter.with("EUR"), date).getPositionsByVehicle();
+        return reserveValue(category, positions, strictEur(converter), date);
     }
-    private static long reserveValue(Classification category, Map<InvestmentVehicle, name.abuchen.portfolio.snapshot.AssetPosition> positions)
+    private static long reserveValue(Classification category, Map<InvestmentVehicle, name.abuchen.portfolio.snapshot.AssetPosition> positions, CurrencyConverter converter, LocalDate date)
     {
         long value = 0;
         for (var assignment : category.getAssignments())
         {
             var position = positions.get(assignment.getInvestmentVehicle());
-            if (position != null) value = Math.addExact(value, Math.round(position.getValuation().getAmount() * assignment.getWeight() / (double) Classification.ONE_HUNDRED_PERCENT));
+            if (position != null && assignment.getWeight() != 0) value = Math.addExact(value, Math.round(converter.convert(date, position.getPosition().calculateValue()).getAmount() * assignment.getWeight() / (double) Classification.ONE_HUNDRED_PERCENT));
         }
-        for (var child : category.getChildren()) value = Math.addExact(value, reserveValue(child, positions));
+        for (var child : category.getChildren()) value = Math.addExact(value, reserveValue(child, positions, converter, date));
         return value;
     }
 }

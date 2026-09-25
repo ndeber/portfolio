@@ -119,4 +119,32 @@ public class CommitmentsTest
         var row = Commitments.row(c, c.getSecurities().getFirst(), EUR, DATE);
         assertEquals(Long.valueOf(1000000), row.paid()); assertTrue(row.warnings().stream().anyMatch(w -> w.startsWith("Plusieurs achats")));
     }
+
+    @Test public void excludedDirectInvestmentsNeverContributeEvenWithSavedInputs()
+    {
+        var c = fixture(); save(c, 1000000, 100000L, 200000L, 300000L, 400000L);
+        for (String name : List.of("Cowboy", "COWBOY BIKES", "Phacet", "Phacet - Chris", "Checkout", "Checkout.com"))
+        {
+            var security = new Security(name, "EUR"); c.addSecurity(security);
+            Commitments.save(c, security, 900000L, List.of(900000L, 0L, 0L, 0L));
+        }
+        var summary = Commitments.summary(c, EUR, DATE);
+        assertEquals(1, summary.rows().size()); assertEquals(1000000, summary.total());
+        assertEquals(List.of(100000L, 200000L, 300000L, 400000L), summary.forecast());
+        assertEquals(Long.valueOf(900000), Commitments.value(c.getSecurities().getLast(), Commitments.TOTAL));
+    }
+    @Test public void euroReservesRemainAvailableWithForeignCurrencyHoldings()
+    {
+        var c = fixture(); c.getSecurities().getFirst().setCurrencyCode("USD");
+        buy(c, DATE.minusDays(2), 100000, "USD");
+        var account = c.getAccounts().getFirst();
+        account.addTransaction(new AccountTransaction(DATE.atStartOfDay(), "EUR", 500000, null, AccountTransaction.Type.DEPOSIT));
+        var tax = new Taxonomy("Liquidity"); var root = new Classification("reserve", Commitments.RESERVE_NAME);
+        tax.setRootNode(root); c.addTaxonomy(tax); root.addAssignment(new Classification.Assignment(account));
+        var converter = new name.abuchen.portfolio.junit.TestCurrencyConverter();
+        assertEquals(500000, Commitments.reserve(c, Commitments.reserves(c).getFirst(), converter, DATE));
+        root.addAssignment(new Classification.Assignment(c.getSecurities().getFirst(), 5000));
+        long expected = 500000 + Math.round(converter.convert(DATE, Money.of("USD", 100000)).getAmount() * 0.5);
+        assertEquals(expected, Commitments.reserve(c, Commitments.reserves(c).getFirst(), converter, DATE));
+    }
 }

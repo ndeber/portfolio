@@ -32,7 +32,7 @@ public final class CommitmentDialog extends TitleAreaDialog
     public CommitmentDialog(Shell shell, Client client, CurrencyConverter converter)
     {
         super(shell); this.client = client; this.converter = converter;
-        securities = client.getSecurities().stream().sorted(Comparator.comparing((Security s) -> s.getName())).toList();
+        securities = client.getSecurities().stream().filter(s -> !Commitments.excluded(s)).sorted(Comparator.comparing((Security s) -> s.getName())).toList();
         for (var security : securities) original.put(security, new HashMap<>(security.getAttributes().getMap()));
         setShellStyle(getShellStyle() | SWT.RESIZE);
     }
@@ -58,12 +58,12 @@ public final class CommitmentDialog extends TitleAreaDialog
         total.addModifyListener(e -> refreshCalculation()); years.forEach(t -> t.addModifyListener(e -> refreshCalculation()));
         table = new Table(area, SWT.BORDER | SWT.FULL_SELECTION | SWT.H_SCROLL | SWT.V_SCROLL);
         table.setHeaderVisible(true); table.setLinesVisible(true); GridDataFactory.fillDefaults().grab(true, true).hint(1050, 260).applyTo(table);
-        String[] headers = {"Fonds", "Total", "Réalisé", "Restant", "2026", "2027", "2028", "2029+", "Non ventilé"};
+        String[] headers = {"Fonds", "Total", "Réalisé", "Restant", "2026", "2027", "2028", "2029+", "Total prévisions", "Non ventilé"};
         for (int i = 0; i < headers.length; i++) { var col = new TableColumn(table, i == 0 ? SWT.LEFT : SWT.RIGHT); col.setText(headers[i]); col.setWidth(i == 0 ? 260 : 100); }
         table.addListener(SWT.Selection, e -> {
             if (table.getSelectionCount() == 0) return;
             var security = (Security) table.getSelection()[0].getData();
-            if (stage()) load(security);
+            if (security != null && stage()) load(security);
         });
         var candidates = Commitments.scope(client);
         if (!securities.isEmpty()) load(candidates.isEmpty() ? securities.getFirst() : candidates.getFirst());
@@ -128,6 +128,8 @@ public final class CommitmentDialog extends TitleAreaDialog
     {
         if (table == null) return;
         table.removeAll(); var all = new LinkedHashSet<>(Commitments.scope(client)); all.addAll(pending.keySet());
+        var totals = new TableItem(table, SWT.NONE);
+        long[] sums = new long[9]; boolean complete = !all.isEmpty();
         for (var security : all)
         {
             var row = new TableItem(table, SWT.NONE); row.setData(security);
@@ -137,10 +139,20 @@ public final class CommitmentDialog extends TitleAreaDialog
                 Long remaining = values.total() == null || data.paid() == null ? null : Math.subtractExact(values.total(), data.paid());
                 long sum = 0; for (long value : values.years()) sum = Math.addExact(sum, value);
                 row.setText(new String[] {security.getName(), amount(values.total()), amount(data.paid()), amount(remaining),
-                                amount(values.years().get(0)), amount(values.years().get(1)), amount(values.years().get(2)), amount(values.years().get(3)), remaining == null ? "—" : amount(remaining - sum)});
+                                amount(values.years().get(0)), amount(values.years().get(1)), amount(values.years().get(2)), amount(values.years().get(3)), amount(sum), remaining == null ? "—" : amount(remaining - sum)});
+                if (remaining != null)
+                {
+                    long[] amounts = {values.total(), data.paid(), remaining, values.years().get(0), values.years().get(1), values.years().get(2), values.years().get(3), sum, remaining - sum};
+                    for (int i = 0; i < sums.length; i++) sums[i] = Math.addExact(sums[i], amounts[i]);
+                    if (remaining < 0) complete = false;
+                }
+                else complete = false;
             }
-            catch (RuntimeException e) { row.setText(new String[] {security.getName(), "À vérifier : " + e.getMessage()}); }
+            catch (RuntimeException e) { complete = false; row.setText(new String[] {security.getName(), "À vérifier : " + e.getMessage()}); }
         }
+        String[] cells = new String[10]; cells[0] = complete ? "TOTAL" : "TOTAL RENSEIGNÉ";
+        for (int i = 0; i < sums.length; i++) cells[i + 1] = amount(sums[i]);
+        totals.setText(cells);
     }
     @Override protected void createButtonsForButtonBar(Composite parent)
     { createButton(parent, IDialogConstants.OK_ID, "Appliquer au portefeuille", true); createButton(parent, IDialogConstants.CANCEL_ID, "Annuler", false); }
