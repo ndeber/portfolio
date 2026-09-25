@@ -80,10 +80,18 @@ public class Check implements IApplication {
    var converter=new name.abuchen.portfolio.money.CurrencyConverterImpl(new name.abuchen.portfolio.money.ExchangeRateProviderFactory(client),"EUR");
    var summary=name.abuchen.portfolio.commitments.Commitments.summary(client,converter,java.time.LocalDate.now());
    if(summary.paid()!=20000 || summary.remaining()!=80000 || !summary.complete()) throw new IllegalStateException("Incorrect commitment totals");
+   account.setName("Xapa - Synthetic");
+   var tax=new name.abuchen.portfolio.model.Taxonomy(name.abuchen.portfolio.commitments.Availability.NAME);
+   var root=new name.abuchen.portfolio.model.Classification("root",tax.getName());tax.setRootNode(root);client.addTaxonomy(tax);
+   var immediate=new name.abuchen.portfolio.model.Classification(root,"now","Immédiate");root.addChild(immediate);
+   immediate.addAssignment(new name.abuchen.portfolio.model.Classification.Assignment(account));
+   var availability=name.abuchen.portfolio.commitments.Availability.calculate(client,tax,converter,java.time.LocalDate.now());
+   if(availability.amount(0)!=-20000)throw new IllegalStateException("Incorrect availability balance");
    for(Bundle b:FrameworkUtil.getBundle(Check.class).getBundleContext().getBundles()) {
     if(b.getSymbolicName().equals("name.abuchen.portfolio.ui")) {
      b.loadClass("name.abuchen.portfolio.ui.commitments.CommitmentHandler").getDeclaredMethods();
      b.loadClass("name.abuchen.portfolio.ui.views.dashboard.CommitmentWidget").getDeclaredMethods();
+     b.loadClass("name.abuchen.portfolio.ui.views.dashboard.AvailabilityWidget").getDeclaredMethods();
      if(b.getEntry("model/commitments.e4xmi")==null) throw new IllegalStateException("Missing menu fragment");
      System.out.println("COMMITMENTS_PACKAGED_PASS: calculated balances, handler, widget, menu");
     }

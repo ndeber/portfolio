@@ -531,6 +531,8 @@ public enum WidgetFactory
     PE_COMMITMENTS_RESERVES("Engagements PE : réserves et échéancier", Messages.LabelStatementOfAssets,
                     (widget, data) -> new CommitmentWidget(widget, data, false)),
 
+    XAPA_AVAILABILITY("Xapa : disponibilités et appels de fonds", Messages.LabelStatementOfAssets, AvailabilityWidget::new),
+
     // typo is API now!!
     VERTICAL_SPACEER(Messages.LabelVerticalSpacer, Messages.LabelCommon, VerticalSpacerWidget::new),
 

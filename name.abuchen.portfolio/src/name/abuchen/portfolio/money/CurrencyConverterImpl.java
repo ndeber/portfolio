@@ -36,6 +36,14 @@ public class CurrencyConverterImpl implements CurrencyConverter
         return series.lookupRate(date).orElse(FALLBACK_EXCHANGE_RATE);
     }
 
+    /** Conversion for forecasts that must never use the implicit 1:1 fallback. */
+    public ExchangeRate getRateStrict(LocalDate date, String currencyCode)
+    {
+        if (termCurrency.equals(currencyCode)) return new ExchangeRate(date, BigDecimal.ONE);
+        return lookupSeries(currencyCode).lookupRate(date).orElseThrow(() ->
+                        new MonetaryException("Exchange rate unavailable: " + currencyCode + "/" + termCurrency + " at " + date)); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+    }
+
     private ExchangeRateTimeSeries lookupSeries(String currencyCode) // NOSONAR
     {
         ExchangeRateTimeSeries series = factory.getTimeSeries(currencyCode, termCurrency);

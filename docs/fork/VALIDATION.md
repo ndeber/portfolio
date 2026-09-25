@@ -280,3 +280,19 @@ réserves en EUR dans un portefeuille comportant une position USD, puis inclusio
 pondérée de cette position dans les réserves. Construction Mac et contrôle OSGi
 `--commitments` réussis. Données synthétiques ; aucun fichier personnel modifié.
 Ces contrôles ne remplacent pas une vérification visuelle complète de l'interface.
+
+## Disponibilités Xapa — livraison v19 (25 septembre 2026)
+
+Taxonomie Date de disponibilité et widget Xapa : valeurs actuelles pondérées par
+année, comparaison aux appels, Phacet exclu et périmètre strict des comptes et
+dépôts Xapa. Appels 2029+ comparés uniquement sur l'horizon global, sans inventer
+de ventilation annuelle. Le convertisseur strict détecte désormais aussi le
+repli implicite à 1:1 de CurrencyConverterImpl lorsque sa série est vide.
+
+Validation : 15 tests métier (dont 5 nouveaux), 9 tests UI/calcul de widgets (dont
+2 nouveaux), construction Mac et contrôle OSGi --commitments réussis. Le contrôle
+OSGi inclut la valorisation Xapa et le chargement du nouveau widget.
+La copie locale préparée a été relue ; seules une taxonomie et un dashboard sont
+ajoutés. Contrôle des pourcentages à 100 %, des sommes et des devises avec le cache
+BCE local, sans requête réseau. Empreinte du fichier original inchangée.
+Les données personnelles ne sont pas dans le dépôt. Pas de test visuel exhaustif.
