@@ -41,3 +41,9 @@ une nouvelle sélection.
 
 Compatibilité : l'ancien widget comparatif `TAXONOMY_SUBLEVEL` devient le widget
 réel et conserve ses réglages. Ajouter `TAXONOMY_SUBLEVEL_TARGET` pour la cible.
+
+Vérification des couleurs : `private-equity-product/check-allocation-chart.py`
+exécute le vrai moteur SWTChart sur trois catégories fictives. Le test reproduit
+la réinitialisation des couleurs lors de l'ajout des secteurs, puis contrôle les
+RVB finaux du réel, de la cible et d'un rafraîchissement. Les couleurs sont
+appliquées après la création de tous les secteurs, comme sur la page Taxonomie.

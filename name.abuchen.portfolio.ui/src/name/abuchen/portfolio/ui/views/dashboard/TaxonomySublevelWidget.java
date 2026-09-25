@@ -243,17 +243,26 @@ public class TaxonomySublevelWidget extends WidgetDelegate<TaxonomySublevelWidge
         var series = (ICircularSeries<?>) chart.getSeriesSet().createSeries(SeriesType.PIE, "allocation");
         series.setSliceColor(chart.getPlotArea().getBackground());
         if (data != null && (target ? data.targetValid() : data.actualValid()))
-            for (var slice : data.slices()) add(series, series.getRootNode(), slice, target);
+            populateSeries(series, data.slices(), target);
         chart.updateAngleBounds();
         chart.redraw();
     }
 
-    private void add(ICircularSeries<?> series, Node parent, Slice slice, boolean target)
+    static void populateSeries(ICircularSeries<?> series, List<Slice> slices, boolean target)
     {
-        double value = target ? slice.target() : slice.actual().getAmount();
-        if (value <= 0) return;
-        Node node = parent.addChild(slice.id(), value);
-        node.setData(slice);
-        series.setColor(slice.id(), Colors.getColor(ColorConversion.hex2RGB(slice.color())));
+        for (var slice : slices)
+        {
+            double value = target ? slice.target() : slice.actual().getAmount();
+            if (value <= 0) continue;
+            Node node = series.getRootNode().addChild(slice.id(), value);
+            node.setData(slice);
+        }
+        // SWTChart resets every node's color when adding a child. Like the taxonomy
+        // page, apply category colors only after the complete series has been built.
+        for (var node : series.getRootNode().getChildren())
+        {
+            var slice = (Slice) node.getData();
+            series.setColor(slice.id(), Colors.getColor(ColorConversion.hex2RGB(slice.color())));
+        }
     }
 }
