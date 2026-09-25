@@ -16,3 +16,18 @@ Les choix et les objectifs sont sauvegardés avec le tableau de bord. Si une cat
 Les deux widgets sont regroupés dans `ui/views/dashboard/AllocationGoalWidget.java`, avec leurs libellés `allocationgoals.properties` et `allocationgoals_fr.properties`. Seul leur enregistrement est ajouté au registre existant `WidgetFactory`. Les identifiants persistés sont `ALLOCATION_TABLE` et `FIXED_EUR_GOAL`.
 
 Tests dédiés : `AllocationGoalWidgetTest` (4 scénarios). Exécuter avec `mvn -f portfolio-app/pom.xml -Plocal-dev verify -Dtest=AllocationGoalWidgetTest -DfailIfNoTests=false -Dsurefire.failIfNoSpecifiedTests=false`.
+
+### Widget « Taxonomie : sous-catégorie et cible »
+
+Dans le tableau de bord, ajouter ce widget puis choisir la taxonomie et la
+**Sous-catégorie** dans son menu. Les deux graphiques hiérarchiques comparent
+l'actuel et la cible avec les mêmes couleurs ; le tableau détaille les enfants
+directs, leurs montants et l'écart en points. La hauteur des graphiques est réglable.
+
+Les poids cibles sont relatifs à la catégorie sélectionnée et proviennent des
+objectifs de la taxonomie, y compris lorsque sa valorisation est nulle. Les
+objectifs ne sont pas modifiés. Un poids manquant apparaît comme « Cible non répartie » ;
+des cibles dépassant 100 % désactivent le graphique cible. Les affectations directes
+restent visibles. Un graphique actuel avec des valeurs négatives est désactivé,
+mais le tableau reste disponible. Une catégorie supprimée demande une nouvelle
+sélection, sans basculer silencieusement sur tout le portefeuille.

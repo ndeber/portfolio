@@ -522,6 +522,9 @@ public enum WidgetFactory
     ALLOCATION_TABLE(AllocationGoalWidget.label("allocation"), Messages.LabelStatementOfAssets,
                     (widget, data) -> new AllocationGoalWidget(widget, data, false)),
 
+    TAXONOMY_SUBLEVEL("Taxonomie : sous-catégorie et cible", Messages.LabelStatementOfAssets,
+                    TaxonomySublevelWidget::new),
+
     FIXED_EUR_GOAL(AllocationGoalWidget.label("goal"), Messages.LabelStatementOfAssets,
                     (widget, data) -> new AllocationGoalWidget(widget, data, true)),
 
