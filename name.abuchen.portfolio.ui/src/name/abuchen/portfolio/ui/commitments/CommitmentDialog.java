@@ -41,16 +41,16 @@ public final class CommitmentDialog extends TitleAreaDialog
         var area = (Composite) super.createDialogArea(parent);
         setTitle("Engagements PE — montants et prévisions en EUR");
         setMessage("Réalisé = achat initial hors frais + appels de fonds, sans déduire les distributions.\n"
-                        + "Ventilez le restant entre 2026, 2027, 2028 et 2029+. Les écarts sont signalés ; les années ne se décalent pas automatiquement.");
-        var form = new Composite(area, SWT.NONE); GridLayoutFactory.fillDefaults().numColumns(2).margins(10, 8).applyTo(form);
+                        + "Ventilez le restant entre 2026 et 2033. Les écarts sont signalés ; les années ne se décalent pas automatiquement.");
+        var form = new Composite(area, SWT.NONE); GridLayoutFactory.fillDefaults().numColumns(6).margins(10, 8).applyTo(form);
         GridDataFactory.fillDefaults().grab(true, false).applyTo(form);
         new Label(form, SWT.NONE).setText("Fonds / titre");
         choice = new Combo(form, SWT.READ_ONLY); choice.setItems(securities.stream().map(Security::getName).toArray(String[]::new));
-        GridDataFactory.fillDefaults().grab(true, false).applyTo(choice);
-        new Label(form, SWT.NONE).setText("Engagement total (EUR)"); total = field(form);
+        GridDataFactory.fillDefaults().span(5, 1).grab(true, false).applyTo(choice);
+        new Label(form, SWT.NONE).setText("Engagement total (EUR)"); total = field(form); GridDataFactory.fillDefaults().span(5, 1).grab(true, false).applyTo(total);
         for (String year : Commitments.LABELS)
         { new Label(form, SWT.NONE).setText("Appels encore prévus — " + year); years.add(field(form)); }
-        calculated = new Label(form, SWT.WRAP); GridDataFactory.fillDefaults().span(2, 1).grab(true, false).hint(950, 60).applyTo(calculated);
+        calculated = new Label(form, SWT.WRAP); GridDataFactory.fillDefaults().span(6, 1).grab(true, false).hint(950, 60).applyTo(calculated);
         choice.addListener(SWT.Selection, e -> {
             if (stage()) load(securities.get(choice.getSelectionIndex()));
             else choice.select(securities.indexOf(selected));
@@ -58,7 +58,8 @@ public final class CommitmentDialog extends TitleAreaDialog
         total.addModifyListener(e -> refreshCalculation()); years.forEach(t -> t.addModifyListener(e -> refreshCalculation()));
         table = new Table(area, SWT.BORDER | SWT.FULL_SELECTION | SWT.H_SCROLL | SWT.V_SCROLL);
         table.setHeaderVisible(true); table.setLinesVisible(true); GridDataFactory.fillDefaults().grab(true, true).hint(1050, 260).applyTo(table);
-        String[] headers = {"Fonds", "Total", "Réalisé", "Restant", "2026", "2027", "2028", "2029+", "Total prévisions", "Non ventilé"};
+        var labels = new ArrayList<>(List.of("Fonds", "Total", "Réalisé", "Restant")); labels.addAll(Commitments.LABELS); labels.addAll(List.of("Total prévisions", "Non ventilé"));
+        String[] headers = labels.toArray(String[]::new);
         for (int i = 0; i < headers.length; i++) { var col = new TableColumn(table, i == 0 ? SWT.LEFT : SWT.RIGHT); col.setText(headers[i]); col.setWidth(i == 0 ? 260 : 100); }
         table.addListener(SWT.Selection, e -> {
             if (table.getSelectionCount() == 0) return;
@@ -104,7 +105,7 @@ public final class CommitmentDialog extends TitleAreaDialog
         try
         {
             var values = input(security); total.setText(values.total() == null ? "" : Values.Amount.format(values.total()));
-            for (int i = 0; i < 4; i++) years.get(i).setText(Values.Amount.format(values.years().get(i)));
+            for (int i = 0; i < Commitments.YEARS.size(); i++) years.get(i).setText(values.years().get(i) == 0 ? "" : Values.Amount.format(values.years().get(i)));
         }
         catch (IllegalArgumentException e) { total.setText(""); years.forEach(t -> t.setText("")); setErrorMessage(e.getMessage()); }
         loading = false; refreshCalculation();
@@ -129,7 +130,7 @@ public final class CommitmentDialog extends TitleAreaDialog
         if (table == null) return;
         table.removeAll(); var all = new LinkedHashSet<>(Commitments.scope(client)); all.addAll(pending.keySet());
         var totals = new TableItem(table, SWT.NONE);
-        long[] sums = new long[9]; boolean complete = !all.isEmpty();
+        long[] sums = new long[5 + Commitments.YEARS.size()]; boolean complete = !all.isEmpty();
         for (var security : all)
         {
             var row = new TableItem(table, SWT.NONE); row.setData(security);
@@ -138,19 +139,21 @@ public final class CommitmentDialog extends TitleAreaDialog
                 var values = input(security); var data = Commitments.row(client, security, converter, LocalDate.now());
                 Long remaining = values.total() == null || data.paid() == null ? null : Math.subtractExact(values.total(), data.paid());
                 long sum = 0; for (long value : values.years()) sum = Math.addExact(sum, value);
-                row.setText(new String[] {security.getName(), amount(values.total()), amount(data.paid()), amount(remaining),
-                                amount(values.years().get(0)), amount(values.years().get(1)), amount(values.years().get(2)), amount(values.years().get(3)), amount(sum), remaining == null ? "—" : amount(remaining - sum)});
+                var cells = new ArrayList<>(List.of(security.getName(), amount(values.total()), amount(data.paid()), amount(remaining)));
+                values.years().forEach(v -> cells.add(v == 0 ? "" : amount(v))); cells.add(amount(sum)); cells.add(remaining == null ? "—" : amount(remaining - sum));
+                row.setText(cells.toArray(String[]::new));
                 if (remaining != null)
                 {
-                    long[] amounts = {values.total(), data.paid(), remaining, values.years().get(0), values.years().get(1), values.years().get(2), values.years().get(3), sum, remaining - sum};
-                    for (int i = 0; i < sums.length; i++) sums[i] = Math.addExact(sums[i], amounts[i]);
+                    var amounts = new ArrayList<>(List.of(values.total(), data.paid(), remaining));
+                    amounts.addAll(values.years()); amounts.add(sum); amounts.add(remaining - sum);
+                    for (int i = 0; i < sums.length; i++) sums[i] = Math.addExact(sums[i], amounts.get(i));
                     if (remaining < 0) complete = false;
                 }
                 else complete = false;
             }
             catch (RuntimeException e) { complete = false; row.setText(new String[] {security.getName(), "À vérifier : " + e.getMessage()}); }
         }
-        String[] cells = new String[10]; cells[0] = complete ? "TOTAL" : "TOTAL RENSEIGNÉ";
+        String[] cells = new String[sums.length + 1]; cells[0] = complete ? "TOTAL" : "TOTAL RENSEIGNÉ";
         for (int i = 0; i < sums.length; i++) cells[i + 1] = amount(sums[i]);
         totals.setText(cells);
     }

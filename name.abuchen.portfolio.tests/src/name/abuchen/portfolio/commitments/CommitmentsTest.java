@@ -130,7 +130,7 @@ public class CommitmentsTest
         }
         var summary = Commitments.summary(c, EUR, DATE);
         assertEquals(1, summary.rows().size()); assertEquals(1000000, summary.total());
-        assertEquals(List.of(100000L, 200000L, 300000L, 400000L), summary.forecast());
+        assertEquals(List.of(100000L, 200000L, 300000L, 400000L, 0L, 0L, 0L, 0L), summary.forecast());
         assertEquals(Long.valueOf(900000), Commitments.value(c.getSecurities().getLast(), Commitments.TOTAL));
     }
     @Test public void euroReservesRemainAvailableWithForeignCurrencyHoldings()
@@ -146,5 +146,20 @@ public class CommitmentsTest
         root.addAssignment(new Classification.Assignment(c.getSecurities().getFirst(), 5000));
         long expected = 500000 + Math.round(converter.convert(DATE, Money.of("USD", 100000)).getAmount() * 0.5);
         assertEquals(expected, Commitments.reserve(c, Commitments.reserves(c).getFirst(), converter, DATE));
+    }
+    @Test public void annualColumnsThrough2033Preserve2029AndSumLaterCalls() throws Exception
+    {
+        var c = fixture(); save(c, 1000000, 0L, 0L, 0L, 200000L);
+        var s = c.getSecurities().getFirst();
+        assertEquals("2029", Commitments.LABELS.get(3));
+        var initial = Commitments.row(c, s, EUR, DATE);
+        assertEquals(List.of(0L, 0L, 0L, 200000L, 0L, 0L, 0L, 0L), initial.forecast());
+        assertEquals(Long.valueOf(0), Commitments.value(s, Commitments.YEARS.get(4)));
+        Commitments.save(c, s, 1000000L, List.of(0L, 0L, 0L, 200000L, 300000L, 100000L, 100000L, 300000L));
+        var summary = Commitments.summary(c, EUR, DATE); assertEquals(0, summary.gap()); assertEquals(Long.valueOf(300000), summary.forecast().get(7));
+        var copy = ClientFactory.duplicate(c); assertEquals(summary.forecast(), Commitments.summary(copy, EUR, DATE).forecast());
+        // A four-column caller cannot erase later annual inputs.
+        Commitments.save(c, s, 1000000L, List.of(0L, 0L, 0L, 200000L));
+        assertEquals(Long.valueOf(300000), Commitments.value(s, Commitments.YEARS.get(7)));
     }
 }
