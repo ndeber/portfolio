@@ -20,9 +20,18 @@ Tests dédiés : `AllocationGoalWidgetTest` (4 scénarios). Exécuter avec `mvn 
 ### Widget « Taxonomie : sous-catégorie et cible »
 
 Dans le tableau de bord, ajouter ce widget puis choisir la taxonomie et la
-**Sous-catégorie** dans son menu. Les deux graphiques hiérarchiques comparent
-l'actuel et la cible avec les mêmes couleurs ; le tableau détaille les enfants
-directs, leurs montants et l'écart en points. La hauteur des graphiques est réglable.
+**Sous-catégorie** dans son menu. Les deux graphiques comparent
+l'actuel (à gauche) et la cible (à droite) avec les mêmes couleurs. Seuls les
+enfants directs sont représentés, sans anneaux supplémentaires ni libellés ; les
+noms restent accessibles au survol. Il n'y a ni sous-titre ni titre de graphique.
+Le tableau détaille leurs montants et l'écart en points, avec une hauteur adaptée
+au nombre de lignes, limitée à quatre lignes visibles (défilement au-delà).
+La hauteur des graphiques reste réglable.
+
+L'option **Masquer les sans classification**, activée par défaut, enlève ces
+catégories des graphiques et du tableau. Les pourcentages actuels et cibles sont
+alors ramenés aux seules catégories visibles ; les montants et les objectifs
+sauvegardés ne sont pas modifiés. Décocher l'option pour les réafficher.
 
 Les poids cibles sont relatifs à la catégorie sélectionnée et proviennent des
 objectifs de la taxonomie, y compris lorsque sa valorisation est nulle. Les
