@@ -296,3 +296,27 @@ La copie locale préparée a été relue ; seules une taxonomie et un dashboard 
 ajoutés. Contrôle des pourcentages à 100 %, des sommes et des devises avec le cache
 BCE local, sans requête réseau. Empreinte du fichier original inchangée.
 Les données personnelles ne sont pas dans le dépôt. Pas de test visuel exhaustif.
+
+## Tableaux source et échéancier annuel — livraison v20 (25 septembre 2026)
+
+Le tableau des disponibilités est enregistré dans le portefeuille et devient la
+référence. L'application des saisies reconstruit Date de disponibilité en conservant
+les identifiants ; un recalcul séparé est disponible dans le menu du widget.
+Les modifications de la taxonomie dérivée ne changent pas le tableau source.
+Annuler reste sans effet. Le premier import est en lecture seule et refuse les
+répartitions invalides. Les comptes espèces Xapa sont automatiquement immédiats.
+
+Les appels sont détaillés jusqu'en 2033. Sur demande, les montants historiques
+2029+ sont repris en 2029 sans changement numérique. Les nouvelles années sont
+initialement vides. Les colonnes, totaux et comparaisons utilisent les huit années.
+
+Validation : 21 tests métier et 9 tests widgets/colonnes réussis ; construction Mac
+et contrôle OSGi --commitments réussis, y compris la persistance de la source,
+le recalcul et le chargement de la nouvelle fenêtre et de son handler.
+La copie du fichier principal a été relue : opérations, cotations, attributs
+numériques existants, anciennes taxonomies et dashboards conservés. Seules les
+nouvelles saisies de disponibilité, leur projection, un dashboard et les définitions
+des nouveaux attributs d'appel sont ajoutés, avec le libellé 2029 actualisé.
+Les trois répartitions demandées ont été vérifiées après relecture ; les montants
+ont été contrôlés avec le cache BCE local, sans appel réseau. Fichier original
+inchangé. Pas de vérification visuelle exhaustive de toutes les interactions.
