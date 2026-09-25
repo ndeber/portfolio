@@ -525,6 +525,12 @@ public enum WidgetFactory
     FIXED_EUR_GOAL(AllocationGoalWidget.label("goal"), Messages.LabelStatementOfAssets,
                     (widget, data) -> new AllocationGoalWidget(widget, data, true)),
 
+    PE_COMMITMENTS_DETAIL("Engagements PE : détail par fonds", Messages.LabelStatementOfAssets,
+                    (widget, data) -> new CommitmentWidget(widget, data, true)),
+
+    PE_COMMITMENTS_RESERVES("Engagements PE : réserves et échéancier", Messages.LabelStatementOfAssets,
+                    (widget, data) -> new CommitmentWidget(widget, data, false)),
+
     // typo is API now!!
     VERTICAL_SPACEER(Messages.LabelVerticalSpacer, Messages.LabelCommon, VerticalSpacerWidget::new),
 

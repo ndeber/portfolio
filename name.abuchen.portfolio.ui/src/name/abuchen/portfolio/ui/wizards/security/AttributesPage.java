@@ -364,6 +364,7 @@ public class AttributesPage extends AbstractPage implements IMenuListener
                         .getAttributeTypes() //
                         .filter(a -> !existing.contains(a)) //
                         .filter(a -> a.supports(Security.class)) //
+                        .filter(a -> !name.abuchen.portfolio.commitments.Commitments.derived(a.getId())) //
                         .forEach(attribute -> addMenu(manager, attribute));
     }
 

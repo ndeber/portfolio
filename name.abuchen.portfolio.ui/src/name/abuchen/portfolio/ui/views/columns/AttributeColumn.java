@@ -402,6 +402,7 @@ public class AttributeColumn extends Column
 
     public static Stream<Column> createFor(Client client, Class<? extends Attributable> target)
     {
+        var commitmentConverter = new name.abuchen.portfolio.money.CurrencyConverter[1];
         return client.getSettings() //
                         .getAttributeTypes() //
                         .filter(a -> a.supports(target)) //
@@ -410,7 +411,14 @@ public class AttributeColumn extends Column
                             List<Column> columns = new ArrayList<>();
 
                             // primary column
-                            Column column = new AttributeColumn(attribute);
+                            Column column;
+                            if (name.abuchen.portfolio.commitments.Commitments.derived(attribute.getId()))
+                            {
+                                if (commitmentConverter[0] == null) commitmentConverter[0] = new name.abuchen.portfolio.money.CurrencyConverterImpl(
+                                                new name.abuchen.portfolio.money.ExchangeRateProviderFactory(client), "EUR");
+                                column = name.abuchen.portfolio.ui.commitments.CommitmentColumns.create(client, attribute, commitmentConverter[0]);
+                            }
+                            else column = new AttributeColumn(attribute);
                             column.setVisible(false);
                             columns.add(column);
 

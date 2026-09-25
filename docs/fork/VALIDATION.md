@@ -246,3 +246,16 @@ Vanguard fournit 13 660 lignes pour les échéances. Contrôle dans le runtime O
 assemblé, sans portefeuille personnel : douze résultats VAGF/M&G/Bund validés à
 100 %, et chargement du handler confirmé. Construction intégrée réussie.
 Ce contrôle ne remplace pas un test visuel complet du parcours de l'interface.
+
+## Engagements PE — livraison v17 (25 septembre 2026)
+
+Saisie des engagements totaux et des échéances en EUR, calcul du réalisé et du
+restant, colonnes non modifiables pour les valeurs dérivées, deux widgets de
+sommes et de couverture par la catégorie Réserves appels de fonds. Données
+incomplètes et écarts d'échéancier sont visibles. Années fixes, sans décalage
+implicite au changement d'année. Aucun changement des opérations ou cotations.
+
+Validation : 8 tests métier, 3 tests de widgets/colonnes et 4 tests de non-régression
+allocation/objectifs réussis ; assemblage Mac réussi. Scénarios synthétiques,
+sans lecture ni écriture du portefeuille personnel. Ce contrôle ne constitue
+pas une vérification visuelle complète de toutes les interactions de saisie.
