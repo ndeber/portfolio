@@ -54,11 +54,32 @@ public final class CommitmentWidget extends WidgetDelegate<CommitmentWidget.Data
         container.setBackground(parent.getBackground()); container.setBackgroundMode(SWT.INHERIT_DEFAULT); GridLayoutFactory.fillDefaults().margins(5, 5).applyTo(container);
         title = new Label(container, SWT.NONE); title.setData(UIConstants.CSS.CLASS_NAME, UIConstants.CSS.TITLE);
         note = new Label(container, SWT.WRAP); GridDataFactory.fillDefaults().grab(true, false).hint(400, SWT.DEFAULT).applyTo(note);
+        if (detail)
+        {
+            var expand = new Button(container, SWT.PUSH); expand.setText("Agrandir le tableau — années et totaux");
+            expand.addListener(SWT.Selection, e -> {
+                var shell = new Shell(container.getShell(), SWT.SHELL_TRIM | SWT.RESIZE);
+                shell.setText("Engagements PE — détail en EUR"); shell.setLayout(new org.eclipse.swt.layout.FillLayout());
+                var expanded = new Table(shell, SWT.FULL_SELECTION | SWT.H_SCROLL | SWT.V_SCROLL);
+                expanded.setHeaderVisible(true); expanded.setLinesVisible(true);
+                for (var source : table.getColumns())
+                {
+                    var column = new TableColumn(expanded, source.getAlignment()); column.setText(source.getText()); column.setWidth(source.getWidth());
+                }
+                for (var source : table.getItems())
+                {
+                    var row = new TableItem(expanded, SWT.NONE);
+                    for (int i = 0; i < table.getColumnCount(); i++) row.setText(i, source.getText(i));
+                }
+                var bounds = container.getMonitor().getClientArea();
+                shell.setSize(Math.min(1350, bounds.width), Math.min(650, bounds.height)); shell.open();
+            });
+        }
         table = new Table(container, SWT.FULL_SELECTION | SWT.H_SCROLL | SWT.V_SCROLL); table.setHeaderVisible(true); table.setLinesVisible(true);
         GridDataFactory.fillDefaults().grab(true, false).hint(SWT.DEFAULT, detail ? 300 : 280).applyTo(table);
-        String[] labels = detail ? new String[] {"Fonds", "Total EUR", "Réalisé EUR", "Restant EUR", "2026", "2027", "2028", "2029+", "Non ventilé", "À vérifier"}
+        String[] labels = detail ? new String[] {"Fonds", "Engagé", "Réalisé", "Restant", "2026", "2027", "2028", "2029+", "Total prévisions", "Non ventilé", "À vérifier"}
                         : new String[] {"Indicateur / échéance", "Montant EUR", "Réserves après appels EUR"};
-        for (int i = 0; i < labels.length; i++) { var c = new TableColumn(table, i == 0 ? SWT.LEFT : SWT.RIGHT); c.setText(labels[i]); c.setWidth(i == 0 ? 230 : 130); }
+        for (int i = 0; i < labels.length; i++) { var c = new TableColumn(table, i == 0 ? SWT.LEFT : SWT.RIGHT); c.setText(labels[i]); c.setWidth(i == 0 ? 200 : detail ? 100 : 180); }
         return container;
     }
     @Override public Control getTitleControl() { return title; }
@@ -101,12 +122,12 @@ public final class CommitmentWidget extends WidgetDelegate<CommitmentWidget.Data
         long warnings = s.rows().stream().filter(r -> !r.warnings().isEmpty()).count();
         String status = s.rows().isEmpty() ? "Renseigner les engagements via le menu du widget ou Outils du portefeuille."
                         : (s.complete() ? "" : "Totaux partiels ou incohérents : renseigner/vérifier tous les fonds. ") + warnings + " fonds à vérifier.";
-        note.setText(status + (data.error() == null ? "" : "\n" + data.error()) + (!detail ? "\n" + data.reserveLabel() + "\nPrévisions du restant ; réserves actuelles, sans revenus futurs supposés." : "\nLes dates sont fixes ; mettre à jour l'échéancier après chaque appel."));
+        note.setText(status + (data.error() == null ? "" : "\n" + data.error()) + (!detail ? "\n" + data.reserveLabel() + "\nPrévisions du restant ; réserves actuelles, sans revenus futurs supposés." : "\nMontants en EUR. Faites défiler horizontalement pour voir toutes les colonnes. Les dates sont fixes ; mettre à jour l'échéancier après chaque appel."));
         if (detail)
         {
+            line(s.complete() ? "TOTAL" : "TOTAL RENSEIGNÉ", amount(s.total()), amount(s.paid()), amount(s.remaining()), amount(s.forecast().get(0)), amount(s.forecast().get(1)), amount(s.forecast().get(2)), amount(s.forecast().get(3)), amount(s.forecast().stream().reduce(0L, Math::addExact)), amount(s.gap()), "");
             for (var row : s.rows()) line(row.security().getName(), amount(row.total()), amount(row.paid()), amount(row.remaining()),
-                            amount(row.forecast().get(0)), amount(row.forecast().get(1)), amount(row.forecast().get(2)), amount(row.forecast().get(3)), amount(row.gap()), String.join(" ; ", row.warnings()));
-            line(s.complete() ? "TOTAL" : "TOTAL RENSEIGNÉ", amount(s.total()), amount(s.paid()), amount(s.remaining()), amount(s.forecast().get(0)), amount(s.forecast().get(1)), amount(s.forecast().get(2)), amount(s.forecast().get(3)), amount(s.gap()), "");
+                            amount(row.forecast().get(0)), amount(row.forecast().get(1)), amount(row.forecast().get(2)), amount(row.forecast().get(3)), amount(row.forecast().stream().reduce(0L, Math::addExact)), amount(row.gap()), String.join(" ; ", row.warnings()));
         }
         else
         {
