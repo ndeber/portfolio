@@ -6,6 +6,7 @@ parser.add_argument("--java-home", required=True, type=Path)
 parser.add_argument("--live-msci", "--live-amundi", dest="live_amundi", action="store_true", help="Also fetch public Amundi and WPEA compositions")
 parser.add_argument("--live-bonds", action="store_true", help="Check only hard-coded public VAGF, M&G and Bund examples; never opens a portfolio")
 parser.add_argument("--commitments", action="store_true", help="Check commitment calculations and UI loading on synthetic data, without network or portfolio files")
+parser.add_argument("--inflation", action="store_true", help="Check the AFT inflation command and a synthetic update")
 args=parser.parse_args()
 base=args.eclipse.resolve()
 workspace=tempfile.TemporaryDirectory(prefix="portfolio-pdf-check-")
@@ -102,6 +103,23 @@ public class Check implements IApplication {
     }
    }
   }
+  if(Boolean.getBoolean("probe.inflation")) {
+   var client = new name.abuchen.portfolio.model.Client();
+   var index = new name.abuchen.portfolio.model.Security(); index.setName("EU (IPCH)"); index.setFeed("MANUAL"); client.addSecurity(index);
+   var today = java.time.LocalDate.now();
+   var download = new name.abuchen.portfolio.updates.inflation.AftInflation.Download("https://www.aft.gouv.fr/files/test.xlsx", java.util.List.of(
+    new name.abuchen.portfolio.updates.inflation.AftInflation.Point(today, 10362000000L),
+    new name.abuchen.portfolio.updates.inflation.AftInflation.Point(today.plusDays(1), 10363000000L)));
+   name.abuchen.portfolio.updates.inflation.AftInflation.apply(client, name.abuchen.portfolio.updates.inflation.AftInflation.prepare(index, download));
+   if(index.getPrices().size()!=2)throw new IllegalStateException("Missing published future reference");
+   for(Bundle b:FrameworkUtil.getBundle(Check.class).getBundleContext().getBundles())
+    if(b.getSymbolicName().equals("name.abuchen.portfolio.ui")) {
+     b.loadClass("name.abuchen.portfolio.ui.updateactions.inflation.UpdateInflationHandler").getDeclaredMethods();
+     b.loadClass("name.abuchen.portfolio.ui.updateactions.inflation.InflationPreviewDialog").getDeclaredMethods();
+     if(b.getEntry("model/aft-inflation.e4xmi")==null)throw new IllegalStateException("Missing inflation command");
+    }
+   System.out.println("INFLATION_PACKAGED_PASS: published daily references, command and preview loaded");
+  }
   return EXIT_OK;
  }
  public void stop() {}
@@ -118,7 +136,7 @@ config=probe/'configuration';shutil.copytree(base/'configuration',config,dirs_ex
 info=config/'org.eclipse.equinox.simpleconfigurator/bundles.info'
 with info.open('a') as out:out.write(f'\nprobe,1.0.0,{bundle.as_uri()},4,true\n')
 launcher=next((base/'plugins').glob('org.eclipse.equinox.launcher_*.jar'))
-cmd=[str(java/'java'),f'-Dprobe.pdf={pdf}',f'-Dprobe.live={str(args.live_amundi).lower()}',f'-Dprobe.bonds={str(args.live_bonds).lower()}',f'-Dprobe.commitments={str(args.commitments).lower()}','-jar',str(launcher),'-nosplash','-install',str(base),'-configuration',str(config),'-data',str(probe/'workspace'),'-application','probe.check','-consoleLog']
+cmd=[str(java/'java'),f'-Dprobe.pdf={pdf}',f'-Dprobe.live={str(args.live_amundi).lower()}',f'-Dprobe.bonds={str(args.live_bonds).lower()}',f'-Dprobe.commitments={str(args.commitments).lower()}',f'-Dprobe.inflation={str(args.inflation).lower()}','-jar',str(launcher),'-nosplash','-install',str(base),'-configuration',str(config),'-data',str(probe/'workspace'),'-application','probe.check','-consoleLog']
 r=subprocess.run(cmd,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,text=True,timeout=300 if (args.live_amundi or args.live_bonds) else 45)
 print(r.stdout)
 if r.returncode or 'PACKAGED_OSGI_PDF_PASS' not in r.stdout:raise SystemExit(1)
@@ -127,3 +145,5 @@ if args.live_amundi and r.stdout.count('MSCI_SOURCE_PASS:') != 6:raise SystemExi
 if args.live_bonds and (r.stdout.count("BOND_SOURCE_PASS:") != 12 or "BOND_HANDLER_PASS" not in r.stdout):raise SystemExit(1)
 
 if args.commitments and "COMMITMENTS_PACKAGED_PASS:" not in r.stdout:raise SystemExit(1)
+
+if args.inflation and "INFLATION_PACKAGED_PASS:" not in r.stdout:raise SystemExit(1)
