@@ -120,7 +120,8 @@ public final class Commitments
             public String getTermCurrency() { return "EUR"; }
             public ExchangeRate getRate(LocalDate date, String currency)
             {
-                var rate = converter.with("EUR").getRate(date, currency);
+                var eur = converter.with("EUR");
+                var rate = eur instanceof CurrencyConverterImpl impl ? impl.getRateStrict(date, currency) : eur.getRate(date, currency);
                 if (!currency.equals("EUR") && (rate.getTime().equals(LocalDate.MIN) || rate.getValue().signum() <= 0))
                     throw new IllegalArgumentException("Taux EUR indisponible pour " + currency + " au " + date);
                 return rate;
