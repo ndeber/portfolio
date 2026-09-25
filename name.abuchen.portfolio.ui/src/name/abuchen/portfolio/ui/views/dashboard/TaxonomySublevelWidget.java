@@ -36,13 +36,18 @@ public class TaxonomySublevelWidget extends WidgetDelegate<TaxonomySublevelWidge
     public record Data(String name, Money actual, List<Slice> slices, boolean actualValid, boolean targetValid) { }
     private Label title;
     public static final String HIDE_UNCLASSIFIED = "SUBLEVEL_HIDE_UNCLASSIFIED";
-    private CircularChart actualChart;
-    private CircularChart targetChart;
-    private Table table;
+    private CircularChart chart;
+    private final boolean target;
 
     public TaxonomySublevelWidget(Widget widget, DashboardData data)
     {
+        this(widget, data, false);
+    }
+
+    public TaxonomySublevelWidget(Widget widget, DashboardData data, boolean target)
+    {
         super(widget, data);
+        this.target = target;
         addConfig(new ClientFilterConfig(this));
         addConfig(new TaxonomyConfig(this));
         addConfig(new ChartHeightConfig(this));
@@ -139,8 +144,13 @@ public class TaxonomySublevelWidget extends WidgetDelegate<TaxonomySublevelWidge
             result.add(new Slice(child.getId(), child.getName(), child.getClassification().getColor(),
                             child.getActual(), share, List.of()));
         }
-        // Leaves already represent the whole holding: no extra ring for securities.
-        if (result.isEmpty()) return List.of();
+        // A leaf can also be selected: it represents 100% of its own level.
+        if (result.isEmpty())
+        {
+            if (parent.getActual().isNegative()) valid[0] = false;
+            return List.of(new Slice(parent.getId(), parent.getName(), parent.getClassification().getColor(),
+                            parent.getActual(), target, List.of()));
+        }
         if (weights > Classification.ONE_HUNDRED_PERCENT) valid[1] = false;
         long direct = parent.getActual().getAmount() - actualChildren;
         if (direct < 0) valid[0] = false;
@@ -162,21 +172,7 @@ public class TaxonomySublevelWidget extends WidgetDelegate<TaxonomySublevelWidge
         GridLayoutFactory.fillDefaults().margins(5, 5).applyTo(container);
         title = new Label(container, SWT.NONE);
         title.setData(UIConstants.CSS.CLASS_NAME, UIConstants.CSS.TITLE);
-        var charts = new Composite(container, SWT.NONE);
-        GridLayoutFactory.fillDefaults().numColumns(2).equalWidth(true).applyTo(charts);
-        GridDataFactory.fillDefaults().grab(true, false).applyTo(charts);
-        actualChart = chart(charts);
-        targetChart = chart(charts);
-        table = new Table(container, SWT.FULL_SELECTION | SWT.H_SCROLL | SWT.V_SCROLL);
-        table.setHeaderVisible(true);
-        table.setLinesVisible(true);
-        GridDataFactory.fillDefaults().grab(true, false).hint(SWT.DEFAULT, 100).applyTo(table);
-        String[] labels = {"Catégorie", "Montant actuel", "Actuel", "Cible", "Écart (points)"};
-        for (int i = 0; i < labels.length; i++)
-        {
-            var column = new TableColumn(table, i == 0 ? SWT.LEFT : SWT.RIGHT);
-            column.setText(labels[i]);
-        }
+        chart = chart(container);
         return container;
     }
 
@@ -200,24 +196,11 @@ public class TaxonomySublevelWidget extends WidgetDelegate<TaxonomySublevelWidge
     {
         title.setText(TextUtil.tooltip(getWidget().getLabel()));
         title.setToolTipText(data == null ? "Choisir une taxonomie et une sous-catégorie dans le menu du widget."
-                        : data.name() + " — actuel à gauche, cible à droite"
+                        : data.name() + (target ? " — répartition cible" : " — répartition réelle")
                           + (hideUnclassified() ? " · Sans classification masqués ; pourcentages recalculés sur les catégories visibles." : "")
-                          + (!data.actualValid() ? " · Valeurs négatives : graphique actuel indisponible." : "")
-                          + (!data.targetValid() ? " · Cibles incohérentes : vérifier les poids de la taxonomie." : ""));
-        table.removeAll();
-        if (data != null)
-            for (var s : data.slices())
-            {
-                Double actual = data.actual().getAmount() == 0 ? null : s.actual().getAmount() / (double) data.actual().getAmount();
-                new TableItem(table, SWT.NONE).setText(new String[] {s.name(), Values.Money.format(s.actual()),
-                                actual == null ? "—" : Values.Percent2.format(actual), Values.Percent2.format(s.target()),
-                                actual == null ? "—" : String.format("%+.2f", 100 * (actual - s.target()))});
-            }
-        for (var column : table.getColumns()) column.pack();
-        ((org.eclipse.swt.layout.GridData) table.getLayoutData()).heightHint = table.getHeaderHeight()
-                        + table.getItemHeight() * Math.max(1, Math.min(4, table.getItemCount())) + 8;
-        render(actualChart, data, false);
-        render(targetChart, data, true);
+                          + (!target && !data.actualValid() ? " · Valeurs négatives : graphique actuel indisponible." : "")
+                          + (target && !data.targetValid() ? " · Cibles incohérentes : vérifier les poids de la taxonomie." : ""));
+        render(chart, data, target);
         title.getParent().layout(true, true);
     }
 

@@ -17,26 +17,25 @@ Les deux widgets sont regroupés dans `ui/views/dashboard/AllocationGoalWidget.j
 
 Tests dédiés : `AllocationGoalWidgetTest` (4 scénarios). Exécuter avec `mvn -f portfolio-app/pom.xml -Plocal-dev verify -Dtest=AllocationGoalWidgetTest -DfailIfNoTests=false -Dsurefire.failIfNoSpecifiedTests=false`.
 
-### Widget « Taxonomie : sous-catégorie et cible »
+### Widgets « Taxonomie : répartition réelle » et « Taxonomie : répartition cible »
 
-Dans le tableau de bord, ajouter ce widget puis choisir la taxonomie et la
-**Sous-catégorie** dans son menu. Les deux graphiques comparent
-l'actuel (à gauche) et la cible (à droite) avec les mêmes couleurs. Seuls les
-enfants directs sont représentés, sans anneaux supplémentaires ni libellés ; les
-noms restent accessibles au survol. Il n'y a ni sous-titre ni titre de graphique.
-Le tableau détaille leurs montants et l'écart en points, avec une hauteur adaptée
-au nombre de lignes, limitée à quatre lignes visibles (défilement au-delà).
-La hauteur des graphiques reste réglable.
+Deux widgets indépendants affichent chacun un seul camembert : les valeurs
+actuelles ou les poids cibles. Chacun permet de choisir sa taxonomie, puis une
+catégorie à n'importe quelle profondeur via **Sous-catégorie**. Seuls les enfants
+directs de la catégorie choisie sont représentés ; leurs montants incluent leurs
+descendants. Aucun tableau, sous-titre, titre de graphique ou libellé de secteur
+n'est affiché. Les noms et pourcentages restent accessibles au survol.
 
 L'option **Masquer les sans classification**, activée par défaut, enlève ces
-catégories des graphiques et du tableau. Les pourcentages actuels et cibles sont
-alors ramenés aux seules catégories visibles ; les montants et les objectifs
-sauvegardés ne sont pas modifiés. Décocher l'option pour les réafficher.
+catégories du graphique. Les pourcentages sont ramenés aux seules catégories
+visibles ; les montants et objectifs enregistrés ne sont pas modifiés.
+La hauteur est réglable séparément pour chaque widget.
 
-Les poids cibles sont relatifs à la catégorie sélectionnée et proviennent des
-objectifs de la taxonomie, y compris lorsque sa valorisation est nulle. Les
-objectifs ne sont pas modifiés. Un poids manquant apparaît comme « Cible non répartie » ;
-des cibles dépassant 100 % désactivent le graphique cible. Les affectations directes
-restent visibles. Un graphique actuel avec des valeurs négatives est désactivé,
-mais le tableau reste disponible. Une catégorie supprimée demande une nouvelle
-sélection, sans basculer silencieusement sur tout le portefeuille.
+Les cibles utilisent les poids relatifs à la catégorie choisie, même sans valeur
+actuelle. Les poids manquants figurent comme « Cible non répartie ». Les valeurs
+négatives ou objectifs incohérents désactivent le graphique concerné ; le message
+d'explication est accessible au survol du titre. Une catégorie supprimée nécessite
+une nouvelle sélection.
+
+Compatibilité : l'ancien widget comparatif `TAXONOMY_SUBLEVEL` devient le widget
+réel et conserve ses réglages. Ajouter `TAXONOMY_SUBLEVEL_TARGET` pour la cible.
