@@ -35,7 +35,7 @@ public class TaxonomySublevelWidget extends WidgetDelegate<TaxonomySublevelWidge
     public record Slice(String id, String name, String color, Money actual, double target, List<Slice> children) { }
     public record Data(String name, Money actual, List<Slice> slices, boolean actualValid, boolean targetValid) { }
     private Label title;
-    private Label subtitle;
+    public static final String HIDE_UNCLASSIFIED = "SUBLEVEL_HIDE_UNCLASSIFIED";
     private CircularChart actualChart;
     private CircularChart targetChart;
     private Table table;
@@ -56,8 +56,27 @@ public class TaxonomySublevelWidget extends WidgetDelegate<TaxonomySublevelWidge
                 var menu = new MenuManager(getLabel());
                 addCategory(menu, taxonomy.getRoot(), "");
                 manager.add(menu);
+                var hide = new SimpleAction("Masquer les sans classification", a -> {
+                    getWidget().getConfiguration().put(HIDE_UNCLASSIFIED, Boolean.toString(!hideUnclassified()));
+                    getClient().touch();
+                    update();
+                });
+                hide.setChecked(hideUnclassified());
+                manager.add(hide);
             }
         });
+    }
+
+    private boolean hideUnclassified()
+    {
+        return Boolean.parseBoolean(getWidget().getConfiguration().getOrDefault(HIDE_UNCLASSIFIED, "true"));
+    }
+
+    private static boolean unclassified(Slice slice)
+    {
+        String name = java.text.Normalizer.normalize(slice.name(), java.text.Normalizer.Form.NFD)
+                        .replaceAll("\\p{M}", "").toLowerCase(java.util.Locale.ROOT).replaceAll("[^a-z]", "");
+        return List.of("sansclassification", "nonclasse", "nonclasses", "nonclassifie", "unclassified", "unassigned").contains(name);
     }
 
     private void addCategory(MenuManager menu, Classification category, String prefix)
@@ -78,6 +97,7 @@ public class TaxonomySublevelWidget extends WidgetDelegate<TaxonomySublevelWidge
         var taxonomy = get(TaxonomyConfig.class).getTaxonomy();
         String selected = getWidget().getConfiguration().get(CATEGORY);
         var filter = get(ClientFilterConfig.class).getSelectedFilter();
+        boolean hide = hideUnclassified();
         return () -> {
             if (taxonomy == null) return null;
             var model = new TaxonomyModel(getDashboardData().getExchangeRateProviderFactory(), getClient(), taxonomy);
@@ -88,7 +108,17 @@ public class TaxonomySublevelWidget extends WidgetDelegate<TaxonomySublevelWidge
             var root = selected == null ? model.getClassificationRootNode() : matches.get(0);
             boolean[] valid = {true, true};
             var slices = slices(root, 1d, valid);
-            return new Data(root.getName(), root.getActual(), slices, valid[0], valid[1]);
+            Money actual = root.getActual();
+            if (hide && slices.stream().anyMatch(TaxonomySublevelWidget::unclassified))
+            {
+                slices = slices.stream().filter(s -> !unclassified(s)).toList();
+                actual = Money.of(actual.getCurrencyCode(), slices.stream().mapToLong(s -> s.actual().getAmount()).sum());
+                double totalTarget = slices.stream().mapToDouble(Slice::target).sum();
+                if (totalTarget > 0)
+                    slices = slices.stream().map(s -> new Slice(s.id(), s.name(), s.color(), s.actual(),
+                                    s.target() / totalTarget, List.of())).toList();
+            }
+            return new Data(root.getName(), actual, slices, valid[0], valid[1]);
         };
     }
 
@@ -105,9 +135,9 @@ public class TaxonomySublevelWidget extends WidgetDelegate<TaxonomySublevelWidge
             if (child.getWeight() < 0) valid[1] = false;
             if (child.getActual().isNegative()) valid[0] = false;
             double share = target * child.getWeight() / Classification.ONE_HUNDRED_PERCENT;
-            var children = slices(child, share, valid);
+
             result.add(new Slice(child.getId(), child.getName(), child.getClassification().getColor(),
-                            child.getActual(), share, children));
+                            child.getActual(), share, List.of()));
         }
         // Leaves already represent the whole holding: no extra ring for securities.
         if (result.isEmpty()) return List.of();
@@ -132,19 +162,15 @@ public class TaxonomySublevelWidget extends WidgetDelegate<TaxonomySublevelWidge
         GridLayoutFactory.fillDefaults().margins(5, 5).applyTo(container);
         title = new Label(container, SWT.NONE);
         title.setData(UIConstants.CSS.CLASS_NAME, UIConstants.CSS.TITLE);
-        subtitle = new Label(container, SWT.WRAP);
-        GridDataFactory.fillDefaults().grab(true, false).applyTo(subtitle);
         var charts = new Composite(container, SWT.NONE);
         GridLayoutFactory.fillDefaults().numColumns(2).equalWidth(true).applyTo(charts);
         GridDataFactory.fillDefaults().grab(true, false).applyTo(charts);
-        new Label(charts, SWT.NONE).setText("Répartition actuelle");
-        new Label(charts, SWT.NONE).setText("Répartition cible");
         actualChart = chart(charts);
         targetChart = chart(charts);
         table = new Table(container, SWT.FULL_SELECTION | SWT.H_SCROLL | SWT.V_SCROLL);
         table.setHeaderVisible(true);
         table.setLinesVisible(true);
-        GridDataFactory.fillDefaults().grab(true, false).hint(SWT.DEFAULT, 170).applyTo(table);
+        GridDataFactory.fillDefaults().grab(true, false).hint(SWT.DEFAULT, 100).applyTo(table);
         String[] labels = {"Catégorie", "Montant actuel", "Actuel", "Cible", "Écart (points)"};
         for (int i = 0; i < labels.length; i++)
         {
@@ -158,7 +184,6 @@ public class TaxonomySublevelWidget extends WidgetDelegate<TaxonomySublevelWidge
     {
         var chart = new CircularChart(parent, SeriesType.PIE, n -> n.getData() instanceof Slice s ? s.name() : "");
         chart.getTitle().setVisible(false);
-        chart.addLabelPainter(new CircularChart.RenderLabelsAlongAngle(chart));
         GridDataFactory.fillDefaults().grab(true, false).hint(SWT.DEFAULT, get(ChartHeightConfig.class).getPixel()).applyTo(chart);
         chart.getToolTip().setToolTipBuilder((container, node) -> {
             if (node.getData() instanceof Slice slice)
@@ -174,8 +199,9 @@ public class TaxonomySublevelWidget extends WidgetDelegate<TaxonomySublevelWidge
     @Override public void update(Data data)
     {
         title.setText(TextUtil.tooltip(getWidget().getLabel()));
-        subtitle.setText(data == null ? "Choisir une taxonomie et une sous-catégorie dans le menu du widget."
-                        : TextUtil.tooltip(data.name()) + " — pourcentages relatifs à cette catégorie"
+        title.setToolTipText(data == null ? "Choisir une taxonomie et une sous-catégorie dans le menu du widget."
+                        : data.name() + " — actuel à gauche, cible à droite"
+                          + (hideUnclassified() ? " · Sans classification masqués ; pourcentages recalculés sur les catégories visibles." : "")
                           + (!data.actualValid() ? " · Valeurs négatives : graphique actuel indisponible." : "")
                           + (!data.targetValid() ? " · Cibles incohérentes : vérifier les poids de la taxonomie." : ""));
         table.removeAll();
@@ -188,6 +214,8 @@ public class TaxonomySublevelWidget extends WidgetDelegate<TaxonomySublevelWidge
                                 actual == null ? "—" : String.format("%+.2f", 100 * (actual - s.target()))});
             }
         for (var column : table.getColumns()) column.pack();
+        ((org.eclipse.swt.layout.GridData) table.getLayoutData()).heightHint = table.getHeaderHeight()
+                        + table.getItemHeight() * Math.max(1, Math.min(4, table.getItemCount())) + 8;
         render(actualChart, data, false);
         render(targetChart, data, true);
         title.getParent().layout(true, true);
@@ -212,6 +240,5 @@ public class TaxonomySublevelWidget extends WidgetDelegate<TaxonomySublevelWidge
         Node node = parent.addChild(slice.id(), value);
         node.setData(slice);
         series.setColor(slice.id(), Colors.getColor(ColorConversion.hex2RGB(slice.color())));
-        for (var child : slice.children()) add(series, node, child, target);
     }
 }

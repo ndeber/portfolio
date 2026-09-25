@@ -36,4 +36,30 @@ public class TaxonomySublevelWidgetTest
         w.getConfiguration().put(TaxonomySublevelWidget.CATEGORY, "deleted");
         assertNull(delegate.getUpdateTask().get());
     }
+    @Test public void onlySelectedLevelAndOptionalUnclassifiedExclusion()
+    {
+        var client = new Client(); client.setBaseCurrency("EUR");
+        var taxonomy = new Taxonomy("Allocation");
+        var root = new Classification(null, "root", "All"); root.setWeight(10000);
+        var a = new Classification(root, "a", "Actions"); a.setWeight(8000); root.addChild(a);
+        var sub = new Classification(a, "sub", "Sous-niveau"); sub.setWeight(12000); a.addChild(sub);
+        var unclassified = new Classification(root, "u", "Sans classification"); unclassified.setWeight(2000); root.addChild(unclassified);
+        taxonomy.setRootNode(root); client.addTaxonomy(taxonomy);
+        var cash = new Account("Cash"); client.addAccount(cash);
+        cash.addTransaction(new AccountTransaction(LocalDate.now().minusDays(1).atStartOfDay(), "EUR", 100000, null, AccountTransaction.Type.DEPOSIT));
+        sub.addAssignment(new Classification.Assignment(cash, 7500));
+        unclassified.addAssignment(new Classification.Assignment(cash, 2500));
+        var w = new Dashboard.Widget(); w.getConfiguration().put("TAXONOMY", taxonomy.getId());
+        var delegate = new TaxonomySublevelWidget(w, new DashboardData(client));
+        var data = delegate.getUpdateTask().get();
+        assertEquals(1, data.slices().size()); assertTrue(data.slices().getFirst().children().isEmpty());
+        assertTrue(data.targetValid()); // Descendant targets do not invalidate this level.
+        assertEquals(75000, data.actual().getAmount()); assertEquals(1d, data.slices().getFirst().target(), 1e-9);
+        w.getConfiguration().put(TaxonomySublevelWidget.HIDE_UNCLASSIFIED, "false");
+        data = delegate.getUpdateTask().get();
+        assertEquals(2, data.slices().size()); assertEquals(100000, data.actual().getAmount());
+        assertEquals(.8, data.slices().getFirst().target(), 1e-9);
+        assertEquals(2, root.getChildren().size()); assertEquals(2000, unclassified.getWeight());
+    }
+
 }
