@@ -39,4 +39,16 @@ public class BondMathTest
         assertThrows(IllegalArgumentException.class, () -> BondMath.indexed(BondSpec.find("FR0013410552").orElseThrow(),
                         LocalDate.parse("2029-03-01"), BigDecimal.TEN, BigDecimal.ONE, "test"));
     }
+    @Test
+    public void euroIndexed2031UsesJulyCouponAndEuroInflation()
+    {
+        var spec = BondSpec.find("FR0014001N38").orElseThrow();
+        assertTrue(spec.euroIndex());
+        assertEquals(LocalDate.of(2031, 7, 25), spec.maturity());
+        var quote = BondMath.indexed(spec, LocalDate.of(2026, 9, 23), new BigDecimal("98"), new BigDecimal("1.25"), "test");
+        assertEquals(LocalDate.of(2026, 9, 25), quote.settlement());
+        assertEquals(.1 * 62 / 365, quote.accrued().doubleValue(), 1e-12);
+        assertEquals((98 + .1 * 62 / 365) * 1.25, quote.dirty().doubleValue(), 1e-12);
+    }
+
 }
