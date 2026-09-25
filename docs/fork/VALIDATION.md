@@ -263,3 +263,20 @@ pas une vérification visuelle complète de toutes les interactions de saisie.
 Contrôle supplémentaire de la v17 dans le produit assemblé : calcul synthétique
 réalisé/restant réussi, chargement du handler et des widgets et présence du
 fragment de menu confirmés (`check-packaged-pdf.py --commitments`), hors réseau.
+
+## Engagements PE — corrections v18 (25 septembre 2026)
+
+Exclusion de Cowboy/COWBOY BIKES, Phacet/Phacet - Chris et Checkout/Checkout.com,
+même avec attributs renseignés, sans suppression de données. Tableaux : total des
+prévisions et sommes annuelles en tête ; bouton d'agrandissement du widget détail.
+
+Correction du calcul des réserves : le convertisseur EUR strict refusait les
+conversions natives demandées par les positions en devises du snapshot complet.
+Le snapshot utilise maintenant le convertisseur normal ; la validation des taux
+EUR reste stricte pour les affectations effectivement retenues dans les réserves.
+
+Validation : 10 tests métier et 7 tests widgets/colonnes/allocation réussis, dont
+réserves en EUR dans un portefeuille comportant une position USD, puis inclusion
+pondérée de cette position dans les réserves. Construction Mac et contrôle OSGi
+`--commitments` réussis. Données synthétiques ; aucun fichier personnel modifié.
+Ces contrôles ne remplacent pas une vérification visuelle complète de l'interface.
