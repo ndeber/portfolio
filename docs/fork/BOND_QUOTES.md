@@ -14,15 +14,16 @@ ensuite normalement (ou laisser l'enregistrement automatique agir).
 La commande ne modifie aucune taxonomie, notamment Pilotage Global, ni les
 transactions, les quantités ou les autres titres. Elle ne crée pas de nouveau titre.
 
-## Périmètre initial
+## Périmètre pris en charge
 
-Les conventions sont explicites pour les sept ISIN repris du script :
+Les conventions sont explicites pour les huit ISIN suivants :
 
 | ISIN | Source et convention |
 | --- | --- |
 | DE000BU2Z072 | Bundesbank, archives mensuelles depuis le 10 juillet 2026 |
 | DE000BU27014 | Bundesbank, séries KCP/KDP depuis le 27 août 2025 |
 | DE0001102622 | Bundesbank, séries KCP/KDP depuis le 18 octobre 2022 |
+| FR0014001N38 | Borsa Italiana + AFT OAT€i, échéance 25 juillet 2031, coupon 0,10 % |
 | FR0013327491 | Borsa Italiana + AFT OAT€i, échéance 25 juillet 2036, coupon 0,10 % |
 | FR0000188799 | Borsa Italiana + AFT OAT€i, échéance 25 juillet 2032, coupon 3,15 % |
 | FR0013410552 | Borsa Italiana + AFT OAT€i, échéance 1er mars 2029, coupon 0,10 % |
@@ -97,3 +98,5 @@ Sources publiques : [Bundesbank](https://www.bundesbank.de/en/service/federal-se
 [AFT OAT€i](https://www.aft.gouv.fr/fr/oateuroi-principaux-chiffres),
 [AFT OATi](https://www.aft.gouv.fr/fr/oati-principaux-chiffres),
 [Borsa Italiana](https://www.borsaitaliana.it/borsa/obbligazioni/mot/euro-obbligazioni/scheda/FR0013327491-MOTX.html?lang=it).
+
+Fiche officielle OAT€i 2031 : https://www.aft.gouv.fr/fr/titre/fr0014001n38.
