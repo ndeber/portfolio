@@ -60,6 +60,11 @@ public class TaxonomySublevelWidgetTest
         assertEquals(2, data.slices().size()); assertEquals(100000, data.actual().getAmount());
         assertEquals(.8, data.slices().getFirst().target(), 1e-9);
         assertEquals(2, root.getChildren().size()); assertEquals(2000, unclassified.getWeight());
+        w.getConfiguration().put(TaxonomySublevelWidget.CATEGORY, sub.getId());
+        var leaf = new TaxonomySublevelWidget(w, new DashboardData(client), true).getUpdateTask().get();
+        assertEquals(1, leaf.slices().size()); assertEquals("Sous-niveau", leaf.slices().getFirst().name());
+        assertEquals(75000, leaf.actual().getAmount()); assertEquals(1d, leaf.slices().getFirst().target(), 1e-9);
+        assertTrue(leaf.targetValid());
     }
 
 }
