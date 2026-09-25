@@ -17,6 +17,9 @@ public class AvailabilityWidgetTest
         var immediate = new Classification(root, "now", "Immédiate"); root.addChild(immediate); immediate.addAssignment(new Classification.Assignment(account));
         var widget = new Dashboard.Widget(); var delegate = new AvailabilityWidget(widget, new DashboardData(client));
         var data = delegate.getUpdateTask().get(); assertNull(data.error()); assertEquals(100000, data.result().amount(0));
+        name.abuchen.portfolio.commitments.AvailabilityPlan.apply(client, name.abuchen.portfolio.commitments.AvailabilityPlan.load(client));
+        immediate.getAssignments().clear();
+        assertEquals(100000, delegate.getUpdateTask().get().result().amount(0));
         widget.getConfiguration().put("AVAILABILITY_TAXONOMY", taxonomy.getId()); taxonomy.setName("Renamed");
         assertNull(delegate.getUpdateTask().get().error());
         client.removeTaxonomy(taxonomy); assertNotNull(delegate.getUpdateTask().get().error());

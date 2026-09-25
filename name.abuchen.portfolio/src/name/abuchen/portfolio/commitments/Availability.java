@@ -48,7 +48,7 @@ public final class Availability
         if (matches.size() != 1) throw new IllegalArgumentException(matches.isEmpty() ? "Taxonomie « Date de disponibilité » introuvable." : "Plusieurs taxonomies de disponibilité : choisir celle du widget.");
         return matches.getFirst();
     }
-    private static int horizon(Classification category, Classification root)
+    static int horizon(Classification category, Classification root)
     {
         while (category.getParent() != null && category.getParent() != root) category = category.getParent();
         String name = category.getName().strip();
@@ -60,7 +60,9 @@ public final class Availability
     {
         var scoped = scope(client);
         var weights = new HashMap<InvestmentVehicle, Map<Integer, Integer>>();
-        for (var category : taxonomy.getAllClassifications())
+        var plan = client.getProperty(AvailabilityPlan.PROPERTY) == null ? null : AvailabilityPlan.load(client);
+        if (plan != null && Objects.equals(plan.taxonomyId(), taxonomy.getId())) weights.putAll(AvailabilityPlan.weights(client, plan, date));
+        else for (var category : taxonomy.getAllClassifications())
             for (var assignment : category.getAssignments())
             {
                 if (excluded(assignment.getInvestmentVehicle())) continue;
