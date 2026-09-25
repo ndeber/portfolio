@@ -4,60 +4,70 @@ Branche `feature/xapa-availability`, fondée sur l'intégration des engagements 
 Le calcul est isolé dans `commitments/Availability.java` et l'affichage dans
 `ui/views/dashboard/AvailabilityWidget.java`.
 
-## Taxonomie et périmètre
+## Tableau de référence
 
-La taxonomie **Date de disponibilité** contient **Immédiate**, des catégories
-annuelles (par exemple 2027 à 2034), et **À planifier**. Les affectations sont les
-pourcentages de la valeur actuelle d'un actif. Répartir un fonds sur plusieurs
-années pour modéliser une distribution progressive, avec 100 % au total.
-Les distributions projetées en euros ne sont pas des valorisations futures.
-La marge prudente d'un an est appliquée à la saisie des années, une seule fois.
-Les montants déjà reçus ne sont pas inclus dans les proportions restantes.
+Ouvrir **Outils du portefeuille → Renseigner les disponibilités Xapa…**, ou le
+bouton du widget. Ce tableau est la source de vérité : il conserve dans le
+portefeuille les pourcentages de chaque fonds pour Immédiate et 2026–2034.
+Les comptes espèces Xapa sont automatiquement à 100 % dans Immédiate ; ils sont
+visibles dans le tableau mais leur règle n'est pas modifiable.
 
-Seuls les comptes et dépôts dont le nom commence exactement par **Xapa - **
-sont valorisés par le widget. Un titre partagé avec un dépôt personnel ne compte
-que pour les parts détenues dans les dépôts Xapa. Phacet est exclu des
-Disponibilités comme des engagements. Les comptes négatifs réduisent le disponible.
-La vue standard des taxonomies doit utiliser le filtre **Xapa** pour afficher le
-même périmètre ; les pourcentages d'un titre sont partagés par ses différentes
-positions. Le widget applique son périmètre automatiquement.
+Les modifications restent en mémoire jusqu'à **Appliquer et recalculer la
+taxonomie**. Annuler ne change rien. La somme ne doit pas dépasser 100 % ; le
+complément est **À planifier**. Les totaux estimés en EUR s'appuient sur les
+valeurs courantes à l'ouverture du tableau. Les champs acceptent deux décimales.
+Les années saisies incluent déjà toute marge de prudence : aucun décalage n'est
+appliqué automatiquement par le recalcul.
 
-Les comptes espèces sont affectés à Immédiate. Les placements liquides y sont
-également affectés explicitement ; la présence d'un cours ou d'un symbole Yahoo
-ne suffit pas à rendre liquide un fonds privé. Les échéances inconnues restent
-À planifier. Les répartitions peuvent être modifiées dans la taxonomie standard.
-Aucun actualisateur de marché n'est lancé par ce widget.
+À la première ouverture seulement, les répartitions existantes de **Date de
+disponibilité** sont proposées. L'import ne modifie pas le portefeuille avant
+application. Ensuite, les saisies sont conservées séparément dans la propriété
+`fork.xapa.availability.plan.v1` (version, identifiant de taxonomie, UUID des titres,
+poids entiers au centième de pourcentage). Les titres dont la position a été soldée
+restent dans le tableau lorsqu'une répartition existe déjà.
 
-## Widget
+## Recalcul de la taxonomie
 
-Ajouter **Xapa : disponibilités et appels de fonds** dans la rubrique patrimoine.
-Il trouve la taxonomie par son nom, ou utilise l'identifiant sélectionné dans son
-menu. Une sélection explicite survit au renommage. Une catégorie absente, inconnue
-ou une fraction non affectée reste à planifier ; plus de 100 % produit une erreur
-explicite. Les erreurs de change ne sont jamais remplacées par un taux implicite 1:1.
+Appliquer enregistre la source et reconstruit sa taxonomie. Le menu du widget
+contient aussi **Recalculer la taxonomie depuis le tableau**. Les identifiants de
+la taxonomie, de sa racine et des années existantes sont conservés. Les répartitions
+et sous-catégories de cette taxonomie dédiée sont remplacées par la projection du
+tableau ; les autres taxonomies, les objectifs, les opérations et les cours restent
+inchangés. Les modifications manuelles de la taxonomie dérivée ne changent pas la
+source et seront remplacées au prochain recalcul.
 
-Les colonnes montrent les nouvelles disponibilités, le cumul, les appels, leur
-cumul et le solde. Les appels suivent les engagements PE existants, limités aux
-opérations Xapa. Les exclusions Cowboy, Phacet et Checkout des engagements restent
-applicables. Les disponibilités excluent uniquement Phacet, selon la demande.
+Le widget lit directement les saisies dès qu'elles existent. Avant leur première
+application il reste compatible avec la taxonomie v19. Un tableau illisible, un
+poids invalide ou une taxonomie référencée supprimée produit une erreur explicite,
+sans repli vers tout le portefeuille. Un fonds supprimé du portefeuille doit être
+restauré pour que ses saisies ne soient pas effacées implicitement.
 
-Les appels sont détaillés en 2026, 2027, 2028 puis regroupés en **2029+**. Aucun
-solde annuel précis n'est donc affiché à partir de 2029. Une ligne récapitulative
-2029+ compare tous les flux prévus sur cet horizon, sans supposer que des fonds
-libérés en 2034 financeraient un appel en 2029. Elle ne garantit pas la couverture
-à l'intérieur de cette période. À planifier est exclu des cumuls disponibles.
-Des engagements incomplets ou un écart de ventilation désactivent les soldes.
+## Périmètre et comparaison
 
-La valeur actuelle reste une estimation de liquidité : les dates ne sont pas des
-transactions. Après une distribution réelle, revoir la répartition du solde du
-fonds pour ne pas compter le même montant avec le cash reçu. Les années fixes ne
-se décalent pas toutes seules au changement d'année.
+Seuls les comptes et dépôts **Xapa - ** sont valorisés. Un titre partagé avec un
+dépôt personnel ne compte que pour les parts détenues dans Xapa. Phacet est exclu.
+Les comptes négatifs réduisent le disponible. Dans la vue standard des taxonomies,
+sélectionner le filtre Xapa ; le widget applique le périmètre automatiquement.
+
+Le widget **Xapa : disponibilités et appels de fonds** montre les disponibilités
+nouvelles et cumulées, les appels annuels et cumulés, et le solde jusqu'en 2033.
+Les montants précédemment saisis dans 2029+ sont repris en 2029 conformément à la
+demande. Les disponibilités 2034 restent affichées, mais les appels ne sont pas
+supposés nuls au-delà de leur horizon 2033. Les engagements incomplets ou un écart
+de ventilation désactivent les soldes. À planifier ne compte pas dans le disponible.
+
+Les montants sont des pourcentages de la valeur actuelle, pas des rendements
+futurs. Les distributions projetées ne créent aucune transaction. Après une
+distribution réelle, revoir la répartition du solde du fonds pour éviter un double
+comptage avec le cash reçu. Les années ne se décalent pas automatiquement.
 
 ## Validation
 
 Tests synthétiques : positions partagées Xapa/personnel, Phacet, répartition
 partielle, poids excessifs, arrondis, relecture, revalorisation, appels Xapa,
 absence réelle de taux, sélection de taxonomie et suppression sans repli global.
-Le contrôle OSGi `check-packaged-pdf.py --commitments` vérifie également la
+Sont aussi testés la conservation des saisies, l’import initial en lecture seule,
+la validation atomique, le recalcul stable et l’indépendance vis-à-vis d’une
+modification manuelle de la taxonomie. Le contrôle OSGi `check-packaged-pdf.py --commitments` vérifie également la
 valorisation des disponibilités et le chargement du nouveau widget.
 Les échéanciers personnels et les portefeuilles ne sont pas publiés dans Git.

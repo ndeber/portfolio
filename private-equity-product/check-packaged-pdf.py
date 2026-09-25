@@ -85,6 +85,8 @@ public class Check implements IApplication {
    var root=new name.abuchen.portfolio.model.Classification("root",tax.getName());tax.setRootNode(root);client.addTaxonomy(tax);
    var immediate=new name.abuchen.portfolio.model.Classification(root,"now","Immédiate");root.addChild(immediate);
    immediate.addAssignment(new name.abuchen.portfolio.model.Classification.Assignment(account));
+   name.abuchen.portfolio.commitments.AvailabilityPlan.apply(client,name.abuchen.portfolio.commitments.AvailabilityPlan.load(client));
+   if(client.getProperty(name.abuchen.portfolio.commitments.AvailabilityPlan.PROPERTY)==null)throw new IllegalStateException("Missing authoritative availability table");
    var availability=name.abuchen.portfolio.commitments.Availability.calculate(client,tax,converter,java.time.LocalDate.now());
    if(availability.amount(0)!=-20000)throw new IllegalStateException("Incorrect availability balance");
    for(Bundle b:FrameworkUtil.getBundle(Check.class).getBundleContext().getBundles()) {
@@ -92,6 +94,8 @@ public class Check implements IApplication {
      b.loadClass("name.abuchen.portfolio.ui.commitments.CommitmentHandler").getDeclaredMethods();
      b.loadClass("name.abuchen.portfolio.ui.views.dashboard.CommitmentWidget").getDeclaredMethods();
      b.loadClass("name.abuchen.portfolio.ui.views.dashboard.AvailabilityWidget").getDeclaredMethods();
+     b.loadClass("name.abuchen.portfolio.ui.commitments.AvailabilityHandler").getDeclaredMethods();
+     b.loadClass("name.abuchen.portfolio.ui.commitments.AvailabilityDialog").getDeclaredMethods();
      if(b.getEntry("model/commitments.e4xmi")==null) throw new IllegalStateException("Missing menu fragment");
      System.out.println("COMMITMENTS_PACKAGED_PASS: calculated balances, handler, widget, menu");
     }

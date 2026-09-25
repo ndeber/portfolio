@@ -76,7 +76,7 @@ public class AvailabilityTest
         Commitments.save(client, other, 900000L, List.of(0L, 0L, 0L, 700000L));
         var result = Availability.calculate(client, taxonomy, converter, date);
         assertEquals(1, result.commitments().rows().size()); assertEquals(120000, result.commitments().paid()); assertEquals(80000, result.commitments().remaining());
-        assertEquals(List.of(0L, 30000L, 50000L, 0L), result.commitments().forecast());
+        assertEquals(List.of(0L, 30000L, 50000L, 0L, 0L, 0L, 0L, 0L), result.commitments().forecast());
     }
     @Test public void realConverterFallbackIsRejectedForMissingForeignRates()
     {

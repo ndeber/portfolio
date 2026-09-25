@@ -2,5 +2,6 @@
 <fragment:ModelFragments xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:fragment="http://www.eclipse.org/ui/2010/UIModel/fragment" xmlns:menu="http://www.eclipse.org/ui/2010/UIModel/application/ui/menu" xmi:id="_commitmentsFragments">
   <fragments xsi:type="fragment:StringModelFragment" xmi:id="_commitmentsMenuFragment" featurename="children" parentElementId="name.abuchen.portfolio.ui.menu.portfolioTools">
     <elements xsi:type="menu:DirectMenuItem" xmi:id="_commitmentsRefresh" elementId="name.abuchen.portfolio.ui.menu.refreshCommitments" label="Renseigner les engagements PE…" contributionURI="bundleclass://name.abuchen.portfolio.ui/name.abuchen.portfolio.ui.commitments.CommitmentHandler"/>
+    <elements xsi:type="menu:DirectMenuItem" xmi:id="_availabilityInputs" elementId="name.abuchen.portfolio.ui.menu.availabilityInputs" label="Renseigner les disponibilités Xapa…" contributionURI="bundleclass://name.abuchen.portfolio.ui/name.abuchen.portfolio.ui.commitments.AvailabilityHandler"/>
   </fragments>
 </fragment:ModelFragments>
