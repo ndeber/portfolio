@@ -71,3 +71,14 @@ la validation atomique, le recalcul stable et l’indépendance vis-à-vis d’u
 modification manuelle de la taxonomie. Le contrôle OSGi `check-packaged-pdf.py --commitments` vérifie également la
 valorisation des disponibilités et le chargement du nouveau widget.
 Les échéanciers personnels et les portefeuilles ne sont pas publiés dans Git.
+
+### Présentation
+
+Le tableau affiche le **Type** de chaque actif à partir de **Classes d'actifs** et
+regroupe les lignes par classe puis par nom, comme le tableau des appels de fonds.
+Le cash reste identifié séparément.
+
+Le recalcul de **Date de disponibilité** applique une palette turquoise, façon mer
+tropicale : immédiat foncé, échéances de plus en plus claires, « À planifier »
+gris turquoise. Les couleurs sont persistées dans la taxonomie et donc communes
+aux graphiques de répartition.

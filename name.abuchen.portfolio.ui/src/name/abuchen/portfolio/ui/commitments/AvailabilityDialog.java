@@ -67,8 +67,8 @@ public final class AvailabilityDialog extends TitleAreaDialog
         choice.addListener(SWT.Selection, e -> { if (stage()) load(securities.get(choice.getSelectionIndex())); else choice.select(securities.indexOf(selected)); });
         table = new Table(area, SWT.FULL_SELECTION | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL); table.setHeaderVisible(true); table.setLinesVisible(true);
         GridDataFactory.fillDefaults().grab(true, true).hint(1100, 240).applyTo(table);
-        var labels = new ArrayList<>(List.of("Fonds / compte", "Valeur EUR")); AvailabilityPlan.HORIZONS.forEach(y -> labels.add(AvailabilityPlan.label(y) + " %")); labels.add("Total planifié %"); labels.add("À planifier %");
-        for (int i = 0; i < labels.size(); i++) { var column = new TableColumn(table, i == 0 ? SWT.LEFT : SWT.RIGHT); column.setText(labels.get(i)); column.setWidth(i == 0 ? 250 : 105); }
+        var labels = new ArrayList<>(List.of("Type", "Fonds / compte", "Valeur EUR")); AvailabilityPlan.HORIZONS.forEach(y -> labels.add(AvailabilityPlan.label(y) + " %")); labels.add("Total planifié %"); labels.add("À planifier %");
+        for (int i = 0; i < labels.size(); i++) { var column = new TableColumn(table, i <= 1 ? SWT.LEFT : SWT.RIGHT); column.setText(labels.get(i)); column.setWidth(i == 1 ? 250 : 105); }
         table.addListener(SWT.Selection, e -> { if (e.item != null && e.item.getData() instanceof Security security && stage()) load(security); });
         annualTotals = new Label(area, SWT.WRAP); GridDataFactory.fillDefaults().grab(true, false).hint(1050, 65).applyTo(annualTotals);
         if (!securities.isEmpty()) load(securities.getFirst()); refreshTable(); return area;
@@ -112,11 +112,11 @@ public final class AvailabilityDialog extends TitleAreaDialog
         if (table == null || table.isDisposed()) return;
         table.removeAll(); var sums = new TreeMap<Integer, Long>();
         var vehicles = new ArrayList<InvestmentVehicle>(securities); vehicles.addAll(Availability.scope(client).getAccounts());
-        for (var vehicle : vehicles)
+        for (var vehicle : vehicles.stream().sorted(AssetClasses.comparator(client)).toList())
         {
             var weights = vehicle instanceof Account ? Map.of(0, 10000) : inputs.getOrDefault(vehicle.getUUID(), Map.of());
             int planned = AvailabilityPlan.planned(weights); Long value = values.get(vehicle);
-            var cells = new ArrayList<>(List.of(vehicle.getName(), value == null ? "—" : Values.Amount.format(value)));
+            var cells = new ArrayList<>(List.of(AssetClasses.type(client, vehicle).label(), vehicle.getName(), value == null ? "—" : Values.Amount.format(value)));
             for (int year : AvailabilityPlan.HORIZONS)
             {
                 int weight = weights.getOrDefault(year, 0); cells.add(weight == 0 ? "" : percent(weight));
