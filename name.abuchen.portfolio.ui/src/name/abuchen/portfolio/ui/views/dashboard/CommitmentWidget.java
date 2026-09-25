@@ -9,6 +9,7 @@ import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.*;
 import name.abuchen.portfolio.commitments.Commitments;
+import name.abuchen.portfolio.commitments.AssetClasses;
 import name.abuchen.portfolio.model.Dashboard.Widget;
 import name.abuchen.portfolio.money.Values;
 import name.abuchen.portfolio.ui.UIConstants;
@@ -78,10 +79,10 @@ public final class CommitmentWidget extends WidgetDelegate<CommitmentWidget.Data
         table = new Table(container, SWT.FULL_SELECTION | SWT.H_SCROLL | SWT.V_SCROLL); table.setHeaderVisible(true); table.setLinesVisible(true);
         GridDataFactory.fillDefaults().grab(true, false).hint(SWT.DEFAULT, detail ? 300 : 280).applyTo(table);
         var columns = new java.util.ArrayList<String>();
-        if (detail) { columns.addAll(List.of("Fonds", "Engagé", "Réalisé", "Restant")); columns.addAll(Commitments.LABELS); columns.addAll(List.of("Total prévisions", "Non ventilé", "À vérifier")); }
+        if (detail) { columns.addAll(List.of("Type", "Fonds", "Engagé", "Réalisé", "Restant")); columns.addAll(Commitments.LABELS); columns.addAll(List.of("Total prévisions", "Non ventilé", "À vérifier")); }
         else columns.addAll(List.of("Indicateur / échéance", "Montant EUR", "Réserves après appels EUR"));
         String[] labels = columns.toArray(String[]::new);
-        for (int i = 0; i < labels.length; i++) { var c = new TableColumn(table, i == 0 ? SWT.LEFT : SWT.RIGHT); c.setText(labels[i]); c.setWidth(i == 0 ? 200 : detail ? 100 : 180); }
+        for (int i = 0; i < labels.length; i++) { var c = new TableColumn(table, i <= (detail ? 1 : 0) ? SWT.LEFT : SWT.RIGHT); c.setText(labels[i]); c.setWidth(detail ? (i == 1 ? 200 : 100) : (i == 0 ? 200 : 180)); }
         return container;
     }
     @Override public Control getTitleControl() { return title; }
@@ -115,9 +116,9 @@ public final class CommitmentWidget extends WidgetDelegate<CommitmentWidget.Data
     }
     private static String amount(Long value) { return value == null ? "—" : Values.Amount.format(value); }
     private void line(String... cells) { var row = new TableItem(table, SWT.NONE); row.setText(cells); }
-    private void detailLine(String label, Long total, Long paid, Long remaining, List<Long> forecasts, Long gap, String warnings)
+    private void detailLine(String type, String label, Long total, Long paid, Long remaining, List<Long> forecasts, Long gap, String warnings)
     {
-        var cells = new java.util.ArrayList<>(List.of(label, amount(total), amount(paid), amount(remaining)));
+        var cells = new java.util.ArrayList<>(List.of(type, label, amount(total), amount(paid), amount(remaining)));
         forecasts.forEach(v -> cells.add(v == 0 ? "" : amount(v)));
         cells.add(amount(forecasts.stream().reduce(0L, Math::addExact))); cells.add(amount(gap)); cells.add(warnings);
         line(cells.toArray(String[]::new));
@@ -134,8 +135,8 @@ public final class CommitmentWidget extends WidgetDelegate<CommitmentWidget.Data
         note.setText(status + (data.error() == null ? "" : "\n" + data.error()) + (!detail ? "\n" + data.reserveLabel() + "\nPrévisions du restant ; réserves actuelles, sans revenus futurs supposés." : "\nMontants en EUR. Faites défiler horizontalement pour voir toutes les colonnes. Les dates sont fixes ; mettre à jour l'échéancier après chaque appel."));
         if (detail)
         {
-            detailLine(s.complete() ? "TOTAL" : "TOTAL RENSEIGNÉ", s.total(), s.paid(), s.remaining(), s.forecast(), s.gap(), "");
-            for (var row : s.rows()) detailLine(row.security().getName(), row.total(), row.paid(), row.remaining(), row.forecast(), row.gap(), String.join(" ; ", row.warnings()));
+            detailLine("", s.complete() ? "TOTAL" : "TOTAL RENSEIGNÉ", s.total(), s.paid(), s.remaining(), s.forecast(), s.gap(), "");
+            for (var row : s.rows()) detailLine(AssetClasses.type(getClient(), row.security()).label(), row.security().getName(), row.total(), row.paid(), row.remaining(), row.forecast(), row.gap(), String.join(" ; ", row.warnings()));
         }
         else
         {
