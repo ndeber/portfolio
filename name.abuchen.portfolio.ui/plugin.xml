@@ -468,5 +468,6 @@
    <extension point="org.eclipse.e4.workbench.model">
       <fragment uri="model/update-actions.e4xmi" apply="always"/>
       <fragment uri="model/bond-quotes.e4xmi" apply="always"/>
+      <fragment uri="model/aft-inflation.e4xmi" apply="always"/>
    </extension>
 </plugin>

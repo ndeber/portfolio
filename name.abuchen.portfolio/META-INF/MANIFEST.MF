@@ -31,6 +31,7 @@ Export-Package: name.abuchen.portfolio,
  name.abuchen.portfolio.support,
  name.abuchen.portfolio.updates,
  name.abuchen.portfolio.updates.bonds,
+ name.abuchen.portfolio.updates.inflation,
  name.abuchen.portfolio.util
 Import-Package: com.auth0.jwt,
  com.auth0.jwt.interfaces,
