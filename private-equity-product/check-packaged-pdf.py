@@ -96,6 +96,7 @@ public class Check implements IApplication {
      b.loadClass("name.abuchen.portfolio.ui.views.dashboard.AvailabilityWidget").getDeclaredMethods();
      b.loadClass("name.abuchen.portfolio.ui.commitments.AvailabilityHandler").getDeclaredMethods();
      b.loadClass("name.abuchen.portfolio.ui.commitments.AvailabilityDialog").getDeclaredMethods();
+     b.loadClass("name.abuchen.portfolio.ui.views.dashboard.TaxonomySublevelWidget").getDeclaredMethods();
      if(b.getEntry("model/commitments.e4xmi")==null) throw new IllegalStateException("Missing menu fragment");
      System.out.println("COMMITMENTS_PACKAGED_PASS: calculated balances, handler, widget, menu");
     }
