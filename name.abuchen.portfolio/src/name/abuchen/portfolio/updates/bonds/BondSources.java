@@ -49,6 +49,16 @@ public final class BondSources
         this.today = today;
     }
 
+    /** Shared public AFT transport; restricted to the official HTTPS host. */
+    public byte[] fetchAft(String url) throws IOException, InterruptedException
+    {
+        var uri = URI.create(url);
+        if (!"https".equals(uri.getScheme()) || !"www.aft.gouv.fr".equals(uri.getHost())
+                        || uri.getUserInfo() != null || (uri.getPort() != -1 && uri.getPort() != 443))
+            throw new IOException("Adresse AFT invalide.");
+        return get(url);
+    }
+
     public List<BondQuote> fetch(BondSpec bond) throws IOException, InterruptedException
     {
         checkCancelled();
