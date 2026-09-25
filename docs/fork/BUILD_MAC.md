@@ -75,3 +75,7 @@ Pour vérifier les répartitions obligataires dans le produit assemblé, ajouter
 codés en dur (VAGF, M&G et Bund), vérifie les douze résultats et le chargement du
 handler. Il n'accepte aucun chemin de portefeuille et n'en lit aucun. Les contrôles
 avec sources réseau sont limités à 300 secondes.
+
+L'option `--commitments` vérifie hors réseau les calculs d'engagements sur des
+données synthétiques et le chargement des classes du menu/widget dans le produit
+assemblé. Elle ne lit aucun portefeuille personnel.

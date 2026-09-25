@@ -259,3 +259,7 @@ Validation : 8 tests métier, 3 tests de widgets/colonnes et 4 tests de non-rég
 allocation/objectifs réussis ; assemblage Mac réussi. Scénarios synthétiques,
 sans lecture ni écriture du portefeuille personnel. Ce contrôle ne constitue
 pas une vérification visuelle complète de toutes les interactions de saisie.
+
+Contrôle supplémentaire de la v17 dans le produit assemblé : calcul synthétique
+réalisé/restant réussi, chargement du handler et des widgets et présence du
+fragment de menu confirmés (`check-packaged-pdf.py --commitments`), hors réseau.

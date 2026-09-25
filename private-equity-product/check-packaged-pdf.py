@@ -5,6 +5,7 @@ parser.add_argument("eclipse", type=Path, help="Built app Contents/Eclipse direc
 parser.add_argument("--java-home", required=True, type=Path)
 parser.add_argument("--live-msci", "--live-amundi", dest="live_amundi", action="store_true", help="Also fetch public Amundi and WPEA compositions")
 parser.add_argument("--live-bonds", action="store_true", help="Check only hard-coded public VAGF, M&G and Bund examples; never opens a portfolio")
+parser.add_argument("--commitments", action="store_true", help="Check commitment calculations and UI loading on synthetic data, without network or portfolio files")
 args=parser.parse_args()
 base=args.eclipse.resolve()
 workspace=tempfile.TemporaryDirectory(prefix="portfolio-pdf-check-")
@@ -70,6 +71,24 @@ public class Check implements IApplication {
     }
    }
   }
+  if(Boolean.getBoolean("probe.commitments")) {
+   var client=new name.abuchen.portfolio.model.Client(); client.setBaseCurrency("EUR");
+   var security=new name.abuchen.portfolio.model.Security("Synthetic PE fund","EUR");client.addSecurity(security);
+   var account=new name.abuchen.portfolio.model.Account("Synthetic account");account.setCurrencyCode("EUR");client.addAccount(account);
+   account.addTransaction(new name.abuchen.portfolio.model.AccountTransaction(java.time.LocalDate.now().atStartOfDay(),"EUR",20000,security,name.abuchen.portfolio.model.AccountTransaction.Type.CAPITAL_CALL));
+   name.abuchen.portfolio.commitments.Commitments.save(client,security,100000L,java.util.List.of(20000L,20000L,20000L,20000L));
+   var converter=new name.abuchen.portfolio.money.CurrencyConverterImpl(new name.abuchen.portfolio.money.ExchangeRateProviderFactory(client),"EUR");
+   var summary=name.abuchen.portfolio.commitments.Commitments.summary(client,converter,java.time.LocalDate.now());
+   if(summary.paid()!=20000 || summary.remaining()!=80000 || !summary.complete()) throw new IllegalStateException("Incorrect commitment totals");
+   for(Bundle b:FrameworkUtil.getBundle(Check.class).getBundleContext().getBundles()) {
+    if(b.getSymbolicName().equals("name.abuchen.portfolio.ui")) {
+     b.loadClass("name.abuchen.portfolio.ui.commitments.CommitmentHandler").getDeclaredMethods();
+     b.loadClass("name.abuchen.portfolio.ui.views.dashboard.CommitmentWidget").getDeclaredMethods();
+     if(b.getEntry("model/commitments.e4xmi")==null) throw new IllegalStateException("Missing menu fragment");
+     System.out.println("COMMITMENTS_PACKAGED_PASS: calculated balances, handler, widget, menu");
+    }
+   }
+  }
   return EXIT_OK;
  }
  public void stop() {}
@@ -86,10 +105,12 @@ config=probe/'configuration';shutil.copytree(base/'configuration',config,dirs_ex
 info=config/'org.eclipse.equinox.simpleconfigurator/bundles.info'
 with info.open('a') as out:out.write(f'\nprobe,1.0.0,{bundle.as_uri()},4,true\n')
 launcher=next((base/'plugins').glob('org.eclipse.equinox.launcher_*.jar'))
-cmd=[str(java/'java'),f'-Dprobe.pdf={pdf}',f'-Dprobe.live={str(args.live_amundi).lower()}',f'-Dprobe.bonds={str(args.live_bonds).lower()}','-jar',str(launcher),'-nosplash','-install',str(base),'-configuration',str(config),'-data',str(probe/'workspace'),'-application','probe.check','-consoleLog']
+cmd=[str(java/'java'),f'-Dprobe.pdf={pdf}',f'-Dprobe.live={str(args.live_amundi).lower()}',f'-Dprobe.bonds={str(args.live_bonds).lower()}',f'-Dprobe.commitments={str(args.commitments).lower()}','-jar',str(launcher),'-nosplash','-install',str(base),'-configuration',str(config),'-data',str(probe/'workspace'),'-application','probe.check','-consoleLog']
 r=subprocess.run(cmd,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,text=True,timeout=300 if (args.live_amundi or args.live_bonds) else 45)
 print(r.stdout)
 if r.returncode or 'PACKAGED_OSGI_PDF_PASS' not in r.stdout:raise SystemExit(1)
 if args.live_amundi and r.stdout.count('MSCI_SOURCE_PASS:') != 6:raise SystemExit(1)
 
 if args.live_bonds and (r.stdout.count("BOND_SOURCE_PASS:") != 12 or "BOND_HANDLER_PASS" not in r.stdout):raise SystemExit(1)
+
+if args.commitments and "COMMITMENTS_PACKAGED_PASS:" not in r.stdout:raise SystemExit(1)
