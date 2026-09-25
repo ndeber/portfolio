@@ -21,8 +21,8 @@ public final class Commitments
     public static final String TOTAL = PREFIX + "total.eur";
     public static final String PAID = PREFIX + "paid.eur";
     public static final String REMAINING = PREFIX + "remaining.eur";
-    public static final List<String> YEARS = List.of(PREFIX + "2026.eur", PREFIX + "2027.eur", PREFIX + "2028.eur", PREFIX + "2029plus.eur");
-    public static final List<String> LABELS = List.of("2026", "2027", "2028", "2029+");
+    public static final List<String> YEARS = List.of(PREFIX + "2026.eur", PREFIX + "2027.eur", PREFIX + "2028.eur", PREFIX + "2029plus.eur", PREFIX + "2030.eur", PREFIX + "2031.eur", PREFIX + "2032.eur", PREFIX + "2033.eur");
+    public static final List<String> LABELS = List.of("2026", "2027", "2028", "2029", "2030", "2031", "2032", "2033");
     public static final String RESERVE_NAME = "Réserves appels de fonds";
     public record Row(Security security, Long total, Long paid, Long remaining, List<Long> forecast, Long gap, List<String> warnings)
     {
@@ -64,6 +64,9 @@ public final class Commitments
                 attribute.setType(Long.class); attribute.setTarget(Security.class); attribute.setConverter(AttributeType.AmountConverter.class);
                 client.getSettings().addAttributeType(attribute);
             }
+        client.getSettings().getAttributeTypes().filter(a -> a.getId().equals(YEARS.get(3))).forEach(a -> {
+            a.setName(label(a.getId())); a.setColumnLabel(label(a.getId()));
+        });
     }
     public static Long value(Security security, String id)
     {
@@ -74,7 +77,14 @@ public final class Commitments
     }
     public static void save(Client client, Security security, Long total, List<Long> forecast)
     {
-        if (forecast.size() != 4 || total != null && total < 0 || forecast.stream().anyMatch(v -> v == null || v < 0))
+        // Preserve later inputs when an older integration supplies the original four columns.
+        if (forecast.size() == 4)
+        {
+            var expanded = new ArrayList<>(forecast);
+            for (int i = 4; i < YEARS.size(); i++) { Long amount = value(security, YEARS.get(i)); expanded.add(amount == null ? 0L : amount); }
+            forecast = expanded;
+        }
+        if (forecast.size() != YEARS.size() || total != null && total < 0 || forecast.stream().anyMatch(v -> v == null || v < 0))
             throw new IllegalArgumentException("Saisir des montants positifs ou nuls.");
         if (total == null && forecast.stream().anyMatch(v -> v != 0)) throw new IllegalArgumentException("Renseigner l'engagement total avant les prévisions.");
         ensureAttributes(client);
@@ -172,23 +182,23 @@ public final class Commitments
                 gap = Math.subtractExact(remaining, sum);
                 if (remaining < 0) warnings.add("Le réalisé dépasse l'engagement total.");
                 if (gap != 0) warnings.add(gap > 0 ? "Restant non entièrement ventilé par année." : "Prévisions supérieures au restant.");
-                for (int i = 0; i < 3; i++) if (2026 + i < date.getYear() && forecast.get(i) > 0) warnings.add("Prévision " + (2026 + i) + " échue : à replanifier.");
+                for (int i = 0; i < YEARS.size(); i++) if (2026 + i < date.getYear() && forecast.get(i) > 0) warnings.add("Prévision " + (2026 + i) + " échue : à replanifier.");
             }
         }
         catch (RuntimeException e) { paid = null; remaining = null; gap = null; warnings.add(e.getMessage() == null ? "Calcul impossible." : e.getMessage()); }
-        while (forecast.size() < 4) forecast.add(0L);
+        while (forecast.size() < YEARS.size()) forecast.add(0L);
         return new Row(security, total, paid, remaining, forecast, gap, warnings);
     }
     public static Summary summary(Client client, CurrencyConverter converter, LocalDate date)
     {
         var rows = scope(client).stream().map(s -> row(client, s, converter, date)).toList();
-        long total = 0, paid = 0, remaining = 0, gap = 0; long[] forecast = new long[4]; boolean complete = !rows.isEmpty();
+        long total = 0, paid = 0, remaining = 0, gap = 0; long[] forecast = new long[YEARS.size()]; boolean complete = !rows.isEmpty();
         for (var row : rows)
         {
             if (row.total() == null || row.remaining() == null) { complete = false; continue; }
             if (row.remaining() < 0) complete = false;
             total = Math.addExact(total, row.total()); paid = Math.addExact(paid, row.paid()); remaining = Math.addExact(remaining, row.remaining()); gap = Math.addExact(gap, row.gap());
-            for (int i = 0; i < 4; i++) forecast[i] = Math.addExact(forecast[i], row.forecast().get(i));
+            for (int i = 0; i < YEARS.size(); i++) forecast[i] = Math.addExact(forecast[i], row.forecast().get(i));
         }
         return new Summary(rows, total, paid, remaining, java.util.Arrays.stream(forecast).boxed().toList(), gap, complete);
     }

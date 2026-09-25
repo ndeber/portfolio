@@ -10,11 +10,11 @@ dans `ui/views/dashboard/CommitmentWidget.java`.
 Ouvrir **Outils du portefeuille → Renseigner les engagements PE…**, ou utiliser
 **Renseigner les engagements PE…** dans le menu d'un des widgets d'engagements.
 Choisir un fonds, saisir son engagement total et ses appels encore prévus en EUR
-pour 2026, 2027, 2028 et 2029+. La sélection permet aussi d'ajouter d'autres titres, hors exclusions ci-dessous.
+pour chaque année de 2026 à 2033. La sélection permet aussi d'ajouter d'autres titres, hors exclusions ci-dessous.
 Les modifications sont préparées en mémoire ; **Appliquer au portefeuille** les
 valide, **Annuler** les abandonne. Enregistrer le portefeuille avec ⌘S.
 
-Le total et les quatre prévisions sont de vrais attributs numériques en EUR,
+Le total et les huit prévisions sont de vrais attributs numériques en EUR,
 également accessibles dans les attributs supplémentaires et comme colonnes des
 tableaux. Les colonnes **Engagement réalisé** et **Engagement restant** sont
 calculées et non modifiables : aucune valeur calculée périmée n'est enregistrée.
@@ -23,6 +23,13 @@ fournie à l'affichage par le fork. Une version officielle qui ne connaît pas c
 calcul pourra lire les saisies, mais n'affichera pas ces deux valeurs calculées.
 Après création des attributs, rouvrir une vue déjà ouverte si nécessaire, puis
 ajouter les colonnes depuis la roue dentée → Attributs.
+
+La v20 reprend, sur demande, les montants auparavant libellés **2029+** dans
+**2029**. La clé d'attribut historique `fork.pe.commitment.2029plus.eur` est
+conservée pour ne perdre aucune saisie, mais son libellé et son interprétation
+sont désormais 2029. Les nouvelles colonnes 2030–2033 sont vides tant qu'aucun
+montant n'est saisi (zéro dans les calculs). Une ancienne intégration fournissant
+quatre valeurs ne peut pas effacer les valeurs annuelles ultérieures.
 
 ## Calcul
 
@@ -37,19 +44,18 @@ ajouter les colonnes depuis la roue dentée → Attributs.
   un avertissement et non une conversion implicite à 1 pour 1.
 - Restant = total saisi − réalisé. Un dépassement n'est pas masqué par un plancher
   à zéro : il est signalé et désactive l'indicateur de couverture globale.
-- Non ventilé = restant − somme des quatre prévisions. Les écarts sont signalés,
+- Non ventilé = restant − somme des huit prévisions. Les écarts sont signalés,
   sans empêcher une saisie progressive. Mettre l'échéancier à jour après un appel :
   l'application ne peut pas deviner à quelle prévision l'imputer.
 
-Les années sont fixes : 2026 ne devient pas automatiquement 2027, et 2029+ ne peut
-pas être réparti arbitrairement au passage de l'année. Les prévisions d'années
+Les années sont fixes : 2026 ne devient pas automatiquement 2027, et les prévisions ne se répartissent pas arbitrairement au passage de l'année. Les prévisions d'années
 écoulées sont signalées comme à replanifier.
 
 ## Dashboard
 
 Ajouter dans la rubrique patrimoine :
 
-- **Engagements PE : détail par fonds** : total, réalisé, restant, quatre échéances,
+- **Engagements PE : détail par fonds** : total, réalisé, restant, huit échéances,
   total des prévisions, montant non ventilé et avertissements. La ligne de sommes
   apparaît en tête ; **Agrandir le tableau — années et totaux** ouvre une vue large.
   Le tableau de saisie présente également les sommes par année et le total des prévisions.
@@ -82,7 +88,7 @@ de widgets sont `PE_COMMITMENTS_DETAIL` et `PE_COMMITMENTS_RESERVES`.
 
 ## Validation
 
-10 tests métier et 3 tests de widgets/colonnes, plus les 4 tests des widgets
+11 tests métier et 3 tests de widgets/colonnes, plus les 4 tests des widgets
 allocation/objectifs existants : opérations, devises et contre-valeurs, frais,
 exclusions explicites, réserves avec positions en devises, absence de taux, distributions, doublons, réserves imbriquées, ambiguïtés,
 persistance, lecture seule et recalcul après modification d'une opération.
