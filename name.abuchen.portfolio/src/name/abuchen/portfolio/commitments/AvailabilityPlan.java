@@ -26,6 +26,20 @@ public final class AvailabilityPlan
         }
     }
     private AvailabilityPlan() { }
+    public static String color(int year)
+    {
+        if (year == Availability.UNPLANNED) return "#A2B7B5";
+        if (year == 0) return "#006D77";
+        String[] turquoise = {"#007F89", "#00939C", "#00A6AD", "#12B8BC", "#32C8C8", "#59D5D2", "#83E0DA", "#ADEAE2", "#D1F2EA"};
+        return turquoise[Math.max(0, Math.min(turquoise.length - 1, year - 2026))];
+    }
+    public static void recolor(Taxonomy taxonomy)
+    {
+        taxonomy.getRoot().setColor(color(0));
+        for (var category : taxonomy.getAllClassifications())
+            if (category != taxonomy.getRoot()) category.setColor(color(Availability.horizon(category, taxonomy.getRoot())));
+        taxonomy.notifyAssignmentsChanged();
+    }
     public static String label(int year) { return year == 0 ? "Immédiate" : Integer.toString(year); }
     public static int planned(Map<Integer, Integer> weights)
     { return weights.values().stream().reduce(0, Math::addExact); }
@@ -48,7 +62,7 @@ public final class AvailabilityPlan
         scoped.getPortfolios().forEach(p -> p.getTransactions().stream().filter(t -> !t.getDateTime().toLocalDate().isAfter(date)).forEach(t ->
                         held.merge(t.getSecurity(), t.getType().isPurchase() ? t.getShares() : -t.getShares(), Long::sum)));
         return scoped.getSecurities().stream().filter(s -> held.getOrDefault(s, 0L) != 0 || plan.allocations().containsKey(s.getUUID()))
-                        .sorted(Comparator.comparing(Security::getName)).toList();
+                        .sorted(AssetClasses.comparator(client)).toList();
     }
     public static Plan load(Client client)
     {
@@ -134,9 +148,9 @@ public final class AvailabilityPlan
             var category = categories.get(year); category.getChildren().clear(); category.getAssignments().clear(); category.setRank(rank++);
             assignments.get(year).forEach(category::addAssignment); root.addChild(category);
         }
-        taxonomy.setRootNode(root);
+        taxonomy.setRootNode(root); recolor(taxonomy);
         if (existing == null) client.addTaxonomy(taxonomy);
-        client.setProperty(PROPERTY, serialized); taxonomy.notifyAssignmentsChanged(); client.markDirty();
+        client.setProperty(PROPERTY, serialized); client.markDirty();
         return taxonomy;
     }
 }
