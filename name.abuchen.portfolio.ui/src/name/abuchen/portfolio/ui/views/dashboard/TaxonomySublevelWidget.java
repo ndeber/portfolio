@@ -180,6 +180,38 @@ public class TaxonomySublevelWidget extends WidgetDelegate<TaxonomySublevelWidge
     {
         var chart = new CircularChart(parent, SeriesType.PIE, n -> n.getData() instanceof Slice s ? s.name() : "");
         chart.getTitle().setVisible(false);
+        chart.addLabelPainter(new CircularChart.LabelPainter(chart)
+        {
+            @Override protected void renderLabel(Node node, ICircularSeries<?> series,
+                            org.eclipse.swt.graphics.GC gc, org.eclipse.swtchart.IAxis xAxis,
+                            org.eclipse.swtchart.IAxis yAxis)
+            {
+                if (!node.isVisible() || node.getParent().getValue() <= 0) return;
+                String label = Math.round(100 * node.getValue() / node.getParent().getValue()) + " %";
+                var previousFont = gc.getFont();
+                var previousColor = gc.getForeground();
+                try
+                {
+                    gc.setFont(labelFont);
+                    var size = gc.textExtent(label);
+                    var angles = node.getAngleBounds();
+                    double radius = .67 * (node.getLevel() - series.getRootNode().getLevel());
+                    var start = getPixelCoordinate(xAxis, yAxis, radius, angles.x);
+                    var end = getPixelCoordinate(xAxis, yAxis, radius, angles.x + angles.y);
+                    // Keep narrow slices readable via their tooltip rather than overlapping labels.
+                    if (angles.y < 180 && Math.hypot(end.x - start.x, end.y - start.y) < Math.max(size.x, size.y) + 4)
+                        return;
+                    var center = getPixelCoordinate(xAxis, yAxis, angles.y >= 359 ? 0 : radius, angles.x + angles.y / 2);
+                    gc.setForeground(Colors.getTextColor(node.getSliceColor()));
+                    gc.drawString(label, center.x - size.x / 2, center.y - size.y / 2, true);
+                }
+                finally
+                {
+                    gc.setFont(previousFont);
+                    gc.setForeground(previousColor);
+                }
+            }
+        });
         GridDataFactory.fillDefaults().grab(true, false).hint(SWT.DEFAULT, get(ChartHeightConfig.class).getPixel()).applyTo(chart);
         chart.getToolTip().setToolTipBuilder((container, node) -> {
             if (node.getData() instanceof Slice slice)

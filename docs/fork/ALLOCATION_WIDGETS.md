@@ -23,8 +23,10 @@ Deux widgets indépendants affichent chacun un seul camembert : les valeurs
 actuelles ou les poids cibles. Chacun permet de choisir sa taxonomie, puis une
 catégorie à n'importe quelle profondeur via **Sous-catégorie**. Seuls les enfants
 directs de la catégorie choisie sont représentés ; leurs montants incluent leurs
-descendants. Aucun tableau, sous-titre, titre de graphique ou libellé de secteur
-n'est affiché. Les noms et pourcentages restent accessibles au survol.
+descendants. Aucun tableau, sous-titre, titre de graphique ou nom de secteur
+n'est affiché. Les pourcentages arrondis sans décimales sont affichés dans les
+secteurs suffisamment larges ; les noms et pourcentages précis restent accessibles
+au survol. Les deux widgets reprennent les couleurs des catégories de la taxonomie.
 
 L'option **Masquer les sans classification**, activée par défaut, enlève ces
 catégories du graphique. Les pourcentages sont ramenés aux seules catégories

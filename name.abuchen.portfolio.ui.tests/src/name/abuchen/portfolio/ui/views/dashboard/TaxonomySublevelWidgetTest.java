@@ -41,7 +41,7 @@ public class TaxonomySublevelWidgetTest
         var client = new Client(); client.setBaseCurrency("EUR");
         var taxonomy = new Taxonomy("Allocation");
         var root = new Classification(null, "root", "All"); root.setWeight(10000);
-        var a = new Classification(root, "a", "Actions"); a.setWeight(8000); root.addChild(a);
+        var a = new Classification(root, "a", "Actions"); a.setWeight(8000); a.setColor("#12ABCD"); root.addChild(a);
         var sub = new Classification(a, "sub", "Sous-niveau"); sub.setWeight(12000); a.addChild(sub);
         var unclassified = new Classification(root, "u", "Sans classification"); unclassified.setWeight(2000); root.addChild(unclassified);
         taxonomy.setRootNode(root); client.addTaxonomy(taxonomy);
@@ -53,6 +53,7 @@ public class TaxonomySublevelWidgetTest
         var delegate = new TaxonomySublevelWidget(w, new DashboardData(client));
         var data = delegate.getUpdateTask().get();
         assertEquals(1, data.slices().size()); assertTrue(data.slices().getFirst().children().isEmpty());
+        assertEquals("#12ABCD", data.slices().getFirst().color());
         assertTrue(data.targetValid()); // Descendant targets do not invalidate this level.
         assertEquals(75000, data.actual().getAmount()); assertEquals(1d, data.slices().getFirst().target(), 1e-9);
         w.getConfiguration().put(TaxonomySublevelWidget.HIDE_UNCLASSIFIED, "false");
