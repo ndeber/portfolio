@@ -116,7 +116,7 @@ public final class Commitments
             for (var tx : account.getTransactions())
                 if (tx.getType() == AccountTransaction.Type.CAPITAL_CALL && tx.getSecurity() != null) found.add(tx.getSecurity());
         return client.getSecurities().stream().filter(s -> !excluded(s)).filter(s -> s.getAttributes().getMap().containsKey(TOTAL) || !s.isRetired() && found.contains(s))
-                        .sorted(Comparator.comparing((Security s) -> s.getName()).thenComparing(Security::getUUID)).toList();
+                        .sorted(AssetClasses.comparator(client)).toList();
     }
     private static void collect(Classification category, Set<Security> securities)
     {

@@ -94,3 +94,11 @@ exclusions explicites, réserves avec positions en devises, absence de taux, dis
 persistance, lecture seule et recalcul après modification d'une opération.
 Les tests utilisent des données synthétiques ; aucun portefeuille personnel
 n'est lu ou modifié. La construction Mac est vérifiée séparément.
+
+### Classe d'actif dans les tableaux
+
+La colonne **Type** et le tri regroupent les fonds selon **Classes d'actifs** :
+PE, VC, dette privée, obligations, etc., puis par nom. Les affectations imbriquées
+sont ramenées à leur classe principale. Un fonds mixte est classé selon son poids
+dominant et signalé « mixte » ; sans taxonomie unique ou affectation, il reste
+« Non classé ». Cette présentation ne modifie aucun montant.

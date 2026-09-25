@@ -8,6 +8,7 @@ import org.eclipse.jface.layout.*;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.*;
 import name.abuchen.portfolio.commitments.Commitments;
+import name.abuchen.portfolio.commitments.AssetClasses;
 import name.abuchen.portfolio.model.*;
 import name.abuchen.portfolio.money.*;
 import name.abuchen.portfolio.ui.util.StringToCurrencyConverter;
@@ -32,7 +33,7 @@ public final class CommitmentDialog extends TitleAreaDialog
     public CommitmentDialog(Shell shell, Client client, CurrencyConverter converter)
     {
         super(shell); this.client = client; this.converter = converter;
-        securities = client.getSecurities().stream().filter(s -> !Commitments.excluded(s)).sorted(Comparator.comparing((Security s) -> s.getName())).toList();
+        securities = client.getSecurities().stream().filter(s -> !Commitments.excluded(s)).sorted(AssetClasses.comparator(client)).toList();
         for (var security : securities) original.put(security, new HashMap<>(security.getAttributes().getMap()));
         setShellStyle(getShellStyle() | SWT.RESIZE);
     }
@@ -58,9 +59,9 @@ public final class CommitmentDialog extends TitleAreaDialog
         total.addModifyListener(e -> refreshCalculation()); years.forEach(t -> t.addModifyListener(e -> refreshCalculation()));
         table = new Table(area, SWT.BORDER | SWT.FULL_SELECTION | SWT.H_SCROLL | SWT.V_SCROLL);
         table.setHeaderVisible(true); table.setLinesVisible(true); GridDataFactory.fillDefaults().grab(true, true).hint(1050, 260).applyTo(table);
-        var labels = new ArrayList<>(List.of("Fonds", "Total", "Réalisé", "Restant")); labels.addAll(Commitments.LABELS); labels.addAll(List.of("Total prévisions", "Non ventilé"));
+        var labels = new ArrayList<>(List.of("Type", "Fonds", "Total", "Réalisé", "Restant")); labels.addAll(Commitments.LABELS); labels.addAll(List.of("Total prévisions", "Non ventilé"));
         String[] headers = labels.toArray(String[]::new);
-        for (int i = 0; i < headers.length; i++) { var col = new TableColumn(table, i == 0 ? SWT.LEFT : SWT.RIGHT); col.setText(headers[i]); col.setWidth(i == 0 ? 260 : 100); }
+        for (int i = 0; i < headers.length; i++) { var col = new TableColumn(table, i <= 1 ? SWT.LEFT : SWT.RIGHT); col.setText(headers[i]); col.setWidth(i == 1 ? 260 : 100); }
         table.addListener(SWT.Selection, e -> {
             if (table.getSelectionCount() == 0) return;
             var security = (Security) table.getSelection()[0].getData();
@@ -131,7 +132,7 @@ public final class CommitmentDialog extends TitleAreaDialog
         table.removeAll(); var all = new LinkedHashSet<>(Commitments.scope(client)); all.addAll(pending.keySet());
         var totals = new TableItem(table, SWT.NONE);
         long[] sums = new long[5 + Commitments.YEARS.size()]; boolean complete = !all.isEmpty();
-        for (var security : all)
+        for (var security : all.stream().sorted(AssetClasses.comparator(client)).toList())
         {
             var row = new TableItem(table, SWT.NONE); row.setData(security);
             try
@@ -139,7 +140,7 @@ public final class CommitmentDialog extends TitleAreaDialog
                 var values = input(security); var data = Commitments.row(client, security, converter, LocalDate.now());
                 Long remaining = values.total() == null || data.paid() == null ? null : Math.subtractExact(values.total(), data.paid());
                 long sum = 0; for (long value : values.years()) sum = Math.addExact(sum, value);
-                var cells = new ArrayList<>(List.of(security.getName(), amount(values.total()), amount(data.paid()), amount(remaining)));
+                var cells = new ArrayList<>(List.of(AssetClasses.type(client, security).label(), security.getName(), amount(values.total()), amount(data.paid()), amount(remaining)));
                 values.years().forEach(v -> cells.add(v == 0 ? "" : amount(v))); cells.add(amount(sum)); cells.add(remaining == null ? "—" : amount(remaining - sum));
                 row.setText(cells.toArray(String[]::new));
                 if (remaining != null)
@@ -151,10 +152,10 @@ public final class CommitmentDialog extends TitleAreaDialog
                 }
                 else complete = false;
             }
-            catch (RuntimeException e) { complete = false; row.setText(new String[] {security.getName(), "À vérifier : " + e.getMessage()}); }
+            catch (RuntimeException e) { complete = false; row.setText(new String[] {AssetClasses.type(client, security).label(), security.getName(), "À vérifier : " + e.getMessage()}); }
         }
-        String[] cells = new String[sums.length + 1]; cells[0] = complete ? "TOTAL" : "TOTAL RENSEIGNÉ";
-        for (int i = 0; i < sums.length; i++) cells[i + 1] = amount(sums[i]);
+        String[] cells = new String[sums.length + 2]; cells[0] = ""; cells[1] = complete ? "TOTAL" : "TOTAL RENSEIGNÉ";
+        for (int i = 0; i < sums.length; i++) cells[i + 2] = amount(sums[i]);
         totals.setText(cells);
     }
     @Override protected void createButtonsForButtonBar(Composite parent)
