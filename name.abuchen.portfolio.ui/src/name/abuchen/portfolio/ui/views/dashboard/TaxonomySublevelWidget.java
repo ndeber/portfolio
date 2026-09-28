@@ -220,6 +220,7 @@ public class TaxonomySublevelWidget extends WidgetDelegate<TaxonomySublevelWidge
         getDashboardData().getStylingEngine().style(chart);
         var initial = (ICircularSeries<?>) chart.getSeriesSet().createSeries(SeriesType.PIE, "allocation");
         initial.setSeries(new String[0], new double[0]);
+        initial.setVisible(false);
         return chart;
     }
 
@@ -243,6 +244,7 @@ public class TaxonomySublevelWidget extends WidgetDelegate<TaxonomySublevelWidge
         for (var old : chart.getSeriesSet().getSeries()) chart.getSeriesSet().deleteSeries(old.getId());
         var series = (ICircularSeries<?>) chart.getSeriesSet().createSeries(SeriesType.PIE, "allocation");
         series.setSeries(new String[0], new double[0]);
+        series.setVisible(false);
         series.setSliceColor(chart.getPlotArea().getBackground());
         if (data != null && (target ? data.targetValid() : data.actualValid()))
             populateSeries(series, data.slices(), target);
@@ -259,6 +261,9 @@ public class TaxonomySublevelWidget extends WidgetDelegate<TaxonomySublevelWidge
             Node node = series.getRootNode().addChild(slice.id(), value);
             node.setData(slice);
         }
+        // An empty pie has depth zero. SWTChart cannot draw its [0, 0] axis range.
+        // Keep the series hidden while loading or when no positive slice remains.
+        series.setVisible(!series.getRootNode().getChildren().isEmpty());
         // SWTChart resets every node's color when adding a child. Like the taxonomy
         // page, apply category colors only after the complete series has been built.
         for (var node : series.getRootNode().getChildren())
