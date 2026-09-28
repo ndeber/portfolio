@@ -326,6 +326,10 @@ public class CircularChart extends Chart
                 continue;
 
             ICircularSeries<?> circularSeries = (ICircularSeries<?>) series;
+            // A newly created or empty SWTChart series has no node-level array yet.
+            // There is nothing to hit-test while loading or when all slices are excluded.
+            if (circularSeries.getRootNode().getChildren().isEmpty())
+                continue;
             return Optional.ofNullable(circularSeries.getPieSliceFromPosition(x, y));
         }
 
