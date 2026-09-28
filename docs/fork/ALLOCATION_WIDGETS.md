@@ -47,3 +47,9 @@ exécute le vrai moteur SWTChart sur trois catégories fictives. Le test reprodu
 la réinitialisation des couleurs lors de l'ajout des secteurs, puis contrôle les
 RVB finaux du réel, de la cible et d'un rafraîchissement. Les couleurs sont
 appliquées après la création de tous les secteurs, comme sur la page Taxonomie.
+
+Le survol ignore les séries vides, notamment avant le premier chargement, sans
+catégorie sélectionnée, avec toutes les catégories masquées ou des valeurs nulles.
+Les widgets initialisent également leurs séries vides explicitement. Le test
+SWT vérifie ces états pour le réel et la cible, puis un retour à des données
+renseignées ; il reproduit le NullPointerException de la v26 avant correction.

@@ -31,6 +31,22 @@ public class AllocationChartCheck implements org.eclipse.equinox.app.IApplicatio
   try {
    var shell = new Shell(display);
    var chart = new CircularChart(shell, SeriesType.PIE);
+   var loading = (ICircularSeries<?>)chart.getSeriesSet().createSeries(SeriesType.PIE, "loading");
+   if(chart.getNodeAt(0, 0).isPresent()) throw new AssertionError("Loading chart must have no hovered slice");
+   chart.getSeriesSet().deleteSeries("loading");
+   for (boolean target : new boolean[] {false, true}) {
+    var empty = (ICircularSeries<?>)chart.getSeriesSet().createSeries(SeriesType.PIE, "empty");
+    TaxonomySublevelWidget.populateSeries(empty, List.of(), target);
+    chart.updateAngleBounds();
+    if(chart.getNodeAt(5, 5).isPresent()) throw new AssertionError("Empty chart must have no hovered slice");
+    chart.getSeriesSet().deleteSeries("empty");
+    var zero = (ICircularSeries<?>)chart.getSeriesSet().createSeries(SeriesType.PIE, "zero");
+    TaxonomySublevelWidget.populateSeries(zero, List.of(new TaxonomySublevelWidget.Slice("zero", "Zero", "#123456", Money.of("EUR",0), 0, List.of())), target);
+    chart.updateAngleBounds();
+    if(chart.getNodeAt(5, 5).isPresent()) throw new AssertionError("Zero chart must have no hovered slice");
+    chart.getSeriesSet().deleteSeries("zero");
+   }
+   System.out.println("EMPTY_CHART_HOVER_PASS: loading, empty and zero actual/target series");
    var slices = List.of(
     new TaxonomySublevelWidget.Slice("cash", "Cash", "#006D77", Money.of("EUR",20000), .1, List.of()),
     new TaxonomySublevelWidget.Slice("bonds", "Bonds", "#123ABC", Money.of("EUR",30000), .3, List.of()),

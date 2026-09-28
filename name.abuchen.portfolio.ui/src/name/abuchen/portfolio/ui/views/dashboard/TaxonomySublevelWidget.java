@@ -218,7 +218,8 @@ public class TaxonomySublevelWidget extends WidgetDelegate<TaxonomySublevelWidge
                 new Label(container, SWT.NONE).setText(slice.name() + " : " + Values.Percent2.format(node.getValue() / node.getParent().getValue()));
         });
         getDashboardData().getStylingEngine().style(chart);
-        chart.getSeriesSet().createSeries(SeriesType.PIE, "allocation");
+        var initial = (ICircularSeries<?>) chart.getSeriesSet().createSeries(SeriesType.PIE, "allocation");
+        initial.setSeries(new String[0], new double[0]);
         return chart;
     }
 
@@ -241,6 +242,7 @@ public class TaxonomySublevelWidget extends WidgetDelegate<TaxonomySublevelWidge
         get(ChartHeightConfig.class).updateGridData(chart, title.getParent());
         for (var old : chart.getSeriesSet().getSeries()) chart.getSeriesSet().deleteSeries(old.getId());
         var series = (ICircularSeries<?>) chart.getSeriesSet().createSeries(SeriesType.PIE, "allocation");
+        series.setSeries(new String[0], new double[0]);
         series.setSliceColor(chart.getPlotArea().getBackground());
         if (data != null && (target ? data.targetValid() : data.actualValid()))
             populateSeries(series, data.slices(), target);
