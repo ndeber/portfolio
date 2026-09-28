@@ -159,7 +159,7 @@ info=config/'org.eclipse.equinox.simpleconfigurator/bundles.info'
 with info.open('a') as out:out.write(f'\nprobe,1.0.0,{bundle.as_uri()},4,true\n')
 launcher=next((base/'plugins').glob('org.eclipse.equinox.launcher_*.jar'))
 cmd=[str(java/'java'),f'-Dprobe.pdf={pdf}',f'-Dprobe.yields={str(args.yields).lower()}',f'-Dprobe.live={str(args.live_amundi).lower()}',f'-Dprobe.bonds={str(args.live_bonds).lower()}',f'-Dprobe.commitments={str(args.commitments).lower()}',f'-Dprobe.inflation={str(args.inflation).lower()}','-jar',str(launcher),'-nosplash','-install',str(base),'-configuration',str(config),'-data',str(probe/'workspace'),'-application','probe.check','-consoleLog']
-r=subprocess.run(cmd,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,text=True,timeout=300 if (args.live_amundi or args.live_bonds) else 45)
+r=subprocess.run(cmd,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,text=True,timeout=300 if (args.live_amundi or args.live_bonds or args.yields) else 45)
 print(r.stdout)
 if r.returncode or 'PACKAGED_OSGI_PDF_PASS' not in r.stdout:raise SystemExit(1)
 if args.live_amundi and r.stdout.count('MSCI_SOURCE_PASS:') != 6:raise SystemExit(1)
@@ -169,3 +169,5 @@ if args.live_bonds and (r.stdout.count("BOND_SOURCE_PASS:") != 12 or "BOND_HANDL
 if args.commitments and "COMMITMENTS_PACKAGED_PASS:" not in r.stdout:raise SystemExit(1)
 
 if args.inflation and "INFLATION_PACKAGED_PASS:" not in r.stdout:raise SystemExit(1)
+
+if args.yields and "YIELDS_PACKAGED_PASS" not in r.stdout:raise SystemExit(1)

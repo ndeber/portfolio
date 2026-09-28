@@ -64,3 +64,6 @@ public class YieldUiCheck implements org.eclipse.equinox.app.IApplication {
     print(result.stdout)
     if result.returncode:
         raise SystemExit(result.returncode)
+
+    if "YIELD_UI_PASS" not in result.stdout:
+        raise SystemExit(1)
