@@ -7,6 +7,7 @@ parser.add_argument("--live-msci", "--live-amundi", dest="live_amundi", action="
 parser.add_argument("--live-bonds", action="store_true", help="Check only hard-coded public VAGF, M&G and Bund examples; never opens a portfolio")
 parser.add_argument("--commitments", action="store_true", help="Check commitment calculations and UI loading on synthetic data, without network or portfolio files")
 parser.add_argument("--inflation", action="store_true", help="Check the AFT inflation command and a synthetic update")
+parser.add_argument("--yields", action="store_true", help="Verify packaged yield UI and fetch official public sample sources; no portfolio opened")
 args=parser.parse_args()
 base=args.eclipse.resolve()
 workspace=tempfile.TemporaryDirectory(prefix="portfolio-pdf-check-")
@@ -120,6 +121,27 @@ public class Check implements IApplication {
     }
    System.out.println("INFLATION_PACKAGED_PASS: published daily references, command and preview loaded");
   }
+  if(Boolean.getBoolean("probe.yields")) {
+   for(Bundle b:FrameworkUtil.getBundle(Check.class).getBundleContext().getBundles())
+    if(b.getSymbolicName().equals("name.abuchen.portfolio.ui")) {
+     b.loadClass("name.abuchen.portfolio.ui.updateactions.yields.UpdateYieldsHandler").getDeclaredMethods();
+     b.loadClass("name.abuchen.portfolio.ui.updateactions.yields.YieldDialog").getDeclaredMethods();
+     b.loadClass("name.abuchen.portfolio.ui.views.dashboard.BondYieldWidget").getDeclaredMethods();
+     if(b.getEntry("model/bond-yields.e4xmi")==null)throw new IllegalStateException("Missing yield command");
+    }
+   var client = new name.abuchen.portfolio.model.Client();
+   var sources = new name.abuchen.portfolio.updates.yields.YieldSources(() -> false, java.time.LocalDate.now());
+   int success=0;
+   for(String isin : new String[] {"IE00BG47KH54", "LU0234688595", "FR001400U4U9", "FR001400TS84", "FR001400S425", "LU1165644672", "FR001400UG93", "FR001400S0P1", "LU1041599405", "IT0005554982", "DE0001102622", "FR0014001N38"}) {
+    var security = new name.abuchen.portfolio.model.Security(isin,"EUR"); security.setIsin(isin); client.addSecurity(security);
+    try {
+     var o = sources.fetch(client,security); success++;
+     System.out.println("YIELD_SOURCE_PASS " + isin + " " + o.date() + " " + o.published() + " fees=" + o.fees() + " " + o.basis());
+    } catch(Exception e) { System.out.println("YIELD_SOURCE_UNAVAILABLE " + isin + " " + e); }
+   }
+   if(success<12)throw new IllegalStateException("Too few live yield sources available: " + success);
+   System.out.println("YIELDS_PACKAGED_PASS");
+  }
   return EXIT_OK;
  }
  public void stop() {}
@@ -136,7 +158,7 @@ config=probe/'configuration';shutil.copytree(base/'configuration',config,dirs_ex
 info=config/'org.eclipse.equinox.simpleconfigurator/bundles.info'
 with info.open('a') as out:out.write(f'\nprobe,1.0.0,{bundle.as_uri()},4,true\n')
 launcher=next((base/'plugins').glob('org.eclipse.equinox.launcher_*.jar'))
-cmd=[str(java/'java'),f'-Dprobe.pdf={pdf}',f'-Dprobe.live={str(args.live_amundi).lower()}',f'-Dprobe.bonds={str(args.live_bonds).lower()}',f'-Dprobe.commitments={str(args.commitments).lower()}',f'-Dprobe.inflation={str(args.inflation).lower()}','-jar',str(launcher),'-nosplash','-install',str(base),'-configuration',str(config),'-data',str(probe/'workspace'),'-application','probe.check','-consoleLog']
+cmd=[str(java/'java'),f'-Dprobe.pdf={pdf}',f'-Dprobe.yields={str(args.yields).lower()}',f'-Dprobe.live={str(args.live_amundi).lower()}',f'-Dprobe.bonds={str(args.live_bonds).lower()}',f'-Dprobe.commitments={str(args.commitments).lower()}',f'-Dprobe.inflation={str(args.inflation).lower()}','-jar',str(launcher),'-nosplash','-install',str(base),'-configuration',str(config),'-data',str(probe/'workspace'),'-application','probe.check','-consoleLog']
 r=subprocess.run(cmd,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,text=True,timeout=300 if (args.live_amundi or args.live_bonds) else 45)
 print(r.stdout)
 if r.returncode or 'PACKAGED_OSGI_PDF_PASS' not in r.stdout:raise SystemExit(1)

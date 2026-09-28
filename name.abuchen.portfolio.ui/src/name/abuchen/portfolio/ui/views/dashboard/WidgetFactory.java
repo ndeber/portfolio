@@ -539,6 +539,8 @@ public enum WidgetFactory
 
     XAPA_AVAILABILITY("Xapa : disponibilités et appels de fonds", Messages.LabelStatementOfAssets, AvailabilityWidget::new),
 
+    BOND_YIELDS("Obligations : YTM et YTM-Frais", Messages.LabelStatementOfAssets, BondYieldWidget::new),
+
     // typo is API now!!
     VERTICAL_SPACEER(Messages.LabelVerticalSpacer, Messages.LabelCommon, VerticalSpacerWidget::new),
 
