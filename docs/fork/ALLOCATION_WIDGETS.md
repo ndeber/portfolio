@@ -53,3 +53,8 @@ catégorie sélectionnée, avec toutes les catégories masquées ou des valeurs 
 Les widgets initialisent également leurs séries vides explicitement. Le test
 SWT vérifie ces états pour le réel et la cible, puis un retour à des données
 renseignées ; il reproduit le NullPointerException de la v26 avant correction.
+
+Les séries vides restent aussi invisibles au dessin : SWTChart calcule sinon
+un intervalle d'axe [0, 0] et lève « L'intervalle donné est invalide » (v27).
+Le test dessine désormais réellement les états chargement, vide, nul et renseigné,
+et vérifie que les séries renseignées redeviennent visibles.

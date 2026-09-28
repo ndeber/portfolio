@@ -26,6 +26,17 @@ import name.abuchen.portfolio.ui.util.Colors;
 import name.abuchen.portfolio.ui.util.chart.CircularChart;
 import name.abuchen.portfolio.util.ColorConversion;
 public class AllocationChartCheck implements org.eclipse.equinox.app.IApplication {
+ private static void paint(CircularChart chart) {
+  chart.setSize(400, 300);
+  chart.layout(true, true);
+  var plot = (org.eclipse.swt.widgets.Control) chart.getPlotArea();
+  plot.setSize(400, 300);
+  var gc = new org.eclipse.swt.graphics.GC(plot);
+  try {
+   var event = new Event(); event.gc = gc;
+   plot.notifyListeners(org.eclipse.swt.SWT.Paint, event);
+  } finally { gc.dispose(); }
+ }
  public Object start(org.eclipse.equinox.app.IApplicationContext context) {
   var display = new Display();
   try {
@@ -33,20 +44,27 @@ public class AllocationChartCheck implements org.eclipse.equinox.app.IApplicatio
    var chart = new CircularChart(shell, SeriesType.PIE);
    var loading = (ICircularSeries<?>)chart.getSeriesSet().createSeries(SeriesType.PIE, "loading");
    if(chart.getNodeAt(0, 0).isPresent()) throw new AssertionError("Loading chart must have no hovered slice");
+   loading.setSeries(new String[0], new double[0]);
+   loading.setVisible(false);
+   paint(chart);
    chart.getSeriesSet().deleteSeries("loading");
    for (boolean target : new boolean[] {false, true}) {
     var empty = (ICircularSeries<?>)chart.getSeriesSet().createSeries(SeriesType.PIE, "empty");
+    empty.setSeries(new String[0], new double[0]);
     TaxonomySublevelWidget.populateSeries(empty, List.of(), target);
     chart.updateAngleBounds();
+    paint(chart);
     if(chart.getNodeAt(5, 5).isPresent()) throw new AssertionError("Empty chart must have no hovered slice");
     chart.getSeriesSet().deleteSeries("empty");
     var zero = (ICircularSeries<?>)chart.getSeriesSet().createSeries(SeriesType.PIE, "zero");
+    zero.setSeries(new String[0], new double[0]);
     TaxonomySublevelWidget.populateSeries(zero, List.of(new TaxonomySublevelWidget.Slice("zero", "Zero", "#123456", Money.of("EUR",0), 0, List.of())), target);
     chart.updateAngleBounds();
+    paint(chart);
     if(chart.getNodeAt(5, 5).isPresent()) throw new AssertionError("Zero chart must have no hovered slice");
     chart.getSeriesSet().deleteSeries("zero");
    }
-   System.out.println("EMPTY_CHART_HOVER_PASS: loading, empty and zero actual/target series");
+   System.out.println("EMPTY_CHART_PAINT_AND_HOVER_PASS: loading, empty and zero actual/target series");
    var slices = List.of(
     new TaxonomySublevelWidget.Slice("cash", "Cash", "#006D77", Money.of("EUR",20000), .1, List.of()),
     new TaxonomySublevelWidget.Slice("bonds", "Bonds", "#123ABC", Money.of("EUR",30000), .3, List.of()),
@@ -63,6 +81,8 @@ public class AllocationChartCheck implements org.eclipse.equinox.app.IApplicatio
     var series = (ICircularSeries<?>)chart.getSeriesSet().createSeries(SeriesType.PIE, "allocation");
     TaxonomySublevelWidget.populateSeries(series, slices, target);
     chart.updateAngleBounds();
+    if(!series.isVisible()) throw new AssertionError("Populated chart must be visible");
+    paint(chart);
     for (var node : series.getRootNode().getChildren()) {
      var slice = (TaxonomySublevelWidget.Slice)node.getData();
      if(!node.getSliceColor().getRGB().equals(ColorConversion.hex2RGB(slice.color())))
