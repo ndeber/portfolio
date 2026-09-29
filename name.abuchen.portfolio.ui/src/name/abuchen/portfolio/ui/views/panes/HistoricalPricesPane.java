@@ -29,6 +29,7 @@ import name.abuchen.portfolio.model.Adaptor;
 import name.abuchen.portfolio.model.Client;
 import name.abuchen.portfolio.model.Security;
 import name.abuchen.portfolio.model.SecurityPrice;
+import name.abuchen.portfolio.model.PrivateEquityValuation.CalculatedPrice;
 import name.abuchen.portfolio.money.Values;
 import name.abuchen.portfolio.ui.Images;
 import name.abuchen.portfolio.ui.Messages;
@@ -87,14 +88,14 @@ public class HistoricalPricesPane implements InformationPanePage
     public void setInput(Object input)
     {
         security = Adaptor.adapt(Security.class, input);
-        prices.setInput(security != null ? security.getPrices() : Collections.emptyList());
+        prices.setInput(security != null ? security.getHistoricalPricesWithCapitalFlows() : Collections.emptyList());
     }
 
     @Override
     public void onRecalculationNeeded()
     {
         if (security != null)
-            prices.setInput(security.getPrices());
+            prices.setInput(security.getHistoricalPricesWithCapitalFlows());
     }
 
     protected Composite createPricesTable(Composite parent)
@@ -141,6 +142,7 @@ public class HistoricalPricesPane implements InformationPanePage
         });
         ColumnViewerSorter.create(SecurityPrice.class, "date").attachTo(column, SWT.DOWN); //$NON-NLS-1$
         new DateEditingSupport(SecurityPrice.class, "date") //$NON-NLS-1$
+                        .setCanEditCheck(e -> !(e instanceof CalculatedPrice))
                         .addListener((e, o, n) -> {
                             SecurityPrice price = (SecurityPrice) e;
                             security.removePrice(price);
@@ -162,9 +164,23 @@ public class HistoricalPricesPane implements InformationPanePage
         });
         ColumnViewerSorter.create(SecurityPrice.class, "value").attachTo(column); //$NON-NLS-1$
         new ValueEditingSupport(SecurityPrice.class, "value", Values.Quote, number -> number.longValue() != 0) //$NON-NLS-1$
+                        .setCanEditCheck(e -> !(e instanceof CalculatedPrice))
                         .addListener((e, o, n) -> client.markDirty()).attachTo(column);
         support.addColumn(column);
 
+        column = new Column("Origine", SWT.LEFT, 240);
+        column.setLabelProvider(new ColumnLabelProvider()
+        {
+            @Override public String getText(Object element)
+            {
+                return element instanceof CalculatedPrice ? "Calculée — appels / distributions" : "Cotation enregistrée";
+            }
+            @Override public String getToolTipText(Object element)
+            {
+                return element instanceof CalculatedPrice ? "Recalculée depuis les opérations. Modifier l'appel de fonds ou la distribution pour modifier ce cours." : null;
+            }
+        });
+        support.addColumn(column);
         support.createColumns();
 
         prices.getTable().setHeaderVisible(true);
@@ -192,7 +208,13 @@ public class HistoricalPricesPane implements InformationPanePage
             manager.add(new Separator());
         }
 
-        if (((IStructuredSelection) prices.getSelection()).getFirstElement() != null)
+        var selection = (IStructuredSelection) prices.getSelection();
+        if (selection.toList().stream().anyMatch(CalculatedPrice.class::isInstance))
+        {
+            var information = new Action("Cours calculé : modifier l'opération correspondante") { };
+            information.setEnabled(false); manager.add(information);
+        }
+        if (selection.toList().stream().anyMatch(p -> p instanceof SecurityPrice && !(p instanceof CalculatedPrice)))
         {
             manager.add(new Action(Messages.SecurityMenuDeletePrice)
             {
@@ -206,7 +228,7 @@ public class HistoricalPricesPane implements InformationPanePage
                     while (iter.hasNext())
                     {
                         SecurityPrice price = (SecurityPrice) iter.next();
-                        if (price == null)
+                        if (price == null || price instanceof CalculatedPrice)
                             continue;
 
                         security.removePrice(price);
@@ -217,7 +239,7 @@ public class HistoricalPricesPane implements InformationPanePage
             });
         }
 
-        if (prices.getTable().getItemCount() > 0)
+        if (security != null && !security.getPrices().isEmpty())
         {
             manager.add(new Action(Messages.SecurityMenuDeleteAllPrices)
             {

@@ -250,4 +250,42 @@ public class PrivateEquityValuationTest
         assertTrue(restored.getAccounts().get(0).getTransactions().stream()
                         .anyMatch(t -> t.getType() == AccountTransaction.Type.DISTRIBUTION));
     }
+    @Test
+    public void computedHistoryShowsCallsAndDistributionsWithoutPersistingOrDoublingThem()
+    {
+        example();
+        var history = fund.getHistoricalPricesWithCapitalFlows();
+        assertEquals(3, history.size());
+        assertEquals(Values.Quote.factorize(120), history.get(1).getValue());
+        assertEquals(Values.Quote.factorize(115), history.get(2).getValue());
+        assertTrue(history.get(1) instanceof PrivateEquityValuation.CalculatedPrice);
+        assertEquals(1, fund.getPrices().size());
+        assertEquals(Values.Quote.factorize(115), fund.getSecurityPrice(START.plusDays(3)).getValue());
+    }
+
+    @Test
+    public void computedHistoryRecalculatesEditsSameDayCallsAndDeletions()
+    {
+        var call = flow(1, 200000, AccountTransaction.Type.CAPITAL_CALL);
+        flow(1, 100000, AccountTransaction.Type.CAPITAL_CALL);
+        assertEquals(2, fund.getHistoricalPricesWithCapitalFlows().size());
+        assertEquals(Values.Quote.factorize(130), fund.getHistoricalPricesWithCapitalFlows().getLast().getValue());
+        call.setAmount(300000);
+        assertEquals(Values.Quote.factorize(140), fund.getHistoricalPricesWithCapitalFlows().getLast().getValue());
+        cash.getTransactions().removeIf(t -> t.getType().isCapitalFlow());
+        assertEquals(fund.getPrices(), fund.getHistoricalPricesWithCapitalFlows());
+    }
+
+    @Test
+    public void reportedNavWinsOverComputedHistoryAndNoTransientQuotesAreSerialized() throws Exception
+    {
+        example();
+        var reported = new SecurityPrice(START.plusDays(1), Values.Quote.factorize(122)); fund.addPrice(reported);
+        assertEquals(reported, fund.getHistoricalPricesWithCapitalFlows().get(1));
+        assertEquals(Values.Quote.factorize(117), fund.getHistoricalPricesWithCapitalFlows().getLast().getValue());
+        var copy = ClientFactory.duplicate(client); var copiedFund = copy.getSecurities().getFirst();
+        assertEquals(2, copiedFund.getPrices().size());
+        assertEquals(fund.getHistoricalPricesWithCapitalFlows(), copiedFund.getHistoricalPricesWithCapitalFlows());
+    }
+
 }
