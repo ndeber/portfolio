@@ -31,6 +31,8 @@ import name.abuchen.portfolio.ui.handlers.MenuHelper;
 import name.abuchen.portfolio.updates.equity.EquityAdjustment;
 import name.abuchen.portfolio.updates.equity.EquityComposition.Outcome;
 import name.abuchen.portfolio.updates.equity.EquitySources;
+import name.abuchen.portfolio.updates.equity.EquityCaps;
+import name.abuchen.portfolio.updates.equity.EquityCapSources;
 
 public final class RefreshEquityHandler
 {
@@ -70,13 +72,16 @@ public final class RefreshEquityHandler
                 return;
             }
             var prepared = new AtomicReference<EquityAdjustment.Plan>();
+            var capsPrepared = new AtomicReference<EquityCaps.Plan>();
             var valuations = new AtomicReference<Map<String, Long>>();
             var converter = new CurrencyConverterImpl(input.getExchangeRateProviderFacory(), snapshot.getBaseCurrency());
             new ProgressMonitorDialog(shell).run(true, true, monitor -> {
-                monitor.beginTask("Compositions Actions : régions, secteurs et transparence…", scope.size());
+                monitor.beginTask("Compositions Actions : régions, secteurs, transparence et capitalisations…", scope.size());
                 try
                 {
                     var sources = new EquitySources();
+                    var capSources = new EquityCapSources();
+                    var caps = new ArrayList<EquityCaps.Outcome>();
                     var outcomes = new ArrayList<Outcome>();
                     for (var security : scope)
                     {
@@ -84,6 +89,11 @@ public final class RefreshEquityHandler
                         monitor.subTask(security.getName());
                         outcomes.addAll(sources.fetch(security, monitor::isCanceled,
                                         family -> monitor.subTask(security.getName() + " — " + family.title())));
+                        if (EquityCaps.eligible(snapshot, security))
+                        {
+                            monitor.subTask(security.getName() + " — Capitalisations");
+                            caps.add(capSources.fetch(security, monitor::isCanceled));
+                        }
                         monitor.worked(1);
                     }
                     if (monitor.isCanceled()) throw new InterruptedException();
@@ -91,16 +101,19 @@ public final class RefreshEquityHandler
                                     .collect(Collectors.toMap(p -> p.getInvestmentVehicle().getUUID(), p -> p.getValuation().getAmount())));
                     if (monitor.isCanceled()) throw new InterruptedException();
                     prepared.set(EquityAdjustment.prepare(snapshot, outcomes));
+                    capsPrepared.set(EquityCaps.prepare(snapshot, caps));
                 }
                 catch (RuntimeException e) { throw new InvocationTargetException(e); }
                 finally { monitor.done(); }
             });
             var plan = prepared.get();
             if (changed.get()) throw new IOException("Le portefeuille a changé. Relancez l'actualisation pour inclure ces changements.");
-            if (new EquityPreviewDialog(shell, plan, scope.size()).open() != Window.OK)
+            if (new EquityPreviewDialog(shell, plan, scope.size(), capsPrepared.get()).open() != Window.OK)
                 return;
             if (changed.get()) throw new IOException("Le portefeuille a changé depuis l'aperçu. Relancez l'actualisation.");
+            EquityCaps.validate(input.getClient(), capsPrepared.get());
             EquityAdjustment.apply(input.getClient(), plan);
+            EquityCaps.apply(input.getClient(), capsPrepared.get());
             EquityTaxonomyOrder.apply(input.getClient(), valuations.get());
         }
         catch (InterruptedException e) { /* Cancellation never mutates the live portfolio. */ }
