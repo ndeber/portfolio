@@ -162,4 +162,56 @@ public class CommitmentsTest
         Commitments.save(c, s, 1000000L, List.of(0L, 0L, 0L, 200000L));
         assertEquals(Long.valueOf(300000), Commitments.value(s, Commitments.YEARS.get(7)));
     }
+    @Test public void legacyRemainingBecomesFullYearOnceAndNewCallsReduceRemaining() throws Exception
+    {
+        var c = fixture(); var security = c.getSecurities().getFirst();
+        buy(c, DATE.minusYears(1), 1000000, "EUR"); call(c, DATE.minusDays(1), 200000);
+        save(c, 2000000, 300000L, 500000L, 0L, 0L);
+        var before = Commitments.row(c, security, EUR, DATE);
+        assertEquals(Long.valueOf(500000), before.fullYear().getFirst());
+        assertEquals(Long.valueOf(200000), before.ytd());
+        assertEquals(Long.valueOf(300000), before.yearRemaining());
+        assertFalse(Commitments.usesFullYear(c, security)); // preview never changes the model
+        Commitments.saveFullYear(c, security, before.total(), before.fullYear());
+        var migrated = Commitments.row(c, security, EUR, DATE);
+        assertEquals(before.forecast(), migrated.forecast()); assertEquals(before.gap(), migrated.gap());
+        call(c, DATE, 100000);
+        var after = Commitments.row(c, security, EUR, DATE);
+        assertEquals(Long.valueOf(500000), after.fullYear().getFirst());
+        assertEquals(Long.valueOf(300000), after.ytd());
+        assertEquals(Long.valueOf(200000), after.yearRemaining());
+        assertEquals(Long.valueOf(200000), after.forecast().getFirst());
+        Commitments.saveFullYear(c, security, after.total(), after.fullYear());
+        assertEquals(after, Commitments.row(c, security, EUR, DATE));
+        var copy = ClientFactory.duplicate(c);
+        assertTrue(Commitments.usesFullYear(copy, copy.getSecurities().getFirst()));
+        assertEquals(after.fullYear(), Commitments.row(copy, copy.getSecurities().getFirst(), EUR, DATE).fullYear());
+    }
+    @Test public void ytdUsesCalendarYearAndIncludesInitialDrawdownButNotFutureCallsOrDistributions()
+    {
+        var c = fixture(); var security = c.getSecurities().getFirst();
+        buy(c, DATE.withDayOfYear(1), 100000, "EUR");
+        call(c, DATE.withDayOfYear(1), 200000); call(c, DATE, 50000);
+        call(c, DATE.plusDays(1), 900000); call(c, DATE.minusYears(1), 800000);
+        call(c, DATE, 300000).setType(AccountTransaction.Type.DISTRIBUTION);
+        Commitments.saveFullYear(c, security, 3000000L, List.of(500000L, 1000000L, 0L, 0L, 0L, 0L, 0L, 0L));
+        var row = Commitments.row(c, security, EUR, DATE);
+        assertEquals(Long.valueOf(350000), row.ytd()); assertEquals(Long.valueOf(150000), row.yearRemaining());
+        assertEquals(350000, Commitments.summary(c, EUR, DATE).ytd());
+        assertEquals(150000, Commitments.summary(c, EUR, DATE).yearRemaining());
+        call(c, DATE.plusYears(1), 400000);
+        var next = Commitments.row(c, security, EUR, DATE.plusYears(1));
+        assertEquals(2027, next.year()); assertEquals(Long.valueOf(400000), next.ytd()); assertEquals(Long.valueOf(600000), next.yearRemaining());
+    }
+    @Test public void annualOverrunIsSignedButCannotCreateFutureCashAndFxUsesRecordedAmount()
+    {
+        var c = fixture(); var security = c.getSecurities().getFirst();
+        var tx = call(c, DATE, 100000); tx.setCurrencyCode("USD");
+        tx.addUnit(new Transaction.Unit(Transaction.Unit.Type.GROSS_VALUE, Money.of("USD", 100000), Money.of("EUR", 80000), new BigDecimal("1.25")));
+        Commitments.saveFullYear(c, security, 1000000L, List.of(70000L, 0L, 0L, 0L, 0L, 0L, 0L, 0L));
+        var row = Commitments.row(c, security, EUR, DATE);
+        assertEquals(Long.valueOf(80000), row.ytd()); assertEquals(Long.valueOf(-10000), row.yearRemaining());
+        assertEquals(Long.valueOf(0), row.forecast().getFirst());
+        assertTrue(row.warnings().stream().anyMatch(w -> w.contains("FYe")));
+    }
 }
