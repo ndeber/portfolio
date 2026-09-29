@@ -150,6 +150,8 @@ public final class EquitySources
             }
             finally { Files.deleteIfExists(file); }
         }
+        if (family == Family.REGIONS && VanguardWorldCountries.ISIN.equals(isin))
+            return fetchCountries(security);
         if (family == Family.REGIONS && "IE00BK5BR733".equals(isin))
         {
             String url = "https://www.vanguard.co.uk/professional/product/etf/equity/9507/ftse-emerging-markets-ucits";
@@ -170,6 +172,17 @@ public final class EquitySources
 
     public Slice fetchCountries(Security security) throws IOException, InterruptedException
     {
+        if (VanguardWorldCountries.ISIN.equals(security.getIsin()))
+        {
+            var request = HttpRequest.newBuilder(URI.create(VanguardWorldCountries.ENDPOINT))
+                            .timeout(Duration.ofSeconds(35)).header("Content-Type", "application/json")
+                            .header("X-Consumer-ID", "uk2")
+                            .POST(HttpRequest.BodyPublishers.ofString(VanguardWorldCountries.REQUEST)).build();
+            var response = http.send(request, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+            if (response.statusCode() != 200)
+                throw new IOException("Vanguard : HTTP " + response.statusCode());
+            return VanguardWorldCountries.parse(response.body());
+        }
         String url = compositionUrl(security.getIsin());
         String html = page(url);
         if (!Jsoup.parse(html).text().contains(security.getIsin()))
