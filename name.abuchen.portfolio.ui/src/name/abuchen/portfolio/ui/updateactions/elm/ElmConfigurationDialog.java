@@ -116,11 +116,11 @@ public final class ElmConfigurationDialog extends TitleAreaDialog
                 selectName(bonds, categories, List.of("Obligations"));
                 selectName(equities, categories, List.of("Actions"));
             }
-            // Require an explicit opt-in on every run, including previously saved mappings.
-            enabled.setSelection(!isPilotageGlobal(taxonomy) && (setting != null
+            // Include Pilotage Global by default, retaining its saved category mapping.
+            enabled.setSelection(isPilotageGlobal(taxonomy) || setting != null
                             || (saved == null && !"Pilotage".equalsIgnoreCase(taxonomy.getName())
                                             && cash.getSelectionIndex() > 0 && bonds.getSelectionIndex() > 0
-                                            && equities.getSelectionIndex() > 0)));
+                                            && equities.getSelectionIndex() > 0));
             Runnable update = () -> {
                 cash.setEnabled(enabled.getSelection());
                 bonds.setEnabled(enabled.getSelection());
