@@ -61,7 +61,7 @@ public final class CommitmentDialog extends TitleAreaDialog
         total.addModifyListener(e -> refreshCalculation()); years.forEach(t -> t.addModifyListener(e -> refreshCalculation()));
         table = new Table(area, SWT.BORDER | SWT.FULL_SELECTION | SWT.H_SCROLL | SWT.V_SCROLL);
         table.setHeaderVisible(true); table.setLinesVisible(true); GridDataFactory.fillDefaults().grab(true, true).hint(1050, 260).applyTo(table);
-        var labels = new ArrayList<>(List.of("Type", "Fonds", "Total", "Réalisé", "Restant")); labels.addAll(Commitments.FYE_LABELS); labels.addAll(List.of(asOf.getYear() + " YTD", asOf.getYear() + " restant", "Total restant prévu", "Non ventilé"));
+        var labels = new ArrayList<>(List.of("Type", "Fonds", "Total", "Réalisé", "Restant")); labels.addAll(List.of(asOf.getYear() + " YTD", asOf.getYear() + " restant")); labels.addAll(Commitments.FYE_LABELS); labels.addAll(List.of("Total restant prévu", "Non ventilé"));
         String[] headers = labels.toArray(String[]::new);
         for (int i = 0; i < headers.length; i++) { var col = new TableColumn(table, i <= 1 ? SWT.LEFT : SWT.RIGHT); col.setText(headers[i]); col.setWidth(i == 1 ? 260 : 100); }
         table.addListener(SWT.Selection, e -> {
@@ -152,12 +152,12 @@ public final class CommitmentDialog extends TitleAreaDialog
                 Long remaining = values.total() == null || data.paid() == null ? null : Math.subtractExact(values.total(), data.paid());
                 long sum = Commitments.outstandingForecast(values.years(), data.annualPaid()).stream().reduce(0L, Math::addExact);
                 var cells = new ArrayList<>(List.of(AssetClasses.type(client, security).label(), security.getName(), amount(values.total()), amount(data.paid()), amount(remaining)));
-                values.years().forEach(v -> cells.add(v == 0 ? "" : amount(v))); cells.add(amount(data.ytd())); cells.add(amount(yearRemaining(values, data))); cells.add(amount(sum)); cells.add(remaining == null ? "—" : amount(remaining - sum));
+                cells.add(amount(data.ytd())); cells.add(amount(yearRemaining(values, data))); values.years().forEach(v -> cells.add(v == 0 ? "" : amount(v))); cells.add(amount(sum)); cells.add(remaining == null ? "—" : amount(remaining - sum));
                 row.setText(cells.toArray(String[]::new));
                 if (remaining != null)
                 {
                     var amounts = new ArrayList<>(List.of(values.total(), data.paid(), remaining));
-                    amounts.addAll(values.years()); amounts.add(data.ytd()); amounts.add(yearRemaining(values, data) == null ? 0L : yearRemaining(values, data)); amounts.add(sum); amounts.add(remaining - sum);
+                    amounts.add(data.ytd()); amounts.add(yearRemaining(values, data) == null ? 0L : yearRemaining(values, data)); amounts.addAll(values.years()); amounts.add(sum); amounts.add(remaining - sum);
                     for (int i = 0; i < sums.length; i++) sums[i] = Math.addExact(sums[i], amounts.get(i));
                     if (remaining < 0) complete = false;
                 }
