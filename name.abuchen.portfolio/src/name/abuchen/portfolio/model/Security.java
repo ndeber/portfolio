@@ -379,6 +379,13 @@ public final class Security implements Attributable, InvestmentVehicle
         this.updatedAt = Instant.now();
     }
 
+    /** Historical quotes including view-only NAVs derived from PE cash flows. */
+    public List<SecurityPrice> getHistoricalPricesWithCapitalFlows()
+    {
+        return valuationClient == null || !capitalFlowSecurity ? getPrices()
+                        : PrivateEquityValuation.historicalPrices(valuationClient, this);
+    }
+
     public List<SecurityPrice> getPrices()
     {
         return Collections.unmodifiableList(prices);

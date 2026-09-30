@@ -24,6 +24,24 @@ public final class PrivateEquityValuation
     {
     }
 
+    /** A view-only quote. Never persist it as a reported NAV or edit it independently of its cash flows. */
+    public static final class CalculatedPrice extends SecurityPrice
+    {
+        private CalculatedPrice(LocalDate date, long value) { super(date, value); }
+    }
+
+    public static List<SecurityPrice> historicalPrices(Client client, Security security)
+    {
+        var result = new java.util.TreeMap<LocalDate, SecurityPrice>();
+        security.getPrices().forEach(p -> result.put(p.getDate(), p));
+        var dates = client.getAccounts().stream().flatMap(a -> a.getTransactions().stream())
+                        .filter(t -> t.getSecurity() == security && t.getType() != null && t.getType().isCapitalFlow())
+                        .map(t -> t.getDateTime().toLocalDate()).distinct().sorted().toList();
+        for (var date : dates)
+            if (!result.containsKey(date)) result.put(date, new CalculatedPrice(date, price(client, security, date).getValue()));
+        return List.copyOf(result.values());
+    }
+
     public static long sharesAt(Client client, Security security, LocalDateTime date)
     {
         return client.getPortfolios().stream().flatMap(p -> p.getTransactions().stream())
