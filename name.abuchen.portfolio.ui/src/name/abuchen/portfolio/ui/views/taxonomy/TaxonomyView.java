@@ -285,6 +285,12 @@ public class TaxonomyView extends AbstractFinanceView implements PropertyChangeL
         toolBar.add(clientFilterDropDown);
         addExportButton(toolBar);
         addConfigButton(toolBar);
+        if (name.abuchen.portfolio.factors.CurrencyExposure.find(getClient()) == model.getTaxonomy())
+        {
+            toolBar.add(new Separator());
+            toolBar.add(new SimpleAction("Proposer les expositions devises…", a ->
+                            name.abuchen.portfolio.ui.factors.RefreshCurrencyHandler.run(getPart().getClientInput(), container.getShell())));
+        }
         if (name.abuchen.portfolio.updates.equity.EquityAdjustment.isActionsTaxonomy(model.getTaxonomy().getName()))
         {
             toolBar.add(new Separator());

@@ -26,10 +26,18 @@ public final class BondPreviewDialog extends TitleAreaDialog
 {
     private final Client client;
     private final List<Plan> plans;
+    private final List<name.abuchen.portfolio.updates.bonds.BondSpreads.Series> spreads;
 
     public BondPreviewDialog(Shell shell, Client client, List<Plan> plans)
     {
+        this(shell, client, plans, List.of());
+    }
+
+    public BondPreviewDialog(Shell shell, Client client, List<Plan> plans,
+                    List<name.abuchen.portfolio.updates.bonds.BondSpreads.Series> spreads)
+    {
         super(shell);
+        this.spreads = List.copyOf(spreads);
         this.client = client;
         this.plans = List.copyOf(plans);
         setShellStyle(getShellStyle() | SWT.RESIZE);
@@ -49,6 +57,15 @@ public final class BondPreviewDialog extends TitleAreaDialog
         setMessage("Cours par 100 de nominal, coupon couru inclus. Sélectionnez une ligne pour voir les sources et le calcul.\n"
                         + "La validation met à jour le portefeuille ouvert et règle ces titres sur le fournisseur Manuel."
                         + (stale ? "\nAttention : au moins une source date de plus de sept jours." : ""));
+        if (!spreads.isEmpty())
+        {
+            var summary = new org.eclipse.swt.widgets.Label(area, SWT.WRAP);
+            summary.setText("Spreads recalculés après validation (points de base) :\n" + spreads.stream().map(s -> {
+                var p = s.points().getLast();
+                return s.name() + " : " + price(BigDecimal.valueOf(p.value(), 8)) + " pb au " + p.date();
+            }).collect(java.util.stream.Collectors.joining(" ; ")));
+            GridDataFactory.fillDefaults().grab(true, false).applyTo(summary);
+        }
         var table = new Table(area, SWT.BORDER | SWT.FULL_SELECTION | SWT.V_SCROLL | SWT.H_SCROLL);
         table.setHeaderVisible(true);
         table.setLinesVisible(true);
@@ -83,7 +100,8 @@ public final class BondPreviewDialog extends TitleAreaDialog
                             + "\nAvant : " + (before.isEmpty() ? "aucun cours" : before.size() + " dates du " + before.getFirst().getDate() + " au " + before.getLast().getDate()
                                             + "; dernier cours " + price(BigDecimal.valueOf(before.getLast().getValue(), 8)))
                             + "\nAprès : clean " + price(last.clean()) + "; coupon couru " + price(last.accrued()) + "; dirty " + price(last.dirty())
-                            + (last.coefficient() == null ? "\nCours dirty publié par la Bundesbank."
+                            + (last.coefficient() == null ? (last.settlement() == null ? "\nCours dirty publié par la Bundesbank."
+                                            : "\nPrix dirty = clean + coupon couru ACT/ACT. Date de valorisation/règlement : " + last.settlement())
                                             : "\nRèglement T+2 : " + last.settlement() + "; coefficient AFT " + price(last.coefficient())
                                                             + "; formule : (clean + coupon couru ACT/ACT) × coefficient.")
                             + "\nSource : " + last.source()

@@ -38,6 +38,9 @@ public class CommitmentYearsCheck implements org.eclipse.equinox.app.IApplicatio
     var field = CommitmentDialog.class.getDeclaredField("table"); field.setAccessible(true); var table = (Table)field.get(dialog);
     var headers = java.util.Arrays.stream(table.getColumns()).map(TableColumn::getText).toList();
     if(!headers.contains(date.getYear()+" YTD") || !headers.contains(date.getYear()+" restant") || !headers.contains("2033 FYe")) throw new AssertionError(headers);
+    int remaining=headers.indexOf("Restant");
+    if(headers.indexOf(date.getYear()+" YTD")!=remaining+1 || headers.indexOf(date.getYear()+" restant")!=remaining+2
+       || headers.indexOf("2026 FYe")!=remaining+3)throw new AssertionError("PE column order: "+headers);
     if(table.getItemCount()!=2) throw new AssertionError("Missing fund or total");
     var row=table.getItem(1);
     if(!row.getText(headers.indexOf(date.getYear()+" YTD")).equals(Values.Amount.format(200000L))) throw new AssertionError("YTD display");

@@ -30,7 +30,7 @@ public class ExceptionView extends AbstractFinanceView
     @Override
     protected String getDefaultTitle()
     {
-        if (exception != null)
+        if (exception != null && exception.getMessage() != null && !exception.getMessage().isBlank())
             return exception.getMessage();
         else
             return Messages.LabelError;

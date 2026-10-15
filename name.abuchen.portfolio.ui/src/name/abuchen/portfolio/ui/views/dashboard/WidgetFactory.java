@@ -52,6 +52,8 @@ public enum WidgetFactory
 
     DESCRIPTION(Messages.LabelDescription, Messages.LabelCommon, DescriptionWidget::new),
 
+    SUPPORT_COSTS("Frais supports", "Frais des supports", SupportCostWidget::new),
+
     TOTAL_SUM(Messages.LabelTotalSum, Messages.LabelStatementOfAssets, //
                     (widget, data) -> IndicatorWidget.<Money>create(widget, data) //
                                     .with(Values.Money) //
@@ -62,6 +64,17 @@ public enum WidgetFactory
                                     }) //
                                     .withBenchmarkDataSeries(false) //
                                     .build()),
+
+    AFTER_TAX_EUR("Performance après impôts (EUR)", "Fiscalité estimée",
+                    (widget, data) -> new AfterTaxWidget(widget, data, AfterTaxWidget.Metric.EUR)),
+    AFTER_TAX_PERCENT("Performance après impôts (%)", "Fiscalité estimée",
+                    (widget, data) -> new AfterTaxWidget(widget, data, AfterTaxWidget.Metric.PERCENT)),
+    AFTER_TAX_TWR("%TW après impôts", "Fiscalité estimée",
+                    (widget, data) -> new AfterTaxWidget(widget, data, AfterTaxWidget.Metric.TWR)),
+    AFTER_TAX_IRR("TRI après impôts", "Fiscalité estimée",
+                    (widget, data) -> new AfterTaxWidget(widget, data, AfterTaxWidget.Metric.IRR)),
+    AFTER_TAX_ANNUALIZED("Rendement annuel après impôts", "Fiscalité estimée",
+                    (widget, data) -> new AfterTaxWidget(widget, data, AfterTaxWidget.Metric.ANNUALIZED)),
 
     TTWROR(Messages.LabelTTWROR, Messages.ClientEditorLabelPerformance, // cumulative
                     (widget, data) -> IndicatorWidget.<Double>create(widget, data) //

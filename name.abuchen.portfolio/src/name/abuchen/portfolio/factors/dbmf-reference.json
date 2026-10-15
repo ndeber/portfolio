@@ -1,0 +1,92 @@
+{
+  "isin": "US53700T8273",
+  "date": "2026-09-29",
+  "source": "https://www.imgp.com/us/fund/US53700T8273-imgp-dbi-managed-futures-strategy-etf/",
+  "nav": 5207645294.86,
+  "holdings": [
+    {
+      "name": "US 2YR NOTE (CBT) DEC26",
+      "ticker": "TUZ6",
+      "quantity": "-5,081,200,000",
+      "notional": -5162578619.16,
+      "factor": "US_2Y"
+    },
+    {
+      "name": "US 10YR NOTE (CBT)DEC26",
+      "ticker": "TYZ6",
+      "quantity": "-4,146,100,000",
+      "notional": -4332026671.88,
+      "factor": "US_10Y"
+    },
+    {
+      "name": "EURO FX CURR FUT DEC26",
+      "ticker": "ECZ6",
+      "quantity": "-3,326,000,000",
+      "notional": -3793303000.0,
+      "factor": "EUR_USD"
+    },
+    {
+      "name": "US LONG BOND(CBT) DEC26",
+      "ticker": "USZ6",
+      "quantity": "-1,014,700,000",
+      "notional": -1052751250.0,
+      "factor": "US_LONG"
+    },
+    {
+      "name": "MSCI EAFEDEC26",
+      "ticker": "MFSZ6",
+      "quantity": "-170,200",
+      "notional": -539176580.0,
+      "factor": "EAFE"
+    },
+    {
+      "name": "JPN YEN CURR FUT DEC26",
+      "ticker": "JYZ6",
+      "quantity": "-1,476,250",
+      "notional": -94376662.5,
+      "factor": "JPY_USD"
+    },
+    {
+      "name": "GOLD 100 OZ FUTR DEC26",
+      "ticker": "GCZ6",
+      "quantity": "71,800",
+      "notional": 299291120.0,
+      "factor": "GOLD"
+    },
+    {
+      "name": "MSCI EMGMKT DEC26",
+      "ticker": "MESZ6",
+      "quantity": "417,300",
+      "notional": 719258280.0,
+      "factor": "EMERGING"
+    },
+    {
+      "name": "WTI CRUDEFUTURE DEC26",
+      "ticker": "CLZ6",
+      "quantity": "11,678,000",
+      "notional": 1039458780.0,
+      "factor": "OIL"
+    },
+    {
+      "name": "S+P500 EMINI FUT DEC26",
+      "ticker": "ESZ6",
+      "quantity": "315,350",
+      "notional": 2442937612.5,
+      "factor": "US_EQUITY"
+    }
+  ],
+  "vaDate": "2026-08-31",
+  "vaSource": "https://www.imgp.com/wp-content/uploads/2026/09/DBMF-August-2026-Video-Update-Deck.pdf",
+  "va": {
+    "OIL": 0.35,
+    "GOLD": 0.16,
+    "EUR_USD": -0.23,
+    "JPY_USD": -0.38,
+    "US_2Y": -0.11,
+    "US_10Y": -0.16,
+    "US_LONG": -0.13,
+    "US_EQUITY": 0.36,
+    "EAFE": 0.28,
+    "EMERGING": 0.02
+  }
+}

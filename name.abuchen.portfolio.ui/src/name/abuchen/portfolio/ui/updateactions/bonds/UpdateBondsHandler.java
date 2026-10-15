@@ -75,11 +75,11 @@ public final class UpdateBondsHandler
         try
         {
             var snapshot = ClientFactory.duplicate(input.getClient());
-            var securities = snapshot.getSecurities().stream().filter(s -> BondSpec.find(s.getIsin()).isPresent()
-                            && "EUR".equals(s.getCurrencyCode())).toList();
+            var securities = snapshot.getSecurities().stream().filter(s -> BondSpec.find(s.getIsin())
+                            .filter(b -> b.currency().equals(s.getCurrencyCode())).isPresent()).toList();
             if (securities.isEmpty())
             {
-                MessageDialog.openInformation(shell, "Obligations", "Aucune obligation prise en charge en EUR dans ce portefeuille.\n"
+                MessageDialog.openInformation(shell, "Obligations", "Aucune obligation prise en charge dans ce portefeuille.\n"
                                 + "ISIN actuellement pris en charge :\n" + String.join(", ", BondSpec.SUPPORTED.stream().map(BondSpec::isin).toList()));
                 return;
             }
@@ -100,7 +100,7 @@ public final class UpdateBondsHandler
                         monitor.subTask(security.getName() + " — " + security.getIsin());
                         try
                         {
-                            var quotes = sources.fetch(BondSpec.find(security.getIsin()).orElseThrow());
+                            var quotes = sources.fetch(security);
                             plans.add(BondUpdate.prepare(security, quotes, configuration.allowMigration()));
                         }
                         catch (IOException | RuntimeException e)
@@ -119,10 +119,21 @@ public final class UpdateBondsHandler
                 }
             });
             requireUnchanged(changed);
-            if (new BondPreviewDialog(shell, snapshot, plans).open() != Window.OK)
+            boolean spreads = java.util.List.of("DE000BU2Z072", "FR0013154044", "US91282CRF04").stream()
+                            .allMatch(isin -> snapshot.getSecurities().stream().anyMatch(s -> isin.equals(s.getIsin())))
+                            && plans.stream().anyMatch(p -> java.util.List.of("DE000BU2Z072", "FR0013154044", "US91282CRF04").contains(p.before().isin()));
+            java.util.List<name.abuchen.portfolio.updates.bonds.BondSpreads.Series> spreadPreview = java.util.List.of();
+            if (spreads)
+            {
+                var check = ClientFactory.duplicate(snapshot);
+                BondUpdate.apply(check, plans);
+                spreadPreview = name.abuchen.portfolio.updates.bonds.BondSpreads.prepare(check, java.time.LocalDate.now());
+            }
+            if (new BondPreviewDialog(shell, snapshot, plans, spreadPreview).open() != Window.OK)
                 return;
             requireUnchanged(changed);
             BondUpdate.apply(input.getClient(), plans);
+            if (spreads) name.abuchen.portfolio.updates.bonds.BondSpreads.update(input.getClient(), java.time.LocalDate.now());
         }
         catch (InterruptedException e)
         {

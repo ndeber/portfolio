@@ -48,7 +48,7 @@ public final class YieldSources
             var b = spec.get(); var prices = bonds.fetch(b);
             var q = prices.stream().filter(p -> !p.date().isAfter(date)).max(Comparator.comparing(BondQuote::date)).orElseThrow(() -> new IOException("Aucun cours à la date choisie."));
             LocalDate maturity = b.maturity(); double coupon;
-            if (b.indexed()) coupon = b.coupon().doubleValue();
+            if (b.indexed() || b.nominal()) coupon = b.coupon().doubleValue();
             else switch (b.isin())
             {
                 case "DE000BU2Z072" -> { maturity = LocalDate.of(2036, 8, 15); coupon = .03; }
@@ -68,9 +68,16 @@ public final class YieldSources
                 price = q.clean().doubleValue() + 100 * coupon * java.time.temporal.ChronoUnit.DAYS.between(previous, settlement)
                                 / java.time.temporal.ChronoUnit.DAYS.between(previous, previous.plusYears(1));
             }
-            double ytm = YieldMath.annualBond(price, coupon, settlement, maturity);
+            if ("DE000BU2Z072".equals(b.isin()))
+            {
+                double ytm = BondSpreads.referenceYield(b.isin(), q.date(), q.dirty().doubleValue());
+                return new BondYields.Observation(security.getUUID(), q.date(), ytm, 0d, false, false, q.source(),
+                                "YTM nominal effectif annuel ACT/ACT ICMA ; premier coupon long 15/08/2027 depuis le 10/07/2026");
+            }
+            double ytm = YieldMath.periodicBond(price, coupon, settlement, maturity, b.frequency());
+            if (b.frequency() == 2) ytm = Math.pow(1 + ytm / 2, 2) - 1; // Comparable annual effective yields.
             return new BondYields.Observation(security.getUUID(), q.date(), ytm, 0d, false, b.indexed(), q.source(),
-                            b.indexed() ? "YTM réel calculé, annualisation ACT/ACT ; conversion IPCH EU" : "YTM nominal calculé, annualisation ACT/ACT");
+                            b.indexed() ? "YTM réel calculé, annualisation ACT/ACT ; conversion IPCH EU" : "YTM nominal effectif annuel ACT/ACT" + (b.frequency() == 2 ? "; coupon semestriel US, converti en taux effectif annuel ; valorisation à date FedInvest" : ""));
         }
         if ("LU0234688595".equals(security.getIsin())) return goldman(client, security);
         var fund = FUNDS.get(security.getIsin());

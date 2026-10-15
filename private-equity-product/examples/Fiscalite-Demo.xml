@@ -1,0 +1,329 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<client>
+  <version>70</version>
+  <baseCurrency>EUR</baseCurrency>
+  <securities>
+    <security>
+      <uuid>04ee7cc0-0576-412f-a259-9ec0c9fe5200</uuid>
+      <name>Titre A — en hausse</name>
+      <currencyCode>EUR</currencyCode>
+      <feed>MANUAL</feed>
+      <prices>
+        <price t="2026-09-19" v="11000000000" />
+        <price t="2026-09-29" v="12000000000" />
+      </prices>
+      <isRetired>false</isRetired>
+      <updatedAt>2026-09-29T06:58:10.117953Z</updatedAt>
+    </security>
+    <security>
+      <uuid>039a0adc-5e94-4ff1-8783-f29df79d9fcd</uuid>
+      <name>Titre B — en perte</name>
+      <currencyCode>EUR</currencyCode>
+      <feed>MANUAL</feed>
+      <prices>
+        <price t="2026-09-19" v="9500000000" />
+        <price t="2026-09-29" v="9000000000" />
+      </prices>
+      <isRetired>false</isRetired>
+      <updatedAt>2026-09-29T06:58:10.117953Z</updatedAt>
+    </security>
+    <security>
+      <uuid>f999c7f9-4d9a-4a50-8237-a35014971b1a</uuid>
+      <name>Titre C — à paramétrer</name>
+      <currencyCode>EUR</currencyCode>
+      <feed>MANUAL</feed>
+      <prices>
+        <price t="2026-09-19" v="10000000000" />
+        <price t="2026-09-29" v="10000000000" />
+      </prices>
+      <isRetired>false</isRetired>
+      <updatedAt>2026-09-29T06:58:10.117953Z</updatedAt>
+    </security>
+  </securities>
+  <watchlists />
+  <accounts>
+    <account>
+      <uuid>18989014-3cba-49bc-80bb-36b58ff406d6</uuid>
+      <name>Espèces fictives</name>
+      <currencyCode>EUR</currencyCode>
+      <isRetired>false</isRetired>
+      <transactions>
+        <account-transaction>
+          <uuid>f90e4828-4981-443d-bf3a-fcceb129b1f7</uuid>
+          <date>2026-09-29T00:00</date>
+          <currencyCode>EUR</currencyCode>
+          <amount>50000</amount>
+          <shares>0</shares>
+          <updatedAt>2026-09-29T06:58:10.117935Z</updatedAt>
+          <type>TAXES</type>
+          <note>Paiement fictif d’une dette antérieure au 19/09/2026 : ne constitue pas une nouvelle charge de la période.</note>
+        </account-transaction>
+      </transactions>
+      <updatedAt>2026-09-29T06:58:10.117953Z</updatedAt>
+    </account>
+  </accounts>
+  <portfolios>
+    <portfolio>
+      <uuid>f4aade2f-5456-4dea-a9cf-7507b35c68ef</uuid>
+      <name>CTO — démonstration</name>
+      <isRetired>false</isRetired>
+      <referenceAccount reference="../../../accounts/account" />
+      <transactions>
+        <portfolio-transaction>
+          <uuid>7751d3d6-0f2f-4db6-8f6c-ae76a72ae676</uuid>
+          <date>2026-09-19T00:00</date>
+          <currencyCode>EUR</currencyCode>
+          <amount>1000000</amount>
+          <security reference="../../../../../securities/security" />
+          <shares>10000000000</shares>
+          <updatedAt>2026-09-29T06:58:10.052650Z</updatedAt>
+          <type>DELIVERY_INBOUND</type>
+        </portfolio-transaction>
+        <portfolio-transaction>
+          <uuid>a7a776ce-4be8-4e7d-a6b3-2009eb743f1d</uuid>
+          <date>2026-09-19T00:00</date>
+          <currencyCode>EUR</currencyCode>
+          <amount>1000000</amount>
+          <security reference="../../../../../securities/security[2]" />
+          <shares>10000000000</shares>
+          <updatedAt>2026-09-29T06:58:10.052698Z</updatedAt>
+          <type>DELIVERY_INBOUND</type>
+        </portfolio-transaction>
+        <portfolio-transaction>
+          <uuid>6fa876e9-4fd0-4596-855e-5b0cc633e316</uuid>
+          <date>2026-09-19T00:00</date>
+          <currencyCode>EUR</currencyCode>
+          <amount>1000000</amount>
+          <security reference="../../../../../securities/security[3]" />
+          <shares>10000000000</shares>
+          <updatedAt>2026-09-29T06:58:10.052706Z</updatedAt>
+          <type>DELIVERY_INBOUND</type>
+        </portfolio-transaction>
+      </transactions>
+      <updatedAt>2026-09-29T06:58:10.117953Z</updatedAt>
+    </portfolio>
+    <portfolio>
+      <uuid>0847920f-5c04-463a-88f4-da9c920fce07</uuid>
+      <name>Holding — démonstration</name>
+      <isRetired>false</isRetired>
+      <referenceAccount reference="../../../accounts/account" />
+      <transactions>
+        <portfolio-transaction>
+          <uuid>69b4380b-476f-4f2a-8b7c-16ba751ab403</uuid>
+          <date>2026-09-19T00:00</date>
+          <currencyCode>EUR</currencyCode>
+          <amount>1000000</amount>
+          <security reference="../../../../../securities/security" />
+          <shares>10000000000</shares>
+          <updatedAt>2026-09-29T06:58:10.052738Z</updatedAt>
+          <type>DELIVERY_INBOUND</type>
+        </portfolio-transaction>
+      </transactions>
+      <updatedAt>2026-09-29T06:58:10.117953Z</updatedAt>
+    </portfolio>
+    <portfolio>
+      <uuid>dff02496-90de-4408-bd44-bed108c0aa08</uuid>
+      <name>AV — convention par support</name>
+      <isRetired>false</isRetired>
+      <referenceAccount reference="../../../accounts/account" />
+      <transactions>
+        <portfolio-transaction>
+          <uuid>7f784302-d5b8-4d0c-8499-3abb004a5bc0</uuid>
+          <date>2026-09-19T00:00</date>
+          <currencyCode>EUR</currencyCode>
+          <amount>1000000</amount>
+          <security reference="../../../../../securities/security[2]" />
+          <shares>10000000000</shares>
+          <updatedAt>2026-09-29T06:58:10.052764Z</updatedAt>
+          <type>DELIVERY_INBOUND</type>
+        </portfolio-transaction>
+      </transactions>
+      <updatedAt>2026-09-29T06:58:10.117953Z</updatedAt>
+    </portfolio>
+  </portfolios>
+  <plans />
+  <taxonomies />
+  <dashboards />
+  <properties>
+    <entry>
+      <string>fork.tax.position-estimates.v1</string>
+      <string>{"version":1,"positions":{"0847920f-5c04-463a-88f4-da9c920fce07/04ee7cc0-0576-412f-a259-9ec0c9fe5200":{"profile":"HOLDING_ANNUAL","rateBps":2500,"losses":"POTENTIAL_SAVING","amount":1100000,"shares":10000000000,"validatedOn":"2026-09-19","reviewOn":"2027-01-01","movements":"56f793ff34ebfa18db9654681795330915acf27dd7b0c22155d891837dd67672","note":"Données fictives — taux de 25 % illustratif ; référence de performance au 19/09/2026"},"dff02496-90de-4408-bd44-bed108c0aa08/039a0adc-5e94-4ff1-8783-f29df79d9fcd":{"profile":"LIFE_INSURANCE","rateBps":2500,"losses":"POTENTIAL_SAVING","amount":1000000,"shares":10000000000,"validatedOn":"2026-09-19","movements":"cf557e000e096219cd3083252b62c169749d67af66ea99364b7b85d7c0684b17","note":"Données fictives — taux de 25 % illustratif ; référence de performance au 19/09/2026"},"f4aade2f-5456-4dea-a9cf-7507b35c68ef/04ee7cc0-0576-412f-a259-9ec0c9fe5200":{"profile":"CTO","rateBps":2500,"losses":"POTENTIAL_SAVING","amount":1000000,"shares":10000000000,"validatedOn":"2026-09-19","movements":"3c9be380dce45e3be614b1d8e68239c3e26ca5c728325fb9afc0efabe0379fc5","note":"Données fictives — taux de 25 % illustratif ; référence de performance au 19/09/2026"},"f4aade2f-5456-4dea-a9cf-7507b35c68ef/039a0adc-5e94-4ff1-8783-f29df79d9fcd":{"profile":"CTO","rateBps":2500,"losses":"POTENTIAL_SAVING","amount":1000000,"shares":10000000000,"validatedOn":"2026-09-19","movements":"bb1565108f6c066b6bf36dac1dc0a70396b39195362db01530bcebb29f6e3cc9","note":"Données fictives — taux de 25 % illustratif ; référence de performance au 19/09/2026"}}}</string>
+    </entry>
+  </properties>
+  <settings>
+    <bookmarks>
+      <bookmark>
+        <label>finance.yahoo.com</label>
+        <pattern>https://finance.yahoo.com/quote/{tickerSymbol}</pattern>
+      </bookmark>
+      <bookmark>
+        <label>onvista.de</label>
+        <pattern>https://www.onvista.de/suche.html?SEARCH_VALUE={isin}</pattern>
+      </bookmark>
+      <bookmark>
+        <label>finanzen.net</label>
+        <pattern>https://www.finanzen.net/suchergebnis.asp?frmAktiensucheTextfeld={isin}</pattern>
+      </bookmark>
+      <bookmark>
+        <label>ariva.de</label>
+        <pattern>https://www.ariva.de/{isin}</pattern>
+      </bookmark>
+      <bookmark>
+        <label>justetf.com  (ETF)</label>
+        <pattern>https://www.justetf.com/etf-profile.html?isin={isin}</pattern>
+      </bookmark>
+      <bookmark>
+        <label>fondsweb.com</label>
+        <pattern>https://www.fondsweb.com/{isin}</pattern>
+      </bookmark>
+      <bookmark>
+        <label>morningstar.de</label>
+        <pattern>https://www.morningstar.de/de/funds/SecuritySearchResults.aspx?type=ALL&amp;search={isin}</pattern>
+      </bookmark>
+      <bookmark>
+        <label>extraETF.com (ETF)</label>
+        <pattern>https://extraetf.com/etf-profile/{isin}</pattern>
+      </bookmark>
+      <bookmark>
+        <label>alleaktien.de (Action)</label>
+        <pattern>https://www.alleaktien.de/data/{isin}</pattern>
+      </bookmark>
+      <bookmark>
+        <label>comdirect.de (Action)</label>
+        <pattern>https://www.comdirect.de/inf/aktien/{isin}</pattern>
+      </bookmark>
+      <bookmark>
+        <label>comdirect.de (ETF)</label>
+        <pattern>https://www.comdirect.de/inf/etfs/{isin}</pattern>
+      </bookmark>
+      <bookmark>
+        <label>divvydiary.com</label>
+        <pattern>https://divvydiary.com/symbols/{isin}</pattern>
+      </bookmark>
+      <bookmark>
+        <label>trackingdifferences.com (ETF)</label>
+        <pattern>https://www.trackingdifferences.com/ETF/ISIN/{isin}</pattern>
+      </bookmark>
+      <bookmark>
+        <label>tradingview.com</label>
+        <pattern>https://www.tradingview.com/chart/?symbol=XETR:{tickerSymbolPrefix}</pattern>
+      </bookmark>
+      <bookmark>
+        <label>cnbc.com (Action)</label>
+        <pattern>https://www.cnbc.com/quotes/{tickerSymbolPrefix}</pattern>
+      </bookmark>
+      <bookmark>
+        <label>nasdaq.com (Action)</label>
+        <pattern>https://www.nasdaq.com/market-activity/stocks/{tickerSymbolPrefix}</pattern>
+      </bookmark>
+      <bookmark>
+        <label>aktienfinder.net (Action)</label>
+        <pattern>https://aktienfinder.net/aktien-profil/{isin}</pattern>
+      </bookmark>
+      <bookmark>
+        <label>aktien.guide (Action)</label>
+        <pattern>http://aktien.guide/isin/aktien/{isin}</pattern>
+      </bookmark>
+    </bookmarks>
+    <attributeTypes>
+      <attribute-type>
+        <id>logo</id>
+        <name>Logo</name>
+        <columnLabel>Logo</columnLabel>
+        <target>name.abuchen.portfolio.model.Security</target>
+        <type>java.lang.String</type>
+        <converterClass>name.abuchen.portfolio.model.AttributeType$ImageConverter</converterClass>
+      </attribute-type>
+      <attribute-type>
+        <id>logo</id>
+        <name>Logo</name>
+        <columnLabel>Logo</columnLabel>
+        <target>name.abuchen.portfolio.model.Account</target>
+        <type>java.lang.String</type>
+        <converterClass>name.abuchen.portfolio.model.AttributeType$ImageConverter</converterClass>
+      </attribute-type>
+      <attribute-type>
+        <id>logo</id>
+        <name>Logo</name>
+        <columnLabel>Logo</columnLabel>
+        <target>name.abuchen.portfolio.model.Portfolio</target>
+        <type>java.lang.String</type>
+        <converterClass>name.abuchen.portfolio.model.AttributeType$ImageConverter</converterClass>
+      </attribute-type>
+      <attribute-type>
+        <id>logo</id>
+        <name>Logo</name>
+        <columnLabel>Logo</columnLabel>
+        <target>name.abuchen.portfolio.model.InvestmentPlan</target>
+        <type>java.lang.String</type>
+        <converterClass>name.abuchen.portfolio.model.AttributeType$ImageConverter</converterClass>
+      </attribute-type>
+      <attribute-type>
+        <id>ter</id>
+        <name>Total Expense Ratio (TER)</name>
+        <columnLabel>TER</columnLabel>
+        <source>ter</source>
+        <target>name.abuchen.portfolio.model.Security</target>
+        <type>java.lang.Double</type>
+        <converterClass>name.abuchen.portfolio.model.AttributeType$PercentConverter</converterClass>
+      </attribute-type>
+      <attribute-type>
+        <id>aum</id>
+        <name>Actifs sous gestion</name>
+        <columnLabel>ASG</columnLabel>
+        <target>name.abuchen.portfolio.model.Security</target>
+        <type>java.lang.Long</type>
+        <converterClass>name.abuchen.portfolio.model.AttributeType$AmountPlainConverter</converterClass>
+      </attribute-type>
+      <attribute-type>
+        <id>vendor</id>
+        <name>Gestionnaire</name>
+        <columnLabel>Gestionnaire</columnLabel>
+        <source>vendor</source>
+        <target>name.abuchen.portfolio.model.Security</target>
+        <type>java.lang.String</type>
+        <converterClass>name.abuchen.portfolio.model.AttributeType$StringConverter</converterClass>
+      </attribute-type>
+      <attribute-type>
+        <id>acquisitionFee</id>
+        <name>Frais d'acquisition (pourcentage)</name>
+        <columnLabel>Frais d'acquisition</columnLabel>
+        <target>name.abuchen.portfolio.model.Security</target>
+        <type>java.lang.Double</type>
+        <converterClass>name.abuchen.portfolio.model.AttributeType$PercentConverter</converterClass>
+      </attribute-type>
+      <attribute-type>
+        <id>managementFee</id>
+        <name>Frais de gestion (pourcentage)</name>
+        <columnLabel>Frais de gestion</columnLabel>
+        <target>name.abuchen.portfolio.model.Security</target>
+        <type>java.lang.Double</type>
+        <converterClass>name.abuchen.portfolio.model.AttributeType$PercentConverter</converterClass>
+      </attribute-type>
+    </attributeTypes>
+    <configurationSets>
+      <entry>
+        <string>name.abuchen.portfolio.ui.views.StatementOfAssetsViewer</string>
+        <config-set>
+          <configurations>
+            <config>
+              <uuid>f3090000-0000-4000-8000-000000000001</uuid>
+              <name>Brut et net estimé</name>
+              <data>{&quot;items&quot;:[{&quot;id&quot;:&quot;1&quot;,&quot;width&quot;:235},{&quot;id&quot;:&quot;5&quot;,&quot;width&quot;:160},{&quot;id&quot;:&quot;tax-latent&quot;,&quot;width&quot;:160},{&quot;id&quot;:&quot;tax-net-value&quot;,&quot;width&quot;:160},{&quot;id&quot;:&quot;tax-before&quot;,&quot;width&quot;:160,&quot;option&quot;:&quot;S2026-09-19&quot;},{&quot;id&quot;:&quot;tax-after&quot;,&quot;width&quot;:160,&quot;option&quot;:&quot;S2026-09-19&quot;}]}</data>
+            </config>
+            <config>
+              <uuid>f3090000-0000-4000-8000-000000000002</uuid>
+              <name>Valeurs brutes</name>
+              <data>{&quot;items&quot;:[{&quot;id&quot;:&quot;1&quot;,&quot;width&quot;:235},{&quot;id&quot;:&quot;0&quot;,&quot;width&quot;:160},{&quot;id&quot;:&quot;5&quot;,&quot;width&quot;:160}]}</data>
+            </config>
+            <config>
+              <uuid>f3090000-0000-4000-8000-000000000003</uuid>
+              <name>Décomposition fiscale</name>
+              <data>{&quot;items&quot;:[{&quot;id&quot;:&quot;1&quot;,&quot;width&quot;:235},{&quot;id&quot;:&quot;tax-before&quot;,&quot;width&quot;:160,&quot;option&quot;:&quot;S2026-09-19&quot;},{&quot;id&quot;:&quot;tax-accrued&quot;,&quot;width&quot;:160,&quot;option&quot;:&quot;S2026-09-19&quot;},{&quot;id&quot;:&quot;tax-change&quot;,&quot;width&quot;:160,&quot;option&quot;:&quot;S2026-09-19&quot;},{&quot;id&quot;:&quot;tax-after&quot;,&quot;width&quot;:160,&quot;option&quot;:&quot;S2026-09-19&quot;},{&quot;id&quot;:&quot;tax-latent&quot;,&quot;width&quot;:160},{&quot;id&quot;:&quot;tax-net-value&quot;,&quot;width&quot;:160}]}</data>
+            </config>
+          </configurations>
+        </config-set>
+      </entry>
+    </configurationSets>
+  </settings>
+</client>

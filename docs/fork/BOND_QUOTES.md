@@ -16,10 +16,12 @@ transactions, les quantités ou les autres titres. Elle ne crée pas de nouveau 
 
 ## Périmètre pris en charge
 
-Les conventions sont explicites pour les huit ISIN suivants :
+Les conventions sont explicites pour les dix ISIN suivants :
 
 | ISIN | Source et convention |
 | --- | --- |
+| FR0013154044 | OAT nominale 1,25 % 25 mai 2036, Borsa Italiana officiel + coupon annuel ACT/ACT, EUR |
+| US91282CRF04 | Treasury nominal 4,625 % 15 août 2036, CUSIP 91282CRF0, référence FedInvest END OF DAY, USD |
 | DE000BU2Z072 | Bundesbank, archives mensuelles depuis le 10 juillet 2026 |
 | DE000BU27014 | Bundesbank, séries KCP/KDP depuis le 27 août 2025 |
 | DE0001102622 | Bundesbank, séries KCP/KDP depuis le 18 octobre 2022 |
@@ -29,7 +31,7 @@ Les conventions sont explicites pour les huit ISIN suivants :
 | FR0013410552 | Borsa Italiana + AFT OAT€i, échéance 1er mars 2029, coupon 0,10 % |
 | FR0000186413 | Borsa Italiana + AFT OATi, échéance 25 juillet 2029, coupon 3,40 % |
 
-Seuls les titres en EUR avec l'un de ces ISIN sont proposés. Ce fournisseur n'est
+Les titres doivent avoir la devise attendue : USD pour le Treasury, EUR pour les autres. Ce fournisseur n'est
 pas un moteur universel de valorisation de toutes les obligations.
 
 ## Cours et conservation des historiques
@@ -100,3 +102,28 @@ Sources publiques : [Bundesbank](https://www.bundesbank.de/en/service/federal-se
 [Borsa Italiana](https://www.borsaitaliana.it/borsa/obbligazioni/mot/euro-obbligazioni/scheda/FR0013327491-MOTX.html?lang=it).
 
 Fiche officielle OAT€i 2031 : https://www.aft.gouv.fr/fr/titre/fr0014001n38.
+
+## Références nominales 2036
+
+L’OAT du 25 mai 2036 est à 82 jours du Bund 15 août 2036 ; le Treasury échoit
+exactement le 15 août 2036. Les deux actifs sont créés sans transaction.
+L’OAT a un coupon annuel et un règlement TARGET T+2. Le Treasury a un coupon
+semestriel ACT/ACT, valorisé à date du cours FedInvest (T+0, pas règlement marché T+1).
+
+FedInvest diffuse des prix de titres miroir GAS destinés aux organismes publics :
+références indicatives, pas cotations exécutables. Seule la colonne END OF DAY
+est utilisée ; BUY/SELL ne remplacent jamais une clôture nulle. Le formulaire public
+est consulté sans compte. Date, CUSIP, coupon, maturité et absence de call sont
+vérifiés. La dernière clôture des sept jours précédents complète l’historique
+existant, sans reconstitution antérieure automatique. Prix US par 100 USD de nominal.
+
+L’outil YTM convertit le rendement US semestriel en taux **effectif annuel** :
+`(1 + y/2)^2 - 1`, comparable aux taux annuels OAT/Bund. Il diffère du yield US
+couramment affiché en convention semestrielle. Les spreads futurs devront aligner
+les dates et expliciter l’écart de maturité et les sources de prix.
+Le script externe Portfolio Update est également étendu : création idempotente
+par ISIN, devise USD explicite, conservation des historiques dirty de ces références.
+
+Caractéristiques : [AFT](https://www.aft.gouv.fr/fr/titre/fr0013154044),
+[TreasuryDirect](https://www.treasurydirect.gov/TA_WS/securities/search?cusip=91282CRF0&format=json).
+Prix : [FedInvest](https://www.treasurydirect.gov/GA-FI/FedInvest/selectSecurityPriceDate).

@@ -9,6 +9,8 @@ import java.util.Optional;
 public record BondSpec(String isin, LocalDate issued, String category, LocalDate maturity, BigDecimal coupon, boolean euroIndex)
 {
     public static final List<BondSpec> SUPPORTED = List.of(
+                    new BondSpec("FR0013154044", LocalDate.of(2016, 4, 19), "NOMINAL", LocalDate.of(2036, 5, 25), new BigDecimal("0.0125"), false),
+                    new BondSpec("US91282CRF04", LocalDate.of(2026, 8, 17), "NOMINAL", LocalDate.of(2036, 8, 15), new BigDecimal("0.04625"), false),
                     new BondSpec("DE000BU2Z072", LocalDate.of(2026, 7, 10), null, null, null, false),
                     new BondSpec("DE000BU27014", LocalDate.of(2025, 8, 27), "A607", null, null, false),
                     new BondSpec("DE0001102622", LocalDate.of(2022, 10, 18), "A607", null, null, false),
@@ -30,6 +32,10 @@ public record BondSpec(String isin, LocalDate issued, String category, LocalDate
 
     public boolean indexed()
     {
-        return maturity != null;
+        return maturity != null && !nominal();
     }
+
+    public boolean nominal() { return "NOMINAL".equals(category); }
+    public String currency() { return isin.startsWith("US") ? "USD" : "EUR"; }
+    public int frequency() { return isin.startsWith("US") ? 2 : 1; }
 }

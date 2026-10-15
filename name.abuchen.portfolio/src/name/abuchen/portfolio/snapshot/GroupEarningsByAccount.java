@@ -127,8 +127,6 @@ public class GroupEarningsByAccount
                         case TAX_REFUND:
                             taxes.subtract(at.getMonetaryAmount());
                             break;
-                        case CAPITAL_CALL:
-                        case DISTRIBUTION:
                         case BUY:
                         case SELL:
                             CrossEntry crossEntry = at.getCrossEntry();
@@ -142,6 +140,11 @@ public class GroupEarningsByAccount
                             {
                                 throw new UnsupportedOperationException();
                             }
+                            break;
+                        case CAPITAL_CALL:
+                        case DISTRIBUTION:
+                            // Standalone PE capital movements affect the fund's
+                            // valuation, not earnings; they have no BuySellEntry.
                             break;
                         case DEPOSIT:
                         case REMOVAL:

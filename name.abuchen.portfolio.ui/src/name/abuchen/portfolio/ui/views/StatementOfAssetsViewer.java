@@ -86,6 +86,7 @@ import name.abuchen.portfolio.snapshot.filter.ReadOnlyAccount;
 import name.abuchen.portfolio.snapshot.filter.ReadOnlyPortfolio;
 import name.abuchen.portfolio.snapshot.security.LazySecurityPerformanceRecord;
 import name.abuchen.portfolio.snapshot.security.LazySecurityPerformanceSnapshot;
+import name.abuchen.portfolio.tax.TaxEstimateSettings;
 import name.abuchen.portfolio.ui.Messages;
 import name.abuchen.portfolio.ui.UIConstants;
 import name.abuchen.portfolio.ui.dnd.ImportFromFileDropAdapter;
@@ -94,6 +95,8 @@ import name.abuchen.portfolio.ui.dnd.SecurityTransfer;
 import name.abuchen.portfolio.ui.editor.AbstractFinanceView;
 import name.abuchen.portfolio.ui.selection.SecuritySelection;
 import name.abuchen.portfolio.ui.selection.SelectionService;
+import name.abuchen.portfolio.ui.tax.StatementOfAssetsTaxValues.Metric;
+import name.abuchen.portfolio.ui.tax.StatementOfAssetsTaxValues;
 import name.abuchen.portfolio.ui.util.AttributeComparator;
 import name.abuchen.portfolio.ui.util.CacheKey;
 import name.abuchen.portfolio.ui.util.Colors;
@@ -143,6 +146,8 @@ public class StatementOfAssetsViewer
         private final Taxonomy taxonomy;
         private final ClientFilter clientFilter;
         private final Client filteredClient;
+        private final Client sourceClient;
+        private StatementOfAssetsTaxValues taxValues;
         private CurrencyConverter converter;
 
         private ClientSnapshot clientSnapshot;
@@ -160,6 +165,7 @@ public class StatementOfAssetsViewer
         {
             this.preferences = preferences;
 
+            this.sourceClient = client;
             this.clientFilter = filter;
             this.filteredClient = filter.filter(client);
             this.converter = converter;
@@ -193,6 +199,13 @@ public class StatementOfAssetsViewer
         public CurrencyConverter getCurrencyConverter()
         {
             return converter;
+        }
+
+        public StatementOfAssetsTaxValues getTaxValues()
+        {
+            if (taxValues == null)
+                taxValues = new StatementOfAssetsTaxValues(sourceClient, clientFilter, converter, getDate(), taxonomy);
+            return taxValues;
         }
 
         public Interval getGlobalInterval()
@@ -685,6 +698,7 @@ public class StatementOfAssetsViewer
         // reporting periods
         List<ReportingPeriod> options = owner.getPart().getReportingPeriods().stream().collect(toMutableList());
 
+        addTaxEstimateColumns(options);
         addPerformanceColumns(options);
         addDividendColumns(options);
         addTaxonomyColumns();
@@ -809,6 +823,96 @@ public class StatementOfAssetsViewer
     {
         return Model.class.getSimpleName() + "@collapsed@" + viewId + "@" //$NON-NLS-1$ //$NON-NLS-2$
                         + (taxonomy != null ? taxonomy.getId() : PREFERENCE_NONE);
+    }
+
+    @SuppressWarnings("nls")
+    private void addTaxEstimateColumns(List<ReportingPeriod> options)
+    {
+        addTaxEstimateColumn("tax-latent", "Impôt latent estimé (EUR)", Metric.LATENT, null);
+        addTaxEstimateColumn("tax-debt", "Impôt dû estimé (EUR)", Metric.DEBT, null);
+        addTaxEstimateColumn("tax-net-value", "Valeur nette estimée (EUR)", Metric.NET_VALUE, null);
+        addTaxEstimateColumn("tax-before", "Perf. titres avant impôts (EUR)", Metric.BEFORE, options);
+        addTaxEstimateColumn("tax-accrued", "Fiscalité acquise des titres (EUR)", Metric.ACCRUED, options);
+        addTaxEstimateColumn("tax-change", "Variation impôt latent (EUR)", Metric.CHANGE, options);
+        addTaxEstimateColumn("tax-after", "Perf. après impôts (EUR)", Metric.AFTER, options);
+        addTaxEstimateColumn("tax-percent", "Perf. après impôts (%)", Metric.PERCENT, options);
+        addTaxEstimateColumn("tax-twr", "%TW après impôts", Metric.TWR, options);
+        addTaxEstimateColumn("tax-irr", "TRI après impôts", Metric.IRR, options);
+        addTaxEstimateColumn("tax-annualized", "Rendement annuel après impôts", Metric.ANNUALIZED, options);
+    }
+
+    @SuppressWarnings("nls")
+    private void addTaxEstimateColumn(String id, String title, Metric metric, List<ReportingPeriod> options)
+    {
+        Column column = new Column(id, title, SWT.RIGHT, 160);
+        column.setGroupLabel("Fiscalité estimée");
+        column.setVisible(options == null && (client.getProperty(TaxEstimateSettings.PROPERTY) != null
+                        || client.getProperty(name.abuchen.portfolio.tax.TaxEnvelopeProfiles.PROPERTY) != null));
+        if (options != null)
+            column.setOptions(new ReportingPeriodColumnOptions(title + " {0}", options)
+            {
+                @Override
+                public String getColumnLabel(ReportingPeriod option)
+                {
+                    String label = switch (metric)
+                    {
+                        case AFTER -> "Net EUR";
+                        case PERCENT -> "Net %";
+                        case TWR -> "%TW net";
+                        case IRR -> "TRI net";
+                        case ANNUALIZED -> "Annuel net";
+                        default -> title;
+                    };
+                    String period = option.toString();
+                    if (option.getCode().matches("S\\d{4}-\\d{2}-\\d{2}"))
+                        period = LocalDate.parse(option.getCode().substring(1))
+                                        .format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yy")) + "→";
+                    return label + " · " + period;
+                }
+
+                @Override
+                public String getDescription(ReportingPeriod option)
+                {
+                    return title + " — " + option.toString();
+                }
+            });
+        column.setLabelProvider(new OptionLabelProvider<ReportingPeriod>()
+        {
+            @Override
+            public String getText(Object object, ReportingPeriod option)
+            {
+                var values = model.getTaxValues();
+                var interval = option == null ? Interval.of(values.defaultStart(), model.getDate())
+                                : option.toInterval(model.getDate());
+                if (metric == Metric.PERCENT || metric == Metric.TWR || metric == Metric.IRR || metric == Metric.ANNUALIZED)
+                {
+                    var rate = values.rate((Element) object, metric, interval);
+                    return rate == null ? "—" : Values.Percent2.format(rate);
+                }
+                var cell = values.value((Element) object, metric, interval);
+                return cell.amount() == null ? "—" : Values.Money.format(Money.of("EUR", cell.amount()));
+            }
+
+            @Override
+            public String getToolTipText(Object object)
+            {
+                var values = model.getTaxValues();
+                if (options == null)
+                    return values.value((Element) object, metric,
+                                    Interval.of(values.defaultStart(), model.getDate())).detail();
+                return "Calcul du périmètre de la ligne, sans moyenne des pourcentages. Sans période dans le libellé : du "
+                                + values.defaultStart() + " au " + model.getDate()
+                                + ". — : base historique, valorisation ou rapprochement fiscal à compléter. "
+                                + "Détail et paramètres dans Fiscalité estimée.";
+            }
+
+            @Override
+            public Font getFont(Object object, ReportingPeriod option)
+            {
+                return ((Element) object).isPosition() ? null : boldFont;
+            }
+        });
+        support.addColumn(column);
     }
 
     private void addPurchaseCostColumns()

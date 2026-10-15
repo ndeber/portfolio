@@ -64,7 +64,9 @@ public final class BondSources
         checkCancelled();
         try
         {
-            var result = bond.indexed() ? indexed(bond) : german(bond);
+            var result = bond.nominal() ? ("USD".equals(bond.currency())
+                            ? new TreasurySources(cancelled).fetch(bond, today) : nominal(bond))
+                            : bond.indexed() ? indexed(bond) : german(bond);
             if (result.isEmpty())
                 throw new IOException("Aucun cours reçu.");
             if (result.stream().anyMatch(q -> q.date().isAfter(today)))
@@ -76,6 +78,14 @@ public final class BondSources
         {
             throw new IOException(bond.isin() + " : format de données inattendu.", e);
         }
+    }
+
+    public List<BondQuote> fetch(name.abuchen.portfolio.model.Security security) throws IOException, InterruptedException
+    {
+        var bond = BondSpec.find(security.getIsin()).orElseThrow();
+        if ("USD".equals(bond.currency()))
+            return new TreasurySources(cancelled).fetch(bond, today, TreasurySources.historyStart(security, bond), false);
+        return fetch(bond);
     }
 
     private void checkCancelled() throws InterruptedException
@@ -457,6 +467,24 @@ public final class BondSources
         String aft = "https://www.aft.gouv.fr/fr/" + (bond.euroIndex() ? "oateuroi" : "oati") + "-principaux-chiffres";
         var file = coefficientFile(text(aft), aft, bond.euroIndex());
         var coefficients = coefficients(get(file), bond.maturity());
+        String detail = borsaDetail(bond);
+        return indexHistory(bond, borsaClean(bond), coefficients, detail + "\nCoefficients AFT : " + file);
+    }
+
+    private static String borsaDetail(BondSpec bond)
+    {
+        return "https://www.borsaitaliana.it/borsa/obbligazioni/mot/euro-obbligazioni/scheda/" + bond.isin() + "-MOTX.html?lang=it";
+    }
+
+    private List<BondQuote> nominal(BondSpec bond) throws IOException, InterruptedException
+    {
+        return borsaClean(bond).entrySet().stream().filter(e -> !e.getKey().isBefore(bond.issued()))
+                        .map(e -> BondMath.nominal(bond, e.getKey(), e.getValue(), borsaDetail(bond)
+                                        + "\nCours officiel clean ; coupon annuel ACT/ACT au règlement TARGET T+2")).toList();
+    }
+
+    private NavigableMap<LocalDate, BigDecimal> borsaClean(BondSpec bond) throws IOException, InterruptedException
+    {
         String chart = "https://grafici.borsaitaliana.it/summary-chart/" + bond.isin() + "-MOTX?lang=it";
         var element = Jsoup.parse(text(chart)).selectFirst("chart-allinone");
         if (element == null || !bond.isin().equals(element.attr("code")) || !"XMIL".equals(element.attr("exchcode")) || element.attr("token").isBlank())
@@ -468,7 +496,7 @@ public final class BondSources
         var clean = borsaHistory(new String(request(historyUrl.toString(), element.attr("token"), chart), StandardCharsets.UTF_8));
         String detail = "https://www.borsaitaliana.it/borsa/obbligazioni/mot/euro-obbligazioni/scheda/" + bond.isin() + "-MOTX.html?lang=it";
         supplementOfficial(clean, text(detail));
-        return indexHistory(bond, clean, coefficients, detail + "\nCoefficients AFT : " + file);
+        return clean;
     }
 
     public static void supplementOfficial(Map<LocalDate, BigDecimal> clean, String html) throws IOException

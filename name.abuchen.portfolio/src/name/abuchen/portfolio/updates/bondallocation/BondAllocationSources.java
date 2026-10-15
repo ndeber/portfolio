@@ -109,6 +109,9 @@ public final class BondAllocationSources
                 case REGIONS -> direct.get("country").getAsString();
                 case ISSUER -> "Gouvernement";
             };
+            if (family == Family.RATING && direct.has("ratingDate"))
+                return new Slice(Map.of(category, 10000), LocalDate.parse(direct.get("ratingDate").getAsString()),
+                                direct.get("ratingSource").getAsString(), direct.get("ratingNote").getAsString() + "; profil daté, non relu automatiquement.");
             return new Slice(Map.of(category, 10000), null, direct.get("note").getAsString().lines().reduce((a, b) -> b).orElseThrow(),
                             family == Family.RATING ? "PROFIL FIXE DU SCRIPT — notation souveraine non relue en ligne ; date de vérification non fournie."
                                             : "Métadonnées du script ; échéance " + direct.get("maturity").getAsString() + ", tranche recalculée au " + reference + ".");

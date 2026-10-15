@@ -56,4 +56,19 @@ public final class BondMath
         var accrued = bond.coupon().multiply(BigDecimal.valueOf(100 * days)).divide(BigDecimal.valueOf(year), MathContext.DECIMAL128);
         return new BondQuote(trade, clean, accrued, clean.add(accrued).multiply(coefficient), settlement, coefficient, source);
     }
+
+    /** FedInvest reference valuation at the price date; OAT uses TARGET T+2. */
+    public static BondQuote nominal(BondSpec bond, LocalDate trade, BigDecimal clean, String source)
+    {
+        var settlement = "USD".equals(bond.currency()) ? trade : settlement(trade);
+        if (!settlement.isBefore(bond.maturity()) || trade.isBefore(bond.issued()))
+            throw new IllegalArgumentException("Date hors de la vie du titre.");
+        int months = 12 / bond.frequency();
+        var next = bond.maturity();
+        while (next.minusMonths(months).isAfter(settlement)) next = next.minusMonths(months);
+        var previous = next.minusMonths(months);
+        var accrued = bond.coupon().multiply(BigDecimal.valueOf(100L * ChronoUnit.DAYS.between(previous, settlement)))
+                        .divide(BigDecimal.valueOf(bond.frequency() * ChronoUnit.DAYS.between(previous, next)), MathContext.DECIMAL128);
+        return new BondQuote(trade, clean, accrued, clean.add(accrued), settlement, null, source);
+    }
 }

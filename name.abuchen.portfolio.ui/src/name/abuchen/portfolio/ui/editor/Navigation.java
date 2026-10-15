@@ -54,6 +54,9 @@ import name.abuchen.portfolio.ui.views.SecurityListView;
 import name.abuchen.portfolio.ui.views.SecurityPriceUpdateView;
 import name.abuchen.portfolio.ui.views.StatementOfAssetsHistoryView;
 import name.abuchen.portfolio.ui.views.StatementOfAssetsView;
+import name.abuchen.portfolio.ui.tax.TaxEstimateLabels;
+import name.abuchen.portfolio.ui.tax.TaxEstimatesView;
+import name.abuchen.portfolio.ui.factors.FactorMapView;
 import name.abuchen.portfolio.ui.views.currency.CurrencyView;
 import name.abuchen.portfolio.ui.views.dashboard.DashboardView;
 import name.abuchen.portfolio.ui.views.holdings.HoldingsPieChartView;
@@ -490,6 +493,8 @@ public final class Navigation
         Item statementOfAssets = new Item(Messages.LabelStatementOfAssets, StatementOfAssetsView.class);
         statementOfAssets.addTag(Tag.DEFAULT_VIEW);
         section.add(statementOfAssets);
+        section.add(new Item(TaxEstimateLabels.TITLE, TaxEstimatesView.class));
+        section.add(new Item(FactorMapView.TITLE, FactorMapView.class));
 
         statementOfAssets.add(new Item(Messages.ClientEditorLabelChart, StatementOfAssetsHistoryView.class, true));
         statementOfAssets.add(new Item(Messages.ClientEditorLabelHoldings, HoldingsPieChartView.class, true));

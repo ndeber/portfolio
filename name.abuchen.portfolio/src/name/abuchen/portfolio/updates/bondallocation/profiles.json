@@ -2,7 +2,7 @@
   "direct": [
     {
       "isin": "DE000BU2Z072",
-      "name": "DBR Govt 3.0 Aug15'36",
+      "name": "Allemagne — Bund 3,00 % — 15/08/2036",
       "rating": "AAA",
       "country": "Allemagne",
       "maturity": "2036-08-15",
@@ -55,6 +55,28 @@
       "country": "France",
       "maturity": "2029-07-25",
       "note": "OATi 3,40 % 25/07/2029\nhttps://www.aft.gouv.fr/fr/titre/fr0000186413"
+    },
+    {
+      "isin": "FR0013154044",
+      "name": "France — OAT 1,25 % — 25/05/2036",
+      "rating": "A",
+      "country": "France",
+      "maturity": "2036-05-25",
+      "ratingDate": "2026-05-29",
+      "ratingNote": "S&P A+ (famille A), tableau AFT vérifié le 02/10/2026",
+      "ratingSource": "https://www.aft.gouv.fr/fr/calendrier-notations-france",
+      "note": "OAT nominale 1,25 % 25/05/2036\nhttps://www.aft.gouv.fr/fr/titre/fr0013154044"
+    },
+    {
+      "isin": "US91282CRF04",
+      "name": "États-Unis — Treasury 4,625 % — 15/08/2036",
+      "rating": "AA",
+      "country": "États-Unis",
+      "maturity": "2036-08-15",
+      "ratingDate": "2026-06-26",
+      "ratingNote": "S&P AA+ (famille AA), décision du 26/06/2026 vérifiée le 02/10/2026",
+      "ratingSource": "https://finance.yahoo.com/economy/policy/articles/p-affirms-u-aa-sovereign-210403632.html",
+      "note": "Treasury nominal 4,625 % 15/08/2036 ; CUSIP 91282CRF0\nhttps://www.treasurydirect.gov/TA_WS/securities/search?cusip=91282CRF0&format=json"
     }
   ],
   "funds": {

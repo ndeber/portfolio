@@ -80,8 +80,8 @@ public final class BondUpdate
 
     public static Plan prepare(Security security, List<BondQuote> quotes, boolean allowMigration)
     {
-        if (BondSpec.find(security.getIsin()).isEmpty() || !"EUR".equals(security.getCurrencyCode()))
-            throw new IllegalArgumentException("Obligation non prise en charge ou devise différente de EUR : " + security.getName());
+        if (BondSpec.find(security.getIsin()).filter(b -> b.currency().equals(security.getCurrencyCode())).isEmpty())
+            throw new IllegalArgumentException("Obligation non prise en charge ou devise incohérente : " + security.getName());
         boolean migration = !managed(security) && !security.getPricesIncludingLatest().isEmpty();
         if (migration && !allowMigration)
             throw new IllegalArgumentException("La convention de " + security.getName() + " est inconnue. Autorisez explicitement le remplacement de son historique.");
@@ -170,7 +170,7 @@ public final class BondUpdate
                             + "\nPrix clean : " + last.clean().toPlainString() + "\nCoupon couru : " + last.accrued().toPlainString()
                             + "\nPrix dirty : " + last.dirty().toPlainString() + "\nSource : " + last.source()
                             + "\nHistorique dirty : " + plan.after().getFirst().date() + " à " + last.date() + " (" + plan.after().size() + " points)"
-                            + (last.coefficient() == null ? "\nFormule : prix clean + coupon couru (Bundesbank)"
+                            + (last.coefficient() == null ? "\nFormule : prix clean + coupon couru" + (last.settlement() == null ? " (Bundesbank)" : "\nDate de valorisation/règlement : " + last.settlement())
                                             : "\nRèglement T+2 : " + last.settlement() + "\nCoefficient AFT : " + last.coefficient().toPlainString()
                                                             + "\nFormule : (clean + coupon couru ACT/ACT) × coefficient AFT")
                             + "\n" + END;

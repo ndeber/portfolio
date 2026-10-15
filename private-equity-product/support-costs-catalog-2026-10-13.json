@@ -1,0 +1,292 @@
+[
+  {
+    "isin": "LU1832175001",
+    "ter": 0.0151,
+    "extra": 0.0038,
+    "source": "https://www.independance-am.com/wp-content/uploads/2026/09/kiddoc-fr-00-2026-07-22-lu1832175001-independance-am-sicav-europe-small-classe-i-c.pdf",
+    "note": "DIC du 22/07/2026 : frais courants 1,51 % + transactions internes 0,38 %. Surperformance variable exclue de l'estimation ; taux contractuel de 10 % non assimilé à un taux sur l'encours."
+  },
+  {
+    "isin": "IE0002XZSHO1",
+    "ter": 0.002,
+    "source": "https://www.ishares.com/ch/professionals/en/products/335178/?switchLocale=Y",
+    "note": "TER 0,20 % ; coûts de transaction et spread de swap variable non inclus. Page officielle consultée le 13/10/2026."
+  },
+  {
+    "isin": "FR0011176627",
+    "ter": 0.0036,
+    "source": "https://funds.amundi.com/dl/doc/monthly-factsheet/FR0011176627/FRA/FRA/RETAIL/AMUNDI/20260131",
+    "note": "Reporting au 31/01/2026 : frais de gestion et coûts administratifs 0,36 %. Autres coûts variables non inclus."
+  },
+  {
+    "isin": "LU0552029232",
+    "ter": 0.0208,
+    "source": "https://funds.amundi.com/dl/doc/monthly-factsheet/LU0552029232/FRA/FRA/RETAIL/AMUNDI/20260331",
+    "note": "Reporting au 31/03/2026 : frais courants 2,08 %. Transactions et éventuelle surperformance non incluses."
+  },
+  {
+    "isin": "LU0565135745",
+    "ter": 0.0234,
+    "extra": 0.0002,
+    "source": "https://funds.amundi.com/dl/doc/monthly-factsheet/LU0565135745/FRA/FRA/RETAIL/AMUNDI",
+    "note": "Reporting au 30/04/2026 : frais courants 2,34 % + transactions 0,02 %. Commission de surperformance variable exclue."
+  },
+  {
+    "isin": "LU0386882277",
+    "ter": 0.02,
+    "source": "https://documents.am.pictet/?audience=INSTITUTIONAL&cat=marketing-permalink&dcty=FR&dla=en&dtyp=FCL_MCO&isin=LU0386882277",
+    "note": "Document officiel Pictet : ongoing costs 2,00 %. Autres coûts variables non inclus ; date documentaire à revalider."
+  },
+  {
+    "isin": "LU1983261782",
+    "ter": 0.019,
+    "extra": 0.0059,
+    "source": "https://cdn.janushenderson.com/webdocs/LU1983261782_WEB469_C_13022026(EN-CH).pdf",
+    "note": "DIC du 13/02/2026 : frais courants 1,90 % + transactions 0,59 %. Surperformance variable exclue ; le taux contractuel de 10 % ne porte pas sur l'encours."
+  },
+  {
+    "isin": "LU0390135332",
+    "ter": 0.0215,
+    "source": "https://www.franklintempleton.co.uk/download/en-gb/factsheet/1188d0bf-17d7-45bf-a187-ce41c670257d/Factsheet-TempletonAsianSmallerCompaniesFund-A(acc)USD-12898-Z-FF-GB-en-GB.PDF",
+    "note": "Factsheet au 31/08/2026 : OCF 2,15 %. Transactions internes non incluses."
+  },
+  {
+    "isin": "IE00BJCW7490",
+    "ter": 0.0172,
+    "source": "https://www.nomura-asset.co.uk/download/factsheets/Japan_Small_Cap_Equity_Fund_Class_A_JPY_EN.pdf",
+    "note": "Factsheet au 30/04/2026 : TER 1,72 % (frais de gestion seuls : 1,50 %). Transactions internes non incluses."
+  },
+  {
+    "isin": "IE00BK5BQW10",
+    "ter": 0.0008,
+    "extra": 0,
+    "source": "https://fund-docs.vanguard.com/vanguard-funds-cost-and-charges-ch.pdf",
+    "note": "Table officielle du 08/10/2026 : TER et coût total publié 0,08 %. Coûts de transaction au 30/06/2026, chiffres arrondis."
+  },
+  {
+    "isin": "IE00BK5BQX27",
+    "ter": 0.001,
+    "extra": 0.0005,
+    "source": "https://fund-docs.vanguard.com/vanguard-funds-cost-and-charges-ch.pdf",
+    "note": "Table officielle du 08/10/2026 : TER 0,10 % + transactions internes 0,05 %. Taux constants utilisés pour l'estimation."
+  },
+  {
+    "isin": "IE00BK5BR733",
+    "ter": 0.0017,
+    "extra": 0.0006,
+    "source": "https://fund-docs.vanguard.com/vanguard-funds-cost-and-charges-ch.pdf",
+    "note": "Table officielle du 08/10/2026 : TER 0,17 %, coût total publié 0,23 %. Complément de 0,06 % déduit du total arrondi (transactions affichées 0,05 % ; différence d'arrondis)."
+  },
+  {
+    "isin": "IE00BK5BQZ41",
+    "ter": 0.0015,
+    "extra": 0.0003,
+    "source": "https://fund-docs.vanguard.com/vanguard-funds-cost-and-charges-ch.pdf",
+    "note": "Table officielle du 08/10/2026 : TER 0,15 % + transactions internes 0,03 %. Taux constants utilisés pour l'estimation."
+  },
+  {
+    "isin": "IE00BK5BQT80",
+    "ter": 0.0014,
+    "extra": 0.0002,
+    "source": "https://fund-docs.vanguard.com/vanguard-funds-cost-and-charges-ch.pdf",
+    "note": "Table officielle du 08/10/2026 : TER 0,14 % + transactions internes 0,02 %. Taux constants utilisés pour l'estimation."
+  },
+  {
+    "isin": "IE00BYXVGY31",
+    "ter": 0.0025,
+    "source": "https://www.fidelityinternational.com/FILPS/Documents/en/current/pro.en.xx.IE00BYXVGY31.pdf",
+    "note": "Factsheet au 30/04/2026 : frais courants de la part 0,25 %. Transactions internes non incluses."
+  },
+  {
+    "isin": "LU0280435388",
+    "ter": 0.0198,
+    "source": "https://documents.am.pictet/?audience=INSTITUTIONAL&cat=marketing-permalink&dcty=FR&dla=en&dtyp=FCL_MCO&isin=LU0280435388",
+    "note": "Document officiel Pictet : ongoing costs 1,98 %. Autres coûts variables non inclus ; date documentaire à revalider."
+  },
+  {
+    "isin": "LU1941681014",
+    "ter": 0.0183,
+    "extra": 0.0036,
+    "source": "https://funds.amundi.com/dl/doc/kid-priips/LU1941681014/FRA/FRA",
+    "note": "DIC officiel disponible du 06/12/2024, sous l'ancien nom New Silk Road : frais courants 1,83 % + transactions 0,36 %. Taux ancien à revalider. Surperformance variable exclue."
+  },
+  {
+    "isin": "FR0007054358",
+    "ter": 0.002,
+    "source": "https://www.amundietf.fr/pdfDocuments/monthly-factsheet/FR0007054358/FRA/FRA/RETAIL/ETF/20260531",
+    "note": "Reporting au 31/05/2026 : frais courants 0,20 %. Transactions internes non incluses."
+  },
+  {
+    "isin": "IE00B1FZS467",
+    "ter": 0.0065,
+    "source": "https://www.ishares.com/ch/individual/en/products/251809/ishares-global-infrastructure-ucits-etf",
+    "note": "TER 0,65 % ; transactions internes non incluses. Page officielle consultée le 13/10/2026."
+  },
+  {
+    "isin": "IE00BD6FTQ80",
+    "ter": 0.0019,
+    "extra": 0.0015,
+    "source": "https://www.invesco.com/content/dam/invesco/emea/en/product-documents/etf/share-class/factsheet/IE00BD6FTQ80_factsheet_en.pdf",
+    "note": "Factsheet au 31/08/2026 : frais courants 0,19 % + swap fee 0,15 % directement prélevé dans le fonds. Transactions internes non incluses."
+  },
+  {
+    "isin": "JE00B588CD74",
+    "ter": 0.0015,
+    "source": "https://www.wisdomtree.eu/-/media/eu-media-files/other-documents/research/portfolio-insights/portfolio-insights-gold.pdf",
+    "note": "Frais de gestion intégrés à l'entitlement en or : 0,15 %. Ne comprend aucun coût de courtage ou d'enveloppe."
+  },
+  {
+    "isin": "LU3359622902",
+    "ter": 0.0075,
+    "source": "https://www.imgp.com/imgp-dbi-managed-futures-fund/",
+    "note": "Part exacte R EUR HP UCITS ETF : TER publié 0,75 %. Autres coûts variables non inclus."
+  },
+  {
+    "isin": "FR0013412020",
+    "ter": 0.003,
+    "source": "https://www.amundietf.fr/pdfDocuments/monthly-factsheet/FR0013412020/FRA/FRA/INSTITUTIONNEL/ETF/20260228",
+    "note": "Reporting au 28/02/2026 : frais courants 0,30 %. Coûts de transaction et de swap variables non inclus."
+  },
+  {
+    "isin": "FR0011871110",
+    "ter": 0.003,
+    "source": "https://www.amundietf.fr/pdfDocuments/monthly-factsheet/FR0011871110/FRA/FRA/RETAIL/ETF/20260331",
+    "note": "Reporting au 31/03/2026 : TER 0,30 %. Coûts internes variables exclus."
+  },
+  {
+    "isin": "LU3025345516",
+    "ter": 0.001,
+    "source": "https://www.bnpparibas-am.com/fr-fr/fundsheet/fixed-income/bnp-paribas-easy-eur-overnight-ucits-etf-c-lu3025345516",
+    "note": "Frais courants estimés au 17/06/2026 : 0,10 %. Autres coûts variables exclus."
+  },
+  {
+    "isin": "IE000PS0J481",
+    "ter": 0.0047,
+    "source": "https://globalxetfs.eu/funds/brij",
+    "note": "TER 0,47 % au 09/10/2026. Autres coûts variables exclus."
+  },
+  {
+    "isin": "IE000IQQEL77",
+    "ter": 0.0059,
+    "source": "https://hanetf.com/fund/cppr-sprott-pure-play-copper-miners-etf/",
+    "note": "TER publié : 59 points de base (0,59 %). Coûts internes de transaction exclus."
+  },
+  {
+    "isin": "IE0005YK6564",
+    "ter": 0.0085,
+    "source": "https://hanetf.com/fr/fund/urnm-uranium-miners-etf/",
+    "note": "TER publié : 85 points de base (0,85 %). Coûts internes de transaction exclus."
+  },
+  {
+    "isin": "IE00BSKRJZ44",
+    "ter": 0.0007,
+    "source": "https://www.ishares.com/uk/individual/en/products/272124/ishares-treasury-bond-20yr-ucits-etf",
+    "note": "TER 0,07 %. Transactions internes exclues."
+  },
+  {
+    "isin": "IE00B1FZS913",
+    "ter": 0.0015,
+    "source": "https://www.ishares.com/uk/individual/en/products/251735/ishares-euro-government-bond-1530yr-ucits-etf",
+    "note": "TER 0,15 %. Transactions internes exclues."
+  },
+  {
+    "isin": "IE000X59ZHE2",
+    "ter": 0.0035,
+    "source": "https://www.ishares.com/uk/individual/en/products/338777/ishares-ai-infrastructure-ucits-etf-fund",
+    "note": "TER 0,35 %. Transactions internes exclues."
+  },
+  {
+    "isin": "IE000CK5G8J7",
+    "ter": 0.0065,
+    "source": "https://www.ishares.com/uk/professional/en/literature/fact-sheet/cbux-ishares-global-infrastructure-ucits-etf-fund-fact-sheet-en-gb.pdf",
+    "note": "Factsheet au 31/03/2026 : TER 0,65 %. Part USD Acc, même ISIN que le titre libellé EUR dans le portefeuille. Transactions internes exclues."
+  },
+  {
+    "isin": "IE00B6R51Z18",
+    "ter": 0.0055,
+    "source": "https://www.ishares.com/uk/individual/en/products/251909/ishares-oil-gas-exploration-production-ucits-etf",
+    "note": "TER 0,55 %. Transactions internes exclues."
+  },
+  {
+    "isin": "LU0702159939",
+    "ter": 0.0108,
+    "source": "https://www.fidelityinternational.com/FILPS/Documents/en/current/mf.en.xx.LU0702159939.pdf",
+    "note": "OCF au 30/04/2026 : 1,08 %. Coûts de transaction additionnels exclus."
+  },
+  {
+    "isin": "JE00B1VS3W29",
+    "ter": 0.0044,
+    "source": "https://www.wisdomtree.eu/-/media/eu-media-files/key-documents/factsheet/etf-securities/factsheet---wisdomtree-physical-precious-metals.pdf",
+    "note": "Frais de gestion publiés : 0,44 %. Ancien document, taux à revalider."
+  },
+  {
+    "isin": "GB00BJYDH287",
+    "ter": 0.0015,
+    "source": "https://www.wisdomtree.com/ch/en/products/digital-assets/wisdomtree-physical-bitcoin",
+    "note": "MER réduit de 0,15 % du 26/03/2025 au 31/12/2026 ; retour annoncé à 0,25 % en 2027. L estimation à taux constant ne reconstitue pas les changements avant mars 2025."
+  },
+  {
+    "isin": "JE00B1VS3770",
+    "ter": 0.0039,
+    "source": "https://www.wisdomtree.eu/-/media/eu-media-files/other-documents/research/strategy-insights/wisdomtree-strategy-insight_choosing-a-physical-gold-etp_en.pdf",
+    "note": "Frais de gestion publiés : 0,39 %. Cet ISIN est Physical Gold et ne doit pas être confondu avec Core Physical Gold à 0,12 %."
+  },
+  {
+    "isin": "LU1883854199",
+    "ter": 0.0178,
+    "source": "https://funds.amundi.com/dl/doc/monthly-factsheet/LU1883854199/FRA/FRA/RETAIL/AMUNDI/20251031",
+    "note": "Reporting au 31/10/2025 : frais courants 1,78 % + transactions 0,16 %. Surperformance variable exclue.",
+    "extra": 0.0016
+  },
+  {
+    "isin": "LU1902443420",
+    "ter": 0.0195,
+    "source": "https://funds.amundi.com/dl/doc/monthly-factsheet/LU1902443420/FRA/FRA/RETAIL/AMUNDI/20260331",
+    "note": "Frais courants au 31/03/2026 : 1,95 %. Transactions et surperformance variables exclues."
+  },
+  {
+    "isin": "LU0249411835",
+    "ter": 0.0183,
+    "source": "https://www.blackrock.com/lu/professionals/en/products/229803/blackrock-japan-small-midcap-opportunities-fund",
+    "note": "OCF publié en octobre 2026 : 1,83 %. Transactions internes exclues."
+  },
+  {
+    "isin": "LU0171307068",
+    "ter": 0.0181,
+    "source": "https://www.blackrock.com/lu/professionals/en/products/229337/blackrock-world-healthscience-fund",
+    "note": "OCF publié en octobre 2026 : 1,81 %. Transactions internes exclues."
+  },
+  {
+    "isin": "LU0245330005",
+    "ter": 0.014,
+    "source": "https://am.gs.com/public-assets/documents/4d9e7738-093a-11f1-a88a-cbb3cedae08a?view=true",
+    "note": "Reporting janvier 2026 : OCF 1,40 % + coûts de transaction estimés 0,07 %. Méthode maison excluant les spreads, différente du calcul PRIIPs ; aucune addition de commissions déjà incluses.",
+    "extra": 0.0007
+  },
+  {
+    "isin": "FR0010599399",
+    "ter": 0.0011,
+    "source": "https://cpram.com/product-services/product-documents/document/v1/download/monthly-factsheet/FR0010599399/FRA/FRA/INSTITUTIONNEL/CPR/20251130",
+    "note": "Reporting au 30/11/2025 : frais courants 0,11 % + transactions 0,01 %. Commission de surperformance variable exclue.",
+    "extra": 0.0001
+  },
+  {
+    "isin": "FR0000982969",
+    "ter": 0.0011,
+    "source": "https://www.im.natixis.com/content/dam/natixis/products/international/fund-documents/france/fr/KIDDOC-2025-12-01-FR-FR-2025-11-28-FR0000982969.pdf",
+    "note": "DIC au 28/11/2025 : frais courants 0,11 % + transactions 0,05 %. Taux constants pour l estimation.",
+    "extra": 0.0005
+  },
+  {
+    "isin": "LU1995645790",
+    "ter": 0.014,
+    "source": "https://docs.data2report.lu/documents/Syquant/PRIIPs_KID_EU/PRIIPs_KID_EU_LU1995645790_fr_FR.pdf",
+    "note": "DIC : frais courants arrondis 1,4 %. Coûts de transaction affichés 0,0 % mais non strictement nuls (arrondis), surperformance variable exclue."
+  },
+  {
+    "isin": "LU1681047236",
+    "ter": 0.0009,
+    "source": "https://www.amundietf.com/pdfDocuments/monthly-factsheet/LU1681047236/ENG/LUX/INSTITUTIONNEL/ETF/20250930",
+    "note": "Frais courants publiés 0,09 % (également confirmés par la baisse officielle du 18/06/2024). Transactions internes exclues."
+  }
+]
