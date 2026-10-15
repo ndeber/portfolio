@@ -102,6 +102,14 @@ def run_logged(command, log, environment):
         raise RuntimeError("Build step failed; details: " + str(log))
 
 
+def source_commit():
+    # GitHub's source archives have no .git directory; their content is already
+    # authenticated by the release tag and the complete source manifest above.
+    if not (REPOSITORY / ".git").exists():
+        return None
+    return subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=REPOSITORY, text=True).strip()
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output", required=True, type=Path, help="new delivery directory")
@@ -167,8 +175,7 @@ def main():
     validation.mkdir()
     for log in logs.glob("*.log"):
         shutil.copy2(log, validation / log.name)
-    commit = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=REPOSITORY, text=True).strip()
-    report = {"tag": release["tag"], "commit": commit, "source_files_verified": count,
+    report = {"tag": release["tag"], "commit": source_commit(), "source_files_verified": count,
               "tests": totals, "packaging_tests": 6, "offline_build": True,
               "environment_sha256": release["environment_sha256"],
               "application_zip_sha256": digest(delivered_zip), "signature_verified": True,
