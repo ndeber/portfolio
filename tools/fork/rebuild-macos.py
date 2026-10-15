@@ -73,7 +73,7 @@ def prepare_environment(release, cache, supplied_archive):
         if supplied_archive:
             raise FileNotFoundError(archive)
         url = ("https://github.com/" + release["github_repository"]
-               + "/releases/download/" + release["tag"] + "/" + release["environment_asset"])
+               + "/releases/download/" + release.get("environment_tag", release["tag"]) + "/" + release["environment_asset"])
         print("Downloading the archived build environment (about 610 MB)...", flush=True)
         request = urllib.request.Request(url, headers={"User-Agent": "PortfolioPerformanceForkRebuild"})
         temporary = archive.with_suffix(archive.suffix + ".part")
@@ -114,6 +114,8 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output", required=True, type=Path, help="new delivery directory")
     parser.add_argument("--cache-dir", type=Path, default=REPOSITORY / ".rebuild")
+    parser.add_argument("--release-file", type=Path, default=RELEASE_FILE,
+                        help="build metadata for a published source snapshot (defaults to the original release)")
     parser.add_argument("--environment-archive", type=Path,
                         help="optional already-downloaded build environment archive")
     args = parser.parse_args()
@@ -122,7 +124,7 @@ def main():
     output = args.output.resolve()
     if output.exists():
         parser.error("Use a new output directory; refusing to overwrite an existing delivery")
-    release = json.loads(RELEASE_FILE.read_text())
+    release = json.loads(args.release_file.read_text())
     count = verify_sources(release)
     print("Verified source snapshot:", count, "files", flush=True)
     cache = args.cache_dir.resolve()

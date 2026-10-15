@@ -99,4 +99,22 @@ public class BondAllocationAdjustmentTest
         assertEquals("Europe - Autres", europe.getChildren().getLast().getName());
         assertEquals(3456, c.getTaxonomies().getLast().getRoot().getChildren().getFirst().getWeight());
     }
+
+    @Test public void goldmanIsIncludedWithoutPositionAndUnavailableFamiliesKeepExistingAssignments()
+    {
+        var c = fixture(); var security = c.getSecurities().getFirst();
+        security.setName("Goldman Sachs - Global Credit Portfolio I Acc EUR-Hedged");
+        security.setIsin(GoldmanBondAllocation.ISIN);
+        assertEquals(List.of(security), BondAllocationAdjustment.scope(c, LocalDate.now()));
+        var plan = BondAllocationAdjustment.prepare(c, List.of(
+                        new Outcome(security.getUUID(), Family.MATURITY, null, "Échéances non publiées"),
+                        new Outcome(security.getUUID(), Family.ISSUER, null, "Ventilation non publiée")));
+        assertTrue(plan.isEmpty());
+        BondAllocationAdjustment.apply(c, plan);
+        for (var family : List.of(Family.MATURITY, Family.ISSUER))
+            assertEquals(10000, BondAllocationAdjustment.taxonomy(c, family).getRoot().getChildren().getFirst()
+                            .getAssignments().getFirst().getWeight());
+        security.setRetired(true);
+        assertTrue(BondAllocationAdjustment.scope(c, LocalDate.now()).isEmpty());
+    }
 }

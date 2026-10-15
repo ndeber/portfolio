@@ -9,6 +9,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatterBuilder;
@@ -29,6 +30,7 @@ import com.google.gson.JsonParser;
 import org.jsoup.Jsoup;
 
 import name.abuchen.portfolio.model.Security;
+import name.abuchen.portfolio.pdfbox3.PDFBox3Adapter;
 import name.abuchen.portfolio.updates.bondallocation.BondComposition.*;
 import name.abuchen.portfolio.updates.equity.EquitySources;
 import name.abuchen.portfolio.updates.equity.EquityTask;
@@ -51,7 +53,7 @@ public final class BondAllocationSources
 
     public static Set<String> forcedIsins()
     {
-        var isins = new HashSet<String>(); isins.add(VAGF);
+        var isins = new HashSet<String>(); isins.add(VAGF); isins.add(GoldmanBondAllocation.ISIN);
         for (var row : PROFILES.getAsJsonArray("direct")) isins.add(row.getAsJsonObject().get("isin").getAsString());
         return Set.copyOf(isins);
     }
@@ -78,6 +80,7 @@ public final class BondAllocationSources
     private Slice fetch(Security security, Family family, LocalDate reference) throws IOException, InterruptedException
     {
         String isin = security.getIsin();
+        if (GoldmanBondAllocation.ISIN.equals(isin)) return fetchGoldman(family, reference);
         if (VAGF.equals(isin))
         {
             if (family == Family.MATURITY) return fetchMaturities(reference);
@@ -189,6 +192,40 @@ public final class BondAllocationSources
     {
         if (!pages.containsKey(url)) pages.put(url, request(HttpRequest.newBuilder(URI.create(url)).GET()));
         return pages.get(url);
+    }
+
+    private Slice fetchGoldman(Family family, LocalDate reference) throws IOException, InterruptedException
+    {
+        GoldmanBondAllocation.requirePublished(family);
+        String key = GoldmanBondAllocation.DOCUMENTS;
+        if (!pages.containsKey(key))
+            pages.put(key, request(HttpRequest.newBuilder(URI.create(key)).header("Content-Type", "application/json")
+                            .POST(HttpRequest.BodyPublishers.ofString(GoldmanBondAllocation.REQUEST))));
+        var document = GoldmanBondAllocation.latestDocument(pages.get(key), reference);
+        if (!pages.containsKey(document.url()))
+        {
+            var response = http.send(HttpRequest.newBuilder(URI.create(document.url())).timeout(Duration.ofSeconds(35))
+                            .header("User-Agent", "PortfolioPerformance/1.0").GET().build(), HttpResponse.BodyHandlers.ofByteArray());
+            byte[] data = response.body();
+            if (response.statusCode() != 200 || data.length < 4 || data.length > 20_000_000
+                            || !new String(data, 0, 4, StandardCharsets.US_ASCII).equals("%PDF"))
+                throw new IOException("Reporting PDF Goldman Sachs indisponible.");
+            var file = Files.createTempFile("goldman-bond-allocation-", ".pdf");
+            try
+            {
+                Files.write(file, data);
+                var pdf = new PDFBox3Adapter();
+                String fullText = pdf.convertToText(file.toFile());
+                String ratings = pdf.convertToText(file.toFile(), 0.67, 1);
+                String regions = pdf.convertToText(file.toFile(), 0.37, 0.67);
+                pages.put(document.url() + "/ratings", ratings);
+                pages.put(document.url() + "/regions", regions);
+                pages.put(document.url(), fullText);
+            }
+            finally { Files.deleteIfExists(file); }
+        }
+        String column = pages.get(document.url() + (family == Family.RATING ? "/ratings" : "/regions"));
+        return GoldmanBondAllocation.parse(pages.get(document.url()), column, family, document);
     }
     private String request(HttpRequest.Builder request) throws IOException, InterruptedException
     {
