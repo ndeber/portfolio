@@ -1,5 +1,12 @@
 # Repository Guidelines
 
+## Règles de travail et de livraison du fork PP
+
+- Toujours repartir de la version publiée sur GitHub (`https://github.com/ndeber/portfolio`, branche `fork/integration`, sauf référence explicitement demandée). Récupérer l'état distant avant de travailler et vérifier la synchronisation de la copie locale ; un état local non publié ne constitue pas la référence.
+- Avant de livrer une version compilée à l'utilisateur, publier sur GitHub toutes les sources modifiées ou ajoutées ainsi que tout le nécessaire pour la recompiler : scripts, actifs, configurations publiques, outils et dépendances. Conserver les éléments volumineux dans les fichiers joints à une release, avec leurs empreintes et une procédure de reconstruction.
+- Vérifier que les sources et les éléments de reconstruction sont effectivement disponibles sur GitHub et valider la reconstruction depuis un clone ou une archive récupérés sur GitHub. La version doit rester recompilable après suppression complète du local ; ne pas la présenter comme livrée tant qu'un élément indispensable existe uniquement en local.
+- Ces publications concernent le code et les éléments de compilation ; elles excluent les portefeuilles personnels, les identifiants, les jetons de connexion et les secrets.
+
 ## Project Structure & Module Organization
 
 This repository is an Eclipse RCP application built as modular OSGi bundles. Use `portfolio-app/` as the Maven/Tycho entry point. Core business logic lives in `name.abuchen.portfolio/src/`, UI code in `name.abuchen.portfolio.ui/src/`, shared test helpers in `name.abuchen.portfolio.junit/`, core tests in `name.abuchen.portfolio.tests/src/`, and UI tests in `name.abuchen.portfolio.ui.tests/`. Packaging and installers are under `portfolio-product/`; target platform definitions live in `portfolio-target-definition/`. Docs and contributor references live in `docs/` and `CONTRIBUTING.md`.

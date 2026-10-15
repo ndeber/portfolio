@@ -10,7 +10,8 @@
   "source_manifest_sha256": "2f526d2f6aad184295c28f6433eaa9d2e1b9a01bfb6fbdab9aa12d9f1af019e1",
   "build_metadata_overrides": {
     ".gitignore": "0a07c59bcdda1a4eaddd3cc922e5e0b7ceeb984ec6a9f30f61e498260ba092e0",
-    ".gitattributes": "d0f5b2c5343ee25e5c08030eacde1fd4d530d624730d0cebf03e97a554456af1"
+    ".gitattributes": "d0f5b2c5343ee25e5c08030eacde1fd4d530d624730d0cebf03e97a554456af1",
+    "AGENTS.md": "8cbfcb79e2b5c1dd2c7acd1a5e45982f01c889ffc9c6fcc4611be0ad102526ba"
   },
   "test_classes": [
     "SupportCostsTest",
