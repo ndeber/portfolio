@@ -14,3 +14,6 @@
 
 # some files are definitely not text:
 *.png binary
+
+# Preserve the source CSV fixture byte for byte, including its CRLF newlines.
+name.abuchen.portfolio.tests/src/name/abuchen/portfolio/factors/elm-currencies.csv -text

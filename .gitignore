@@ -11,3 +11,7 @@ workspace
 *.ipr
 
 .claude/settings.local.json
+
+# Local fork build environment and generated Maven consumer descriptors
+.rebuild/
+.tycho-consumer-pom.xml

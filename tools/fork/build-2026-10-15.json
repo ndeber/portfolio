@@ -1,0 +1,42 @@
+{
+  "tag": "fork-2026-10-15",
+  "github_repository": "ndeber/portfolio",
+  "qualifier": "202610150703",
+  "environment_asset": "build-environment-macos-arm64.tar.gz",
+  "environment_sha256": "690f01478a490f38d1519f2120126277005658c6a2d2baf3f0a2fa5c26c9744e",
+  "jdk_directory": "jdk-21.0.12.1+1",
+  "maven_directory": "apache-maven-3.9.11",
+  "source_manifest": "tools/fork/source-files-2026-10-15.json",
+  "source_manifest_sha256": "2f526d2f6aad184295c28f6433eaa9d2e1b9a01bfb6fbdab9aa12d9f1af019e1",
+  "build_metadata_overrides": {
+    ".gitignore": "0a07c59bcdda1a4eaddd3cc922e5e0b7ceeb984ec6a9f30f61e498260ba092e0",
+    ".gitattributes": "d0f5b2c5343ee25e5c08030eacde1fd4d530d624730d0cebf03e97a554456af1"
+  },
+  "test_classes": [
+    "SupportCostsTest",
+    "PrivateEquityValuationTest",
+    "PrivateEquityCurrencyTrailTest",
+    "CommitmentsTest",
+    "FactorMapTest",
+    "EuroCurrencyAxesTest",
+    "CurrencyCommodityTest",
+    "CurrencyReportsTest",
+    "CurrencyProposalsTest",
+    "PositionTaxEstimatesTest",
+    "TaxEnvelopeProfilesTest",
+    "AfterTaxReturnsTest",
+    "PositionTaxPerformanceTest",
+    "TaxPerformanceTest",
+    "NominalReferenceTest",
+    "BondSpreadsTest",
+    "GroupEarningsByAccountTest",
+    "AfterTaxWidgetTest",
+    "TaxEstimateLabelsTest",
+    "StatementOfAssetsTaxValuesTest",
+    "AllocationGoalWidgetTest",
+    "CommitmentWidgetTest",
+    "TaxonomySublevelWidgetTest",
+    "AccountListViewTest"
+  ],
+  "expected_tests": 177
+}
