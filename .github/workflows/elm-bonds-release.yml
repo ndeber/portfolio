@@ -1,0 +1,37 @@
+name: Release ELM bond taxonomies
+
+on:
+  push:
+    branches: [fork/integration]
+    paths:
+      - .github/workflows/elm-bonds-release.yml
+      - tools/fork/build-elm-bonds-2026-10-16.json
+      - tools/fork/publish-elm-release.sh
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-elm-bonds-2026-10-16
+  cancel-in-progress: false
+
+jobs:
+  release:
+    if: github.repository == 'ndeber/portfolio'
+    runs-on: macos-15
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - name: Rebuild and verify the published source snapshot
+        run: |
+          python3 tools/fork/rebuild-macos.py \
+            --release-file tools/fork/build-elm-bonds-2026-10-16.json \
+            --cache-dir "$RUNNER_TEMP/elm-build" \
+            --output "$RUNNER_TEMP/elm-app"
+      - name: Publish the application, sources and verification evidence
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_COMMIT: ${{ github.sha }}
+        run: bash tools/fork/publish-elm-release.sh "$RUNNER_TEMP/elm-app" "$RUNNER_TEMP/elm-release"
