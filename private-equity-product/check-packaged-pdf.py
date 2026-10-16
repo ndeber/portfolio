@@ -8,6 +8,8 @@ parser.add_argument("--live-bonds", action="store_true", help="Check only hard-c
 parser.add_argument("--commitments", action="store_true", help="Check commitment calculations and UI loading on synthetic data, without network or portfolio files")
 parser.add_argument("--inflation", action="store_true", help="Check the AFT inflation command and a synthetic update")
 parser.add_argument("--yields", action="store_true", help="Verify packaged yield UI and fetch official public sample sources; no portfolio opened")
+parser.add_argument("--elm-bonds", action="store_true", help="Check partial ELM assignments, bundled official holdings, persistence and UI loading on synthetic data")
+parser.add_argument("--live-elm", action="store_true", help="Read the complete public ELM positions and the three underlying bond funds")
 args=parser.parse_args()
 base=args.eclipse.resolve()
 workspace=tempfile.TemporaryDirectory(prefix="portfolio-pdf-check-")
@@ -37,6 +39,62 @@ public class Check implements IApplication {
   String result=new PDFBox3Adapter().convertToText(new java.io.File(System.getProperty("probe.pdf")));
   if(!result.contains("PDF startup verified")) throw new IllegalStateException(result);
   System.out.println("PACKAGED_OSGI_PDF_PASS: provider active; PDF parsed successfully");
+  if(Boolean.getBoolean("probe.elm")) {
+   var client=new name.abuchen.portfolio.model.Client();
+   var elm=new name.abuchen.portfolio.model.Security("ELM Market Navigator ETF","USD");
+   elm.setIsin(name.abuchen.portfolio.updates.bondallocation.ElmBondAllocation.ISIN);client.addSecurity(elm);
+   var assets=new name.abuchen.portfolio.model.Taxonomy("Classes d'actifs");
+   var assetRoot=new name.abuchen.portfolio.model.Classification("asset-root",assets.getName());assets.setRootNode(assetRoot);client.addTaxonomy(assets);
+   assetRoot.addChild(new name.abuchen.portfolio.model.Classification(assetRoot,"bonds","Obligations"));
+   var outcomes=new java.util.ArrayList<name.abuchen.portfolio.updates.bondallocation.BondComposition.Outcome>();
+   for(var family:name.abuchen.portfolio.updates.bondallocation.BondComposition.Family.values()) {
+    var taxonomy=new name.abuchen.portfolio.model.Taxonomy(family.title());
+    var root=new name.abuchen.portfolio.model.Classification(family.name()+"-root",family.title());taxonomy.setRootNode(root);client.addTaxonomy(taxonomy);
+    String category=switch(family){case RATING->"AA";case MATURITY->"7-10 ans";case REGIONS->"États-Unis";case ISSUER->"Gouvernement";};
+    root.addChild(new name.abuchen.portfolio.model.Classification(root,family.name()+"-category",category));
+    outcomes.add(new name.abuchen.portfolio.updates.bondallocation.BondComposition.Outcome(elm.getUUID(),family,
+     new name.abuchen.portfolio.updates.bondallocation.BondComposition.Slice(java.util.Map.of(category,1422),java.time.LocalDate.now(),"Synthetic source","Synthetic partial ELM",1422),null));
+    try(var stream=name.abuchen.portfolio.updates.bondallocation.ElmBondSources.class.getResourceAsStream("elm-schp-2026-10-15.csv")) {
+     if(stream==null)throw new IllegalStateException("Missing official SCHP resource");
+     var composition=name.abuchen.portfolio.updates.bondallocation.ElmBondAllocation.parseSchwab(new String(stream.readAllBytes(),java.nio.charset.StandardCharsets.UTF_8),family,java.time.LocalDate.of(2026,10,16),true);
+     if(composition.bondPercent().doubleValue()<99 || composition.weights().containsKey("Cash"))throw new IllegalStateException("Cash leaked into SCHP bonds");
+    }
+   }
+   var adjustment=name.abuchen.portfolio.updates.bondallocation.BondAllocationAdjustment.prepare(client,outcomes);
+   name.abuchen.portfolio.updates.bondallocation.BondAllocationAdjustment.apply(client,adjustment);
+   if(!name.abuchen.portfolio.updates.bondallocation.BondAllocationAdjustment.prepare(client,outcomes).isEmpty())throw new IllegalStateException("ELM not idempotent");
+   var saveDirectory=java.nio.file.Files.createTempDirectory("elm-packaged-save-");
+   try {
+    for(String extension:java.util.List.of(".xml",".portfolio")) {
+     var output=saveDirectory.resolve("synthetic"+extension);
+     var loaded=name.abuchen.portfolio.updates.PortfolioUpdateCopy.save(client,output,null);
+     if(loaded.getProperty(name.abuchen.portfolio.updates.bondallocation.BondAllocationAdjustment.AUDIT)==null)throw new IllegalStateException("ELM audit was not saved");
+     for(var family:name.abuchen.portfolio.updates.bondallocation.BondComposition.Family.values())
+      if(name.abuchen.portfolio.updates.bondallocation.BondAllocationAdjustment.taxonomy(loaded,family).getAllClassifications().stream().flatMap(c->c.getAssignments().stream()).mapToInt(a->a.getWeight()).sum()!=1422)throw new IllegalStateException("Partial ELM weights were not saved");
+    }
+   } finally {
+    try(var paths=java.nio.file.Files.walk(saveDirectory)) {for(var path:paths.sorted(java.util.Comparator.reverseOrder()).toList())java.nio.file.Files.delete(path);}
+   }
+   for(Bundle b:FrameworkUtil.getBundle(Check.class).getBundleContext().getBundles())
+    if(b.getSymbolicName().equals("name.abuchen.portfolio.ui")) {
+     b.loadClass("name.abuchen.portfolio.ui.updateactions.bondallocation.RefreshBondAllocationHandler").getDeclaredMethods();
+     b.loadClass("name.abuchen.portfolio.ui.updateactions.bondallocation.BondAllocationPreviewDialog").getDeclaredMethods();
+    }
+   System.out.println("ELM_PACKAGED_PASS: official resource, partial assignments, idempotence, XML and binary save/reload, existing preview and handler");
+  }
+  if(Boolean.getBoolean("probe.elm.live")) {
+   var elm=new name.abuchen.portfolio.model.Security("ELM Market Navigator ETF","USD");
+   elm.setIsin(name.abuchen.portfolio.updates.bondallocation.ElmBondAllocation.ISIN);
+   var sources=new name.abuchen.portfolio.updates.bondallocation.BondAllocationSources();int coverage=-1;
+   for(var outcome:sources.fetch(elm,java.time.LocalDate.now(),()->false,f->{})) {
+    if(outcome.error()!=null)throw new IllegalStateException(outcome.family()+": "+outcome.error());
+    var slice=outcome.slice();
+    if(slice.coverage()<=0 || slice.coverage()>=10000 || (coverage>=0 && coverage!=slice.coverage()))throw new IllegalStateException("Inconsistent ELM bond exposure");
+    coverage=slice.coverage();
+    System.out.println("ELM_LIVE_PASS: "+outcome.family()+" / coverage="+coverage+" / "+slice.weights());
+    System.out.println("ELM_PROVENANCE: "+slice.note());
+   }
+  }
   if(Boolean.getBoolean("probe.live")) {
    for(String isin : new String[] {"FR0013412020", "IE0002XZSHO1"}) {
    var security=new name.abuchen.portfolio.model.Security();
@@ -153,13 +211,13 @@ bundle=probe/'probe.jar'
 with zipfile.ZipFile(bundle,'w') as z:
  z.writestr('META-INF/MANIFEST.MF','Manifest-Version: 1.0\nBundle-ManifestVersion: 2\nBundle-SymbolicName: probe;singleton:=true\nBundle-Version: 1.0.0\nRequire-Bundle: org.eclipse.equinox.app,name.abuchen.portfolio.pdfbox3,name.abuchen.portfolio\nImport-Package: org.osgi.framework\n\n')
  z.writestr('plugin.xml','<plugin><extension point="org.eclipse.core.runtime.applications" id="check"><application><run class="probe.Check"/></application></extension></plugin>')
- z.write(classes/'probe/Check.class','probe/Check.class')
+ for compiled in classes.rglob('*.class'): z.write(compiled,str(compiled.relative_to(classes)))
 config=probe/'configuration';shutil.copytree(base/'configuration',config,dirs_exist_ok=True)
 info=config/'org.eclipse.equinox.simpleconfigurator/bundles.info'
 with info.open('a') as out:out.write(f'\nprobe,1.0.0,{bundle.as_uri()},4,true\n')
 launcher=next((base/'plugins').glob('org.eclipse.equinox.launcher_*.jar'))
-cmd=[str(java/'java'),f'-Dprobe.pdf={pdf}',f'-Dprobe.yields={str(args.yields).lower()}',f'-Dprobe.live={str(args.live_amundi).lower()}',f'-Dprobe.bonds={str(args.live_bonds).lower()}',f'-Dprobe.commitments={str(args.commitments).lower()}',f'-Dprobe.inflation={str(args.inflation).lower()}','-jar',str(launcher),'-nosplash','-install',str(base),'-configuration',str(config),'-data',str(probe/'workspace'),'-application','probe.check','-consoleLog']
-r=subprocess.run(cmd,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,text=True,timeout=300 if (args.live_amundi or args.live_bonds or args.yields) else 45)
+cmd=[str(java/'java'),f'-Dprobe.pdf={pdf}',f'-Dprobe.elm={str(args.elm_bonds).lower()}',f'-Dprobe.elm.live={str(args.live_elm).lower()}',f'-Dprobe.yields={str(args.yields).lower()}',f'-Dprobe.live={str(args.live_amundi).lower()}',f'-Dprobe.bonds={str(args.live_bonds).lower()}',f'-Dprobe.commitments={str(args.commitments).lower()}',f'-Dprobe.inflation={str(args.inflation).lower()}','-jar',str(launcher),'-nosplash','-install',str(base),'-configuration',str(config),'-data',str(probe/'workspace'),'-application','probe.check','-consoleLog']
+r=subprocess.run(cmd,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,text=True,timeout=620 if args.live_elm else 300 if (args.live_amundi or args.live_bonds or args.yields) else 45)
 print(r.stdout)
 if r.returncode or 'PACKAGED_OSGI_PDF_PASS' not in r.stdout:raise SystemExit(1)
 if args.live_amundi and r.stdout.count('MSCI_SOURCE_PASS:') != 6:raise SystemExit(1)
@@ -171,3 +229,5 @@ if args.commitments and "COMMITMENTS_PACKAGED_PASS:" not in r.stdout:raise Syste
 if args.inflation and "INFLATION_PACKAGED_PASS:" not in r.stdout:raise SystemExit(1)
 
 if args.yields and "YIELDS_PACKAGED_PASS" not in r.stdout:raise SystemExit(1)
+if args.elm_bonds and "ELM_PACKAGED_PASS:" not in r.stdout:raise SystemExit(1)
+if args.live_elm and r.stdout.count("ELM_LIVE_PASS:") != 4:raise SystemExit(1)

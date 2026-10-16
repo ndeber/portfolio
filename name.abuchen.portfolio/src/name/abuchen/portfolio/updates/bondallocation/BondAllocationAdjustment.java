@@ -69,7 +69,8 @@ public final class BondAllocationAdjustment
                         balances.merge(tx.getSecurity(), Math.multiplyExact(sign, tx.getShares()), Math::addExact);
                     }
         return client.getSecurities().stream().filter(s -> !s.isRetired()
-                        && ((members.contains(s) && balances.getOrDefault(s, 0L) > 0) || BondAllocationSources.forcedIsins().contains(s.getIsin() == null ? "" : s.getIsin())))
+                        && ((members.contains(s) && balances.getOrDefault(s, 0L) > 0) || ElmBondAllocation.matches(s)
+                                        || BondAllocationSources.forcedIsins().contains(s.getIsin() == null ? "" : s.getIsin())))
                         .sorted(Comparator.comparing((Security s) -> s.getName()).thenComparing(Security::getUUID)).toList();
     }
 
@@ -112,6 +113,8 @@ public final class BondAllocationAdjustment
 
     private static List<Change> prepareSlice(Client client, Security security, Outcome outcome)
     {
+        if (outcome.slice().coverage() != 10000 && !ElmBondAllocation.matches(security))
+            throw new IllegalArgumentException("Une affectation partielle est réservée à la poche obligataire ELM.");
         var t = taxonomy(client, outcome.family());
         var targets = new LinkedHashMap<String, Integer>();
         for (var entry : outcome.slice().weights().entrySet())
@@ -183,7 +186,8 @@ public final class BondAllocationAdjustment
                 for (var a : c.getAssignments()) values.add(List.of(a.getInvestmentVehicle().getUUID(), a.getWeight(), a.getRank()));
             }
         }
-        for (var s : scope(client, LocalDate.now())) values.add(List.of(s.getUUID(), s.getName(), s.getIsin() == null ? "" : s.getIsin()));
+        for (var s : scope(client, LocalDate.now())) values.add(List.of(s.getUUID(), s.getName(), s.getIsin() == null ? "" : s.getIsin(),
+                        s.getTickerSymbol() == null ? "" : s.getTickerSymbol()));
         return new Gson().toJson(values);
     }
 }

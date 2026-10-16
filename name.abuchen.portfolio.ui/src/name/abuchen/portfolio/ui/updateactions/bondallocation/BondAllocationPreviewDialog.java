@@ -40,6 +40,7 @@ public final class BondAllocationPreviewDialog extends TitleAreaDialog
         long unchanged = plan.notices().stream().filter(n -> n.contains("— inchangé :")).count();
         setMessage(securities + " titres · " + plan.changes().size() + " affectations à modifier · " + unchanged + " compositions non actualisées.\n"
                         + "Tri des catégories par montant décroissant dans les quatre taxonomies ; Other / Others en dernier.\n"
+                        + "ELM : seule la poche obligataire réelle est affectée ; actions et monétaire restent exclus.\n"
                         + "Consultez les dates et les profils fixes dans l'onglet Sources et avertissements.");
         var tabs = new TabFolder(area, SWT.NONE);
         GridDataFactory.fillDefaults().grab(true, true).hint(900, 440).applyTo(tabs);

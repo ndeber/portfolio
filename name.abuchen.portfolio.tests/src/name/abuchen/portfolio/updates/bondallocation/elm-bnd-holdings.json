@@ -1,0 +1,34 @@
+{
+  "latestEffectiveDate": "2026-09-30",
+  "2026-09-30": {
+    "fixedIncome": [
+      {
+        "holdingName": "United States Treasury Note/Bond",
+        "ticker": "T",
+        "percentOfFunds": 48.47675,
+        "marketValue": 1610912735.31,
+        "faceAmount": 1722038000,
+        "couponRate": 4.25,
+        "cusip": "91282CLW9",
+        "sedol": "BRK14Z4",
+        "finalMaturityDate": "2034-11-15"
+      },
+      {
+        "holdingName": "Fannie Mae or Freddie Mac",
+        "ticker": "FNCL",
+        "percentOfFunds": 0.5,
+        "marketValue": 366611037.24,
+        "faceAmount": 384720000,
+        "couponRate": 5.5,
+        "cusip": "01F0526A5",
+        "sedol": "",
+        "finalMaturityDate": "2026-10-13"
+      },
+      {
+        "holdingName": "Synthetic corporate bond",
+        "percentOfFunds": 50.02325,
+        "finalMaturityDate": "2040-01-01"
+      }
+    ]
+  }
+}

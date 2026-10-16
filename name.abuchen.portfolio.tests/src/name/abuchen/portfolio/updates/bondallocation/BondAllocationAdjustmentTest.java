@@ -117,4 +117,73 @@ public class BondAllocationAdjustmentTest
         security.setRetired(true);
         assertTrue(BondAllocationAdjustment.scope(c, LocalDate.now()).isEmpty());
     }
+
+    @Test public void elmIsIncludedWithoutBondAssignmentOrPositionAndRetiredElmIsExcluded()
+    {
+        var c = fixture(); var s = c.getSecurities().getFirst(); s.setIsin(ElmBondAllocation.ISIN);
+        c.getTaxonomies().getFirst().getRoot().getChildren().getFirst().getAssignments().clear();
+        assertEquals(List.of(s), BondAllocationAdjustment.scope(c, LocalDate.now()));
+        s.setRetired(true); assertTrue(BondAllocationAdjustment.scope(c, LocalDate.now()).isEmpty());
+    }
+
+    private List<Outcome> partialElm(Client client, int weight)
+    {
+        var security = client.getSecurities().getFirst();
+        return java.util.Arrays.stream(Family.values()).map(f -> new Outcome(security.getUUID(), f,
+                        new Slice(weight == 0 ? Map.of() : Map.of(switch (f) {
+                            case RATING -> "AAA"; case MATURITY -> "7-10 ans"; case REGIONS -> "Allemagne"; case ISSUER -> "Gouvernement";
+                        }, weight), LocalDate.now(), "ELM test", "partial", weight), null)).toList();
+    }
+
+    @Test public void partialElmSurvivesSaveReloadAndKeepsAssetAllocationAndOtherTaxonomies() throws Exception
+    {
+        var c = fixture(); var s = c.getSecurities().getFirst(); s.setIsin(ElmBondAllocation.ISIN);
+        var notifications = new java.util.ArrayList<String>();
+        c.addPropertyChangeListener(event -> notifications.add(event.getPropertyName()));
+        var preview = ClientFactory.duplicate(c);
+        BondAllocationAdjustment.apply(c, BondAllocationAdjustment.prepare(preview, partialElm(preview, 1422)));
+        assertTrue(notifications.contains("dirty"));
+        assertEquals(10000, c.getTaxonomies().getFirst().getRoot().getChildren().getFirst().getAssignments().getFirst().getWeight());
+        assertEquals(10000, c.getTaxonomies().getLast().getRoot().getChildren().getFirst().getAssignments().getFirst().getWeight());
+        assertTrue(BondAllocationAdjustment.prepare(c, partialElm(c, 1422)).isEmpty());
+        var directory = java.nio.file.Files.createTempDirectory("elm-bond-save-test-");
+        try
+        {
+            for (String extension : List.of(".xml", ".zip", ".portfolio", "-encrypted.portfolio"))
+            {
+                var path = directory.resolve("elm" + extension);
+                char[] password = extension.contains("encrypted") ? "synthetic-test-password".toCharArray() : null;
+                name.abuchen.portfolio.updates.PortfolioUpdateCopy.save(c, path, password);
+                var loaded = ClientFactory.load(path.toFile(), password, new org.eclipse.core.runtime.NullProgressMonitor());
+                assertNotNull(loaded.getProperty(BondAllocationAdjustment.AUDIT));
+                for (var family : Family.values())
+                    assertEquals(1422, BondAllocationAdjustment.taxonomy(loaded, family).getAllClassifications().stream()
+                                    .flatMap(x -> x.getAssignments().stream()).mapToInt(Assignment::getWeight).sum());
+                assertTrue(BondAllocationAdjustment.prepare(loaded, partialElm(loaded, 1422)).isEmpty());
+            }
+        }
+        finally
+        {
+            try (var paths = java.nio.file.Files.walk(directory))
+            { for (var path : paths.sorted(java.util.Comparator.reverseOrder()).toList()) java.nio.file.Files.delete(path); }
+        }
+    }
+
+    @Test public void zeroElmBondPocketClearsOldBondAssignmentsAndFailuresPreserveThem()
+    {
+        var c = fixture(); var s = c.getSecurities().getFirst(); s.setIsin(ElmBondAllocation.ISIN);
+        assertTrue(BondAllocationAdjustment.prepare(c, List.of(new Outcome(s.getUUID(), Family.RATING, null, "Unknown underlying"))).isEmpty());
+        BondAllocationAdjustment.apply(c, BondAllocationAdjustment.prepare(c, partialElm(c, 0)));
+        for (var family : Family.values()) assertTrue(BondAllocationAdjustment.taxonomy(c, family).getAllClassifications().stream()
+                        .flatMap(x -> x.getAssignments().stream()).noneMatch(a -> a.getInvestmentVehicle().equals(s)));
+    }
+
+    @Test public void nonElmPartialResultsAndChangedElmIdentityCannotModifyExistingAssignments()
+    {
+        var c = fixture(); assertTrue(BondAllocationAdjustment.prepare(c, partialElm(c, 1422)).isEmpty());
+        var s = c.getSecurities().getFirst(); s.setIsin(ElmBondAllocation.ISIN);
+        var plan = BondAllocationAdjustment.prepare(c, partialElm(c, 1422)); s.setTickerSymbol("Changed");
+        assertThrows(IllegalArgumentException.class, () -> BondAllocationAdjustment.apply(c, plan));
+        assertNull(c.getProperty(BondAllocationAdjustment.AUDIT));
+    }
 }

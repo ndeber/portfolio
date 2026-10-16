@@ -1,5 +1,9 @@
 # Ajuster ELM
 
+La commande distincte **Actualiser les taxonomies Obligations…** analyse désormais
+la poche obligataire réelle des fonds sous-jacents d'ELM. Elle ne remplace pas la
+répartition cible décrite ici. Voir [ELM et les taxonomies Obligations](ELM_BOND_TAXONOMIES.md).
+
 Branche `feature/elm-refresh`, basée sur le socle `feature/update-actions`.
 Les opérations PE, les widgets et l'identité visuelle sont indépendants.
 

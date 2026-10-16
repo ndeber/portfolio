@@ -25,6 +25,17 @@ Cette commande est indépendante de celle de mise à jour des cours obligataires
 
 ## Périmètre et sources
 
+### Extension ELM du 16 octobre 2026
+
+ELM Market Navigator ETF est désormais inclus systématiquement s'il existe et
+n'est pas retiré. Seule sa poche obligataire réelle est affectée, après lecture
+des fonds SCHP, BND et AGG et exclusion du cash interne. Les poids d'ELM ne sont
+pas remontés à 100 %. U.S. Government utilise la note souveraine américaine
+ramenée à AA, selon la règle demandée. La [description détaillée](ELM_BOND_TAXONOMIES.md)
+précise les sources, calculs, limites et le recours Schwab daté à validité limitée.
+
+### Autres titres
+
 - Titres non retirés détenus en quantité positive sous Classes d'actifs / Obligations,
   en tenant compte des transferts et en excluant les opérations futures.
 - VAGF, Goldman Sachs Global Credit Portfolio I Acc EUR-Hedged (LU0234688595)

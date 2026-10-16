@@ -166,7 +166,7 @@ def main():
     app = output / "PortfolioPerformancePE.app"
     run_logged([sys.executable, "private-equity-product/check-packaged-pdf.py",
                 app / "Contents/Eclipse", "--java-home", app / "Contents/runtime",
-                "--commitments", "--inflation"], logs / "Packaged-runtime.log", environment)
+                *release.get("packaged_checks", ["--commitments", "--inflation"])], logs / "Packaged-runtime.log", environment)
     run_logged(["codesign", "--verify", "--deep", "--strict", app], logs / "Signature.log", environment)
     delivered_zip = output / "PortfolioPerformancePE-mac-arm64.zip"
     with zipfile.ZipFile(delivered_zip) as bundle:

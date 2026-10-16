@@ -50,6 +50,7 @@ public final class BondAllocationSources
     private final HttpClient http = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(15)).followRedirects(HttpClient.Redirect.NORMAL).build();
     private final Map<String, String> pages = new ConcurrentHashMap<>();
     private final EquitySources countries = new EquitySources();
+    private final ElmBondSources elm = new ElmBondSources();
 
     public static Set<String> forcedIsins()
     {
@@ -68,7 +69,8 @@ public final class BondAllocationSources
             try
             {
                 var slice = EquityTask.run(() -> fetch(security, family, reference), cancelled,
-                                Duration.ofSeconds(family == Family.MATURITY && VAGF.equals(security.getIsin()) ? 120 : 45));
+                                Duration.ofSeconds(ElmBondAllocation.matches(security) ? 150
+                                                : family == Family.MATURITY && VAGF.equals(security.getIsin()) ? 120 : 45));
                 results.add(new Outcome(security.getUUID(), family, slice, null));
             }
             catch (IOException | RuntimeException e)
@@ -80,6 +82,7 @@ public final class BondAllocationSources
     private Slice fetch(Security security, Family family, LocalDate reference) throws IOException, InterruptedException
     {
         String isin = security.getIsin();
+        if (ElmBondAllocation.matches(security)) return elm.fetch(family, reference);
         if (GoldmanBondAllocation.ISIN.equals(isin)) return fetchGoldman(family, reference);
         if (VAGF.equals(isin))
         {
