@@ -81,6 +81,28 @@ sont bornées en temps et en taille ; les fichiers temporaires sont supprimés. 
 erreur serveur ou un délai dépassé est réessayé une fois. Les indisponibilités AFT
 restent possibles et ne produisent aucune modification partielle.
 
+### Page AFT indisponible (HTTP 5xx ou délai dépassé)
+
+La fenêtre de sélection propose un **fichier AFT de secours** pour chaque famille
+présente (OAT€i et OATi). Le lien est prérempli depuis la dernière source officielle
+enregistrée par cette fonction dans le portefeuille. S'il est trop ancien ou absent,
+coller le lien d'un classeur officiel plus récent. Aucun lien daté n'est intégré
+en dur au programme.
+
+La page AFT reste prioritaire. Après les tentatives normales, une erreur serveur
+ou un délai dépassé permet de télécharger directement le classeur indiqué. Une
+page lisible mais ambiguë ou invalide bloque toujours la préparation. Le repli est
+signalé dans les sources de l'aperçu et dans l'audit après validation ; il est partagé
+entre les titres de la même famille pour cette préparation.
+
+Seuls les liens HTTPS de `www.aft.gouv.fr/files/` vers une publication datée de la
+bonne famille sont acceptés, sans identifiants ni port non standard. Le classeur
+est téléchargé à nouveau et ses coefficients doivent couvrir chaque date de
+règlement T+2 demandée. Un fichier ancien ne fournit jamais implicitement le
+coefficient d'une autre date. Les contrôles d'échéance et l'application atomique
+restent actifs. Le lien effectivement utilisé devient la source proposée lors de
+la prochaine préparation une fois les changements appliqués et enregistrés.
+
 La publication AFT la plus récente est choisie par la date de son nom de fichier ;
 la page contient parfois d'anciens liens masqués. Seule la dernière plage continue
 de coefficients est utilisée. Tous les téléchargements partagés sont mis en cache
