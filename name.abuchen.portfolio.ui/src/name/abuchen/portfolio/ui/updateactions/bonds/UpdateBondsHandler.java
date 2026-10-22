@@ -92,6 +92,8 @@ public final class UpdateBondsHandler
                 var sources = new BondSources(monitor::isCanceled, LocalDate.now());
                 try
                 {
+                    sources.setAftFallback(true, configuration.aftFallback(true));
+                    sources.setAftFallback(false, configuration.aftFallback(false));
                     for (var id : configuration.selected())
                     {
                         if (monitor.isCanceled())
@@ -112,6 +114,10 @@ public final class UpdateBondsHandler
                     }
                     if (monitor.isCanceled())
                         throw new InterruptedException();
+                }
+                catch (IOException e)
+                {
+                    throw new InvocationTargetException(e);
                 }
                 finally
                 {
