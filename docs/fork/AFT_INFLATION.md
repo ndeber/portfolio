@@ -14,6 +14,12 @@ les coefficients par obligation ni la série mensuelle IPCH. Les valeurs sont
 celles publiées pour les OAT€i (zone euro hors tabac), base 2025 = 100, arrondies
 aux cinq décimales officielles. Le changement de base est expliqué sur la page AFT.
 
+Pendant une indisponibilité de l’AFT, la commande utilise la même recherche de
+classeur et la même copie locale que les [obligations individuelles](BOND_QUOTES.md).
+En mode de secours, elle vérifie la référence du 2 mars 2026 (100,59065 en base
+2025) et exige une série quotidienne continue couvrant au minimum la date du jour.
+L’aperçu indique si la commande a utilisé un lien direct ou une copie locale.
+
 L'aperçu indique les dates couvertes, le nombre d'ajouts/corrections, les anciennes
 et nouvelles valeurs et le lien source. Les références futures déjà publiées par
 l'AFT sont conservées et explicitement signalées : il ne s'agit pas de projections.
