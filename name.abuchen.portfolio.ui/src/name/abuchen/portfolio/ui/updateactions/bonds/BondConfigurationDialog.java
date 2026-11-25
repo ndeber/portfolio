@@ -1,22 +1,29 @@
 package name.abuchen.portfolio.ui.updateactions.bonds;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.TitleAreaDialog;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.swt.widgets.Text;
 
 import name.abuchen.portfolio.model.Security;
+import name.abuchen.portfolio.updates.bonds.BondSources;
+import name.abuchen.portfolio.updates.bonds.BondSpec;
 import name.abuchen.portfolio.updates.bonds.BondUpdate;
 
 public final class BondConfigurationDialog extends TitleAreaDialog
@@ -26,6 +33,8 @@ public final class BondConfigurationDialog extends TitleAreaDialog
     private Button migrate;
     private List<String> selected;
     private boolean migration;
+    private final Map<Boolean, Text> aftFields = new HashMap<>();
+    private final Map<Boolean, String> aftFallbacks = new HashMap<>();
 
     public BondConfigurationDialog(Shell shell, List<Security> securities)
     {
@@ -68,6 +77,29 @@ public final class BondConfigurationDialog extends TitleAreaDialog
                         + "L'aperçu donnera les périodes et le nombre de dates retirées. Les cours déjà gérés par le script seront conservés.\n"
                         + "Le fournisseur automatique des titres sélectionnés passera à « Manuel » pour éviter le mélange de conventions.");
         GridDataFactory.fillDefaults().grab(true, false).hint(810, SWT.DEFAULT).applyTo(help);
+        if (securities.stream().anyMatch(s -> BondSpec.find(s.getIsin()).filter(BondSpec::indexed).isPresent()))
+        {
+            var recovery = new Group(area, SWT.NONE);
+            recovery.setText("Fichiers AFT de secours — facultatif");
+            recovery.setLayout(new GridLayout(1, false));
+            GridDataFactory.fillDefaults().grab(true, false).applyTo(recovery);
+            var explanation = new Label(recovery, SWT.WRAP);
+            explanation.setText("Si la page AFT est indisponible, le fichier officiel indiqué sera téléchargé directement.\n"
+                            + "La dernière source connue est proposée. Vous pouvez coller un lien AFT plus récent ; les dates seront vérifiées.");
+            GridDataFactory.fillDefaults().grab(true, false).hint(810, SWT.DEFAULT).applyTo(explanation);
+            for (boolean euroIndex : List.of(true, false))
+            {
+                if (securities.stream().noneMatch(s -> BondSpec.find(s.getIsin())
+                                .filter(b -> b.indexed() && b.euroIndex() == euroIndex).isPresent()))
+                    continue;
+                new Label(recovery, SWT.NONE).setText(euroIndex ? "Coefficients OAT€i — inflation zone euro" : "Coefficients OATi — inflation française");
+                var field = new Text(recovery, SWT.BORDER);
+                field.setMessage("Lien HTTPS du fichier .xls ou .xlsx sur www.aft.gouv.fr");
+                field.setText(BondSources.previousAftCoefficientFile(securities, euroIndex));
+                GridDataFactory.fillDefaults().grab(true, false).hint(810, SWT.DEFAULT).applyTo(field);
+                aftFields.put(euroIndex, field);
+            }
+        }
         return area;
     }
 
@@ -84,6 +116,27 @@ public final class BondConfigurationDialog extends TitleAreaDialog
         {
             setErrorMessage("Autorisez le remplacement des historiques inconnus, ou décochez les titres concernés.");
             return;
+        }
+        aftFallbacks.clear();
+        for (var entry : aftFields.entrySet())
+        {
+            if (chosen.stream().noneMatch(s -> BondSpec.find(s.getIsin())
+                            .filter(b -> b.indexed() && b.euroIndex() == entry.getKey()).isPresent()))
+                continue;
+            String url = entry.getValue().getText().strip();
+            if (url.isEmpty())
+                continue;
+            try
+            {
+                BondSources.validateAftCoefficientFile(url, entry.getKey());
+                aftFallbacks.put(entry.getKey(), url);
+            }
+            catch (java.io.IOException e)
+            {
+                setErrorMessage(e.getMessage());
+                entry.getValue().setFocus();
+                return;
+            }
         }
         selected = chosen.stream().map(Security::getUUID).toList();
         migration = migrate.getSelection();
@@ -105,5 +158,10 @@ public final class BondConfigurationDialog extends TitleAreaDialog
     public boolean allowMigration()
     {
         return migration;
+    }
+
+    public String aftFallback(boolean euroIndex)
+    {
+        return aftFallbacks.getOrDefault(euroIndex, "");
     }
 }

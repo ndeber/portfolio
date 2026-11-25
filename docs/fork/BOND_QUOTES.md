@@ -83,10 +83,26 @@ sont bornées en temps et en taille ; les fichiers temporaires sont supprimés. 
 erreur serveur ou un délai dépassé est réessayé une fois. Les indisponibilités AFT
 restent possibles et ne produisent aucune modification partielle.
 
-La publication AFT la plus récente est choisie par la date de son nom de fichier ;
-la page contient parfois d'anciens liens masqués. Seule la dernière plage continue
-de coefficients est utilisée. Tous les téléchargements partagés sont mis en cache
-pour une seule préparation, sans cache persistant ni dépendance au script externe.
+### Page AFT indisponible (HTTP 5xx ou délai dépassé)
+
+L’application recherche le lien du classeur sur la page AFT de chaque famille.
+Si plusieurs publications sont affichées, elle retient la plus récente. Deux liens
+distincts pour le même mois de publication bloquent la préparation.
+
+En cas d’indisponibilité de la page, l’application essaie les liens mensuels
+officiels du mois courant et du mois précédent, le lien du dernier classeur validé
+et celui proposé dans la fenêtre de sélection. Elle privilégie le mois le plus
+récent et, pour un même mois, le lien renseigné ou déjà validé. Le champ de secours
+accepte une publication datée sur `https://www.aft.gouv.fr/files/` pour la famille
+choisie. Il est prérempli à partir du dernier lien enregistré dans le portefeuille.
+
+Après validation des données, l’application conserve une copie locale par famille
+dans `~/.PortfolioPerformance/cache/aft/`. Ce dossier contient les classeurs
+publics et leurs URL. Si le téléchargement échoue temporairement, le traitement
+peut relire cette copie. Les coefficients doivent couvrir les règlements TARGET
+à T+2 de la fenêtre de cours retenue pour l’échéance concernée. Une date manquante
+après la fin du classeur bloque la mise à jour en indiquant le premier règlement
+concerné. L’aperçu et la note de provenance indiquent le mode de récupération.
 
 ## Validation
 

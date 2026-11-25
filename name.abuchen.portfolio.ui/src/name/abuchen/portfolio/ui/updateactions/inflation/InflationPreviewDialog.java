@@ -30,7 +30,8 @@ public final class InflationPreviewDialog extends TitleAreaDialog
                         + points.getFirst().date() + " → " + points.getLast().date()
                         + (future > 0 ? " · " + future + " références futures déjà publiées par l’AFT (pas des prévisions)." : ""));
         var source = new Text(area, SWT.READ_ONLY | SWT.WRAP);
-        source.setText("Source : " + plan.download().url() + "\nSeules les dates modifiées sont listées ci-dessous. L’autre instrument IPCH reste inchangé.");
+        source.setText("Source : " + plan.download().url()
+                        + (plan.download().recovery().isEmpty() ? "" : "\n" + plan.download().recovery()) + "\nSeules les dates modifiées sont listées ci-dessous. L’autre instrument IPCH reste inchangé.");
         GridDataFactory.fillDefaults().grab(true, false).hint(770, 60).applyTo(source);
         var table = new Table(area, SWT.BORDER | SWT.FULL_SELECTION | SWT.V_SCROLL);
         table.setHeaderVisible(true); table.setLinesVisible(true);

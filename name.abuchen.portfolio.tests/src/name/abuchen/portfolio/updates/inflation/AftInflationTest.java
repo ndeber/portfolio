@@ -13,7 +13,7 @@ import name.abuchen.portfolio.model.*;
 public class AftInflationTest
 {
     private final LocalDate today = LocalDate.of(2026, 9, 25);
-    private final String url = "https://www.aft.gouv.fr/files/2026_coef_oatei.xlsx";
+    private final String url = "https://www.aft.gouv.fr/files/2026-09_coef_oatei.xlsx";
     private byte[] book(String value, int secondDay) throws IOException
     {
         var out = new ByteArrayOutputStream();
@@ -41,11 +41,21 @@ public class AftInflationTest
     }
     @Test public void discoversCurrentOfficialWorkbookAndRejectsNewBaseOrAmbiguity() throws Exception
     {
-        String html = "<p>base 2025 = 100</p><a href='/files/2026_coef_oatei.xlsx'>Télécharger</a>";
+        String html = "<p>base 2025 = 100</p><a href='/files/2026-09_coef_oatei.xlsx'>Télécharger</a>";
         assertEquals(url, AftInflation.workbookLink(html));
         assertThrows(IOException.class, () -> AftInflation.workbookLink(html.replace("2025", "2030")));
-        assertThrows(IOException.class, () -> AftInflation.workbookLink(html + "<a href='/files/other_coef_oatei.xlsx'>Other</a>"));
+        assertThrows(IOException.class, () -> AftInflation.workbookLink(html + "<a href='/files/2026-09_coef_oatei_revision.xlsx'>Other</a>"));
     }
+    @Test public void recoveryRequiresThePublishedBaseAndCoverageThroughToday() throws Exception
+    {
+        var anchor = new AftInflation.Point(LocalDate.of(2026, 3, 2), 10_059_065_000L);
+        var last = new AftInflation.Point(today, 10_362_000_000L);
+        AftInflation.validateRecovery(List.of(anchor, last), today);
+        assertThrows(IOException.class, () -> AftInflation.validateRecovery(List.of(last), today));
+        var expired = assertThrows(IOException.class, () -> AftInflation.validateRecovery(List.of(anchor, last), today.plusDays(2)));
+        assertTrue(expired.getMessage().contains(today.plusDays(1).toString()));
+    }
+
     @Test public void appliesOnlySelectedIndexAndRejectsChangedPreviewOrBase() throws Exception
     {
         var client = new Client(); var index = new Security(); index.setName(AftInflation.NAME); index.setCurrencyCode(null); index.setFeed("MANUAL"); client.addSecurity(index);

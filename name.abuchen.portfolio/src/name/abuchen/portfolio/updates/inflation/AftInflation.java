@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.net.URI;
-import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.*;
@@ -23,9 +22,10 @@ public final class AftInflation
     public static final String PAGE = "https://www.aft.gouv.fr/fr/oateuroi-principaux-chiffres";
     public static final String NAME = "EU (IPCH)";
     public record Point(LocalDate date, long value) { }
-    public record Download(String url, List<Point> points)
+    public record Download(String url, List<Point> points, String recovery)
     {
         public Download { points = List.copyOf(points); }
+        public Download(String url, List<Point> points) { this(url, points, ""); }
     }
     public record Plan(String id, BondUpdate.State before, Download download, int added, int corrected) { }
     private AftInflation() { }
@@ -42,22 +42,33 @@ public final class AftInflation
         var doc = Jsoup.parse(html, PAGE);
         if (!doc.text().replaceAll("\\s+", "").contains("2025=100"))
             throw new IOException("La base 2025 = 100 n'est plus confirmée sur la page AFT. Aucune mise à jour appliquée.");
-        var links = doc.select("a[href]").stream().map(a -> a.absUrl("href"))
-                        .filter(url -> url.toLowerCase(Locale.ROOT).matches("https://www\\.aft\\.gouv\\.fr/files/.*coef_oatei[^?]*\\.xlsx"))
-                        .distinct().toList();
-        if (links.size() != 1) throw new IOException("Classeur des coefficients OAT€i absent ou ambigu sur la page AFT.");
-        return links.getFirst();
+        return BondSources.coefficientFile(html, PAGE, true);
     }
 
     public static Download fetch(BooleanSupplier cancelled, LocalDate today) throws IOException, InterruptedException
     {
         var transport = new BondSources(cancelled, today);
-        String url = workbookLink(new String(transport.fetchAft(PAGE), StandardCharsets.UTF_8));
-        var points = parse(transport.fetchAft(url), today);
+        var source = transport.aftPublication(true);
+        if (source.pageHtml() != null)
+            workbookLink(source.pageHtml()); // A reported change of base must stop the update.
+        var points = parse(source.bytes(), today);
         if (points.size() < 365 || points.getFirst().date().isAfter(LocalDate.of(2002, 1, 1)))
             throw new IOException("Le classeur AFT ne contient pas l'historique quotidien attendu.");
-        if (cancelled.getAsBoolean()) throw new InterruptedException();
-        return new Download(url, points);
+        if (!source.recovery().isEmpty())
+            validateRecovery(points, today);
+        transport.rememberAft(true, source);
+        return new Download(source.file(), points, source.recovery());
+    }
+
+    static void validateRecovery(List<Point> points, LocalDate today) throws IOException
+    {
+        // First daily observation under the 2025 base, as published by AFT (March 2, 2026).
+        var anchor = new Point(LocalDate.of(2026, 3, 2), 10_059_065_000L);
+        if (!points.contains(anchor))
+            throw new IOException("La référence quotidienne AFT en base 2025 ne correspond pas au 2 mars 2026.");
+        var last = points.getLast().date();
+        if (last.isBefore(today))
+            throw new IOException("Référence IPCH manquante à partir du " + last.plusDays(1));
     }
 
     public static List<Point> parse(byte[] bytes, LocalDate today) throws IOException
@@ -145,7 +156,9 @@ public final class AftInflation
         security.setLatest(null);
         var note = Objects.toString(security.getNote(), "").replaceAll("(?s)\\n?\\[AFT-IPCH-BEGIN\\].*?\\[AFT-IPCH-END\\]", "").stripTrailing();
         security.setNote(note + "\n\n[AFT-IPCH-BEGIN]\nRéférence quotidienne OAT€i — IPCH zone euro hors tabac, base 2025 = 100."
-                        + "\nSource : " + plan.download().url() + "\nDernière référence publiée : " + plan.download().points().getLast().date()
+                        + "\nSource : " + plan.download().url()
+                        + (plan.download().recovery().isEmpty() ? "" : "\n" + plan.download().recovery())
+                        + "\nDernière référence publiée : " + plan.download().points().getLast().date()
                         + "\n[AFT-IPCH-END]");
         security.setUpdatedAt(Instant.now());
         client.markDirty();

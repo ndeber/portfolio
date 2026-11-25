@@ -3,19 +3,27 @@ package name.abuchen.portfolio.updates.bonds;
 import java.io.IOException;
 import java.io.StringReader;
 import java.math.BigDecimal;
+import java.net.ConnectException;
+import java.net.SocketTimeoutException;
 import java.net.URI;
+import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
+import java.time.format.TextStyle;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.NavigableMap;
+import java.util.Objects;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.function.BooleanSupplier;
@@ -33,20 +41,71 @@ import org.jsoup.Jsoup;
 
 import com.google.gson.JsonParser;
 
-/** Sources are fetched on explicit demand. A fresh instance caches shared downloads for one preview only. */
+import name.abuchen.portfolio.PortfolioLog;
+import name.abuchen.portfolio.model.Security;
+
+/** Fetches sources on demand and shares a validated AFT workbook between previews. */
 public final class BondSources
 {
     public static final String BUNDESBANK = "https://www.bundesbank.de/dynamic/action/de/service/bundeswertpapiere/kurse-und-renditen/810554/kurse-und-renditen-boersennotierter-bundeswertpapiere";
     private static final Set<String> HOSTS = Set.of("www.bundesbank.de", "api.statistiken.bundesbank.de", "www.aft.gouv.fr",
                     "grafici.borsaitaliana.it", "www.borsaitaliana.it");
     private final Map<String, byte[]> cache = new HashMap<>();
+    private final Map<Boolean, String> aftFallbacks = new HashMap<>();
+    private final Map<Boolean, AftPublication> aftPublications = new HashMap<>();
     private final BooleanSupplier cancelled;
     private final LocalDate today;
+    private final Downloader downloader;
+    private final AftWorkbookCache diskCache;
+
+    @FunctionalInterface
+    interface Downloader
+    {
+        byte[] request(String url, String token, String referer) throws IOException, InterruptedException;
+    }
+
+    public record AftPublication(String file, byte[] bytes, String pageHtml, boolean local)
+    {
+        public String recovery()
+        {
+            if (local)
+                return "Copie locale du classeur officiel AFT.";
+            return pageHtml == null ? "Page AFT indisponible : fichier officiel de secours." : "";
+        }
+    }
 
     public BondSources(BooleanSupplier cancelled, LocalDate today)
     {
         this.cancelled = cancelled;
         this.today = today;
+        this.downloader = this::request;
+        this.diskCache = new AftWorkbookCache(Path.of(System.getProperty("user.home"), ".PortfolioPerformance", "cache", "aft"));
+    }
+
+    BondSources(BooleanSupplier cancelled, LocalDate today, Downloader downloader)
+    {
+        this(cancelled, today, downloader, null);
+    }
+
+    BondSources(BooleanSupplier cancelled, LocalDate today, Downloader downloader, Path cacheDirectory)
+    {
+        this.cancelled = cancelled;
+        this.today = today;
+        this.downloader = downloader;
+        this.diskCache = cacheDirectory == null ? null : new AftWorkbookCache(cacheDirectory);
+    }
+
+    public void setAftFallback(boolean euroIndex, String url) throws IOException
+    {
+        String file = Objects.toString(url, "").strip();
+        if (file.isEmpty())
+            aftFallbacks.remove(euroIndex);
+        else
+        {
+            validateAftCoefficientFile(file, euroIndex);
+            aftFallbacks.put(euroIndex, file);
+        }
+        aftPublications.remove(euroIndex);
     }
 
     /** Shared public AFT transport; restricted to the official HTTPS host. */
@@ -104,7 +163,7 @@ public final class BondSources
         {
             try
             {
-                var data = request(url, null, url);
+                var data = downloader.request(url, null, url);
                 cache.put(url, data);
                 return data;
             }
@@ -114,7 +173,7 @@ public final class BondSources
                     throw e;
                 checkCancelled();
             }
-            catch (java.net.SocketTimeoutException e)
+            catch (SocketTimeoutException e)
             {
                 if (attempt >= 1)
                     throw e;
@@ -214,8 +273,12 @@ public final class BondSources
             }
             checkCancelled();
             String status = new String(process.getInputStream().readNBytes(16), StandardCharsets.UTF_8);
+            if (process.exitValue() == 6)
+                throw new UnknownHostException("www.aft.gouv.fr");
+            if (process.exitValue() == 7)
+                throw new ConnectException("Connexion à www.aft.gouv.fr impossible.");
             if (process.exitValue() == 28)
-                throw new java.net.SocketTimeoutException("Délai de téléchargement AFT dépassé.");
+                throw new SocketTimeoutException("Délai de téléchargement AFT dépassé.");
             if (process.exitValue() != 0 || !"200".equals(status))
             {
                 if (status.matches("[1-5][0-9]{2}"))
@@ -238,12 +301,12 @@ public final class BondSources
     {
     }
 
-    private static final class SourceException extends IOException
+    static final class SourceException extends IOException
     {
         private static final long serialVersionUID = 1L;
         private final int status;
 
-        private SourceException(int status, String host)
+        SourceException(int status, String host)
         {
             super(host + " : HTTP " + status);
             this.status = status;
@@ -462,13 +525,199 @@ public final class BondSources
         return files.lastEntry().getValue();
     }
 
+    /** A fallback must be an explicitly dated publication from the same official index family. */
+    public static void validateAftCoefficientFile(String url, boolean euroIndex) throws IOException
+    {
+        aftPublicationMonth(url, euroIndex);
+    }
+
+    static YearMonth aftPublicationMonth(String url, boolean euroIndex) throws IOException
+    {
+        try
+        {
+            var uri = URI.create(url);
+            String path = Objects.toString(uri.getPath(), "");
+            var pattern = Pattern.compile("(?i)/(20[0-9]{2})-([0-9]{2})_coef_"
+                            + (euroIndex ? "oatei" : "oati") + "[^/]*\\.xlsx?$");
+            var match = pattern.matcher(path);
+            if (!"https".equals(uri.getScheme()) || !"www.aft.gouv.fr".equals(uri.getHost())
+                            || uri.getUserInfo() != null || (uri.getPort() != -1 && uri.getPort() != 443)
+                            || uri.getQuery() != null || uri.getFragment() != null || !uri.equals(uri.normalize())
+                            || !path.startsWith("/files/") || path.contains("\\")
+                            || Pattern.compile("(^|/)\\.{1,2}(/|$)").matcher(path).find() || !match.find())
+                throw new IllegalArgumentException();
+            return YearMonth.of(Integer.parseInt(match.group(1)), Integer.parseInt(match.group(2)));
+        }
+        catch (RuntimeException e)
+        {
+            throw new IOException("Lien de secours AFT invalide : utilisez un fichier officiel HTTPS de coefficients "
+                            + (euroIndex ? "OAT€i" : "OATi") + " (.xls ou .xlsx).", e);
+        }
+    }
+
+    /** Reuse only a source recorded by this updater, never an arbitrary link in a user's note. */
+    public static String previousAftCoefficientFile(List<Security> securities, boolean euroIndex)
+    {
+        var files = new TreeMap<YearMonth, Set<String>>();
+        var pattern = Pattern.compile("(?m)^Coefficients AFT :[ \\t]*(https://\\S+)[ \\t]*$");
+        for (var security : securities)
+        {
+            var spec = BondSpec.find(security.getIsin());
+            if (spec.isEmpty() || !spec.get().indexed() || spec.get().euroIndex() != euroIndex || !BondUpdate.managed(security))
+                continue;
+            String source = Objects.toString(security.getAttributes().getMap().get("xapa.bond.price-source"), "");
+            if (source.isBlank())
+            {
+                String note = Objects.toString(security.getNote(), "");
+                int start = note.indexOf("[XAPA-BOND-PRICES-BEGIN]");
+                int end = note.indexOf("[XAPA-BOND-PRICES-END]", start);
+                if (start >= 0 && end > start)
+                    source = note.substring(start, end);
+            }
+            var match = pattern.matcher(source);
+            while (match.find())
+            {
+                String file = match.group(1);
+                try
+                {
+                    files.computeIfAbsent(aftPublicationMonth(file, euroIndex), ignored -> new java.util.HashSet<>()).add(file);
+                }
+                catch (IOException e)
+                {
+                    // Old or unrelated source metadata must not become a download destination.
+                }
+            }
+        }
+        return files.isEmpty() || files.lastEntry().getValue().size() != 1 ? "" : files.lastEntry().getValue().iterator().next();
+    }
+
+    private static boolean temporaryFailure(IOException failure)
+    {
+        return failure instanceof SocketTimeoutException || failure instanceof ConnectException
+                        || failure instanceof UnknownHostException
+                        || failure instanceof SourceException http && http.status >= 500;
+    }
+
+    public AftPublication aftPublication(boolean euroIndex) throws IOException, InterruptedException
+    {
+        checkCancelled();
+        var previous = aftPublications.get(euroIndex);
+        if (previous != null)
+            return previous;
+
+        String page = "https://www.aft.gouv.fr/fr/" + (euroIndex ? "oateuroi" : "oati") + "-principaux-chiffres";
+        String html;
+        try
+        {
+            html = text(page);
+        }
+        catch (IOException e)
+        {
+            if (!temporaryFailure(e))
+                throw e;
+            return recoverAft(euroIndex, e);
+        }
+
+        String file = coefficientFile(html, page, euroIndex);
+        validateAftCoefficientFile(file, euroIndex);
+        try
+        {
+            return new AftPublication(file, get(file), html, false);
+        }
+        catch (IOException e)
+        {
+            if (!temporaryFailure(e))
+                throw e;
+            var saved = cachedAft(euroIndex);
+            if (saved == null)
+                throw e;
+            return new AftPublication(saved.file(), saved.bytes(), html, true);
+        }
+    }
+
+    private AftPublication cachedAft(boolean euroIndex)
+    {
+        try
+        {
+            return diskCache == null ? null : diskCache.read(euroIndex);
+        }
+        catch (IOException e)
+        {
+            PortfolioLog.warning("Lecture du cache AFT : " + e.getMessage());
+            return null;
+        }
+    }
+
+    private static String monthlyFile(boolean euroIndex, YearMonth publication)
+    {
+        var end = publication.plusMonths(2);
+        String month = end.getMonth().getDisplayName(TextStyle.FULL, Locale.FRENCH);
+        String name = euroIndex ? "3.3_OATEi/" + publication + "_coef_oatei_" + month + "_" + end.getYear() + ".xlsx"
+                        : "3.3_OATi/" + publication + "_coef_oati-" + month + end.format(DateTimeFormatter.ofPattern("yy")) + ".xls";
+        return URI.create("https://www.aft.gouv.fr/files/medias-aft/3_Dette/" + name).toASCIIString();
+    }
+
+    private AftPublication recoverAft(boolean euroIndex, IOException discovery) throws IOException, InterruptedException
+    {
+        checkCancelled();
+        var current = YearMonth.from(today);
+        var saved = cachedAft(euroIndex);
+        // Prefer a known URL within the same publication month. Only workbook contents establish coverage.
+        var candidates = new TreeMap<YearMonth, LinkedHashSet<String>>(Comparator.reverseOrder());
+        for (String file : List.of(aftFallbacks.getOrDefault(euroIndex, ""), saved == null ? "" : saved.file(),
+                        monthlyFile(euroIndex, current), monthlyFile(euroIndex, current.minusMonths(1))))
+        {
+            if (!file.isEmpty())
+                candidates.computeIfAbsent(aftPublicationMonth(file, euroIndex), ignored -> new LinkedHashSet<>()).add(file);
+        }
+        for (var month : candidates.values())
+        {
+            for (String file : month)
+            {
+                try
+                {
+                    return new AftPublication(file, get(file), null, false);
+                }
+                catch (IOException e)
+                {
+                    if (!temporaryFailure(e) && !(e instanceof SourceException http && http.status == 404))
+                        throw e;
+                    if (e != discovery)
+                        discovery.addSuppressed(e);
+                    if (saved != null && saved.file().equals(file))
+                        return saved;
+                }
+            }
+        }
+        throw new IOException("Aucun classeur de coefficients AFT accessible. Renseignez un lien officiel de secours.", discovery);
+    }
+
+    /** Called only after the consumer has validated the contents, coverage and cancellation state. */
+    public void rememberAft(boolean euroIndex, AftPublication publication) throws InterruptedException
+    {
+        checkCancelled();
+        if (aftPublications.put(euroIndex, publication) == publication || diskCache == null || publication.local())
+            return;
+        try
+        {
+            diskCache.save(euroIndex, publication);
+        }
+        catch (IOException e)
+        {
+            PortfolioLog.warning("Cache AFT : " + e.getMessage());
+        }
+    }
+
     private List<BondQuote> indexed(BondSpec bond) throws IOException, InterruptedException
     {
-        String aft = "https://www.aft.gouv.fr/fr/" + (bond.euroIndex() ? "oateuroi" : "oati") + "-principaux-chiffres";
-        var file = coefficientFile(text(aft), aft, bond.euroIndex());
-        var coefficients = coefficients(get(file), bond.maturity());
-        String detail = borsaDetail(bond);
-        return indexHistory(bond, borsaClean(bond), coefficients, detail + "\nCoefficients AFT : " + file);
+        var publication = aftPublication(bond.euroIndex());
+        var coefficients = coefficients(publication.bytes(), bond.maturity());
+        String source = borsaDetail(bond) + "\nCoefficients AFT : " + publication.file();
+        if (!publication.recovery().isEmpty())
+            source += "\n" + publication.recovery();
+        var result = indexHistory(bond, borsaClean(bond), coefficients, source);
+        rememberAft(bond.euroIndex(), publication);
+        return result;
     }
 
     private static String borsaDetail(BondSpec bond)
@@ -493,7 +742,7 @@ public final class BondSources
         if (!"https://grafici.borsaitaliana.it/api/".equals(base.toString()))
             throw new IOException("Adresse de l'historique Borsa Italiana inattendue.");
         var historyUrl = base.resolve("instruments/" + bond.isin() + ",XMIL,ISIN/history/period?period=10Y&adjustment=true&add-last-price=true");
-        var clean = borsaHistory(new String(request(historyUrl.toString(), element.attr("token"), chart), StandardCharsets.UTF_8));
+        var clean = borsaHistory(new String(downloader.request(historyUrl.toString(), element.attr("token"), chart), StandardCharsets.UTF_8));
         String detail = "https://www.borsaitaliana.it/borsa/obbligazioni/mot/euro-obbligazioni/scheda/" + bond.isin() + "-MOTX.html?lang=it";
         supplementOfficial(clean, text(detail));
         return clean;
