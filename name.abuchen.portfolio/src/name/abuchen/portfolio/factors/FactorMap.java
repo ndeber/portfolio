@@ -26,6 +26,8 @@ public final class FactorMap
     public static final String DBMF = "US53700T8273";
     public static final String UCITS_HEDGED = "LU3359622902";
     public static final String UCITS_USD = "LU2951555585";
+    // UCITS share classes with an explicit DBMF proxy for the notional factor map.
+    private static final Set<String> DBMF_PROXY_ISINS = Set.of(UCITS_HEDGED, "LU2550036318", UCITS_USD);
     private static final Set<String> GOLD_ISINS = Set.of("IE00B4ND3602", "JE00B1VS3770", "JE00B588CD74", "IE00B579F325", "DE000A0S9GB0");
     private static final Set<String> EAFE_COUNTRIES = Set.of("France", "Allemagne", "Grande-Bretagne", "Royaume-Uni",
                     "Espagne", "Suisse", "Pays-Bas", "Italie", "Suède", "Irlande", "Norvège", "Autriche", "Danemark",
@@ -60,7 +62,8 @@ public final class FactorMap
 
     public static boolean isDbi(Security security)
     {
-        return Set.of(DBMF, UCITS_HEDGED, UCITS_USD).contains(security.getIsin() == null ? "" : security.getIsin())
+        String isin = security.getIsin();
+        return DBMF.equals(isin) || (isin != null && DBMF_PROXY_ISINS.contains(isin))
                         || security.getName().toLowerCase(java.util.Locale.ROOT).matches(".*\\b(dbi|dbmf)\\b.*");
     }
 
@@ -228,7 +231,7 @@ public final class FactorMap
                     continue;
                 String isin = ((Security) position.vehicle()).getIsin();
                 boolean exact = snapshot != null && snapshot.isin().equals(isin);
-                boolean supportedProxy = proxy && (UCITS_HEDGED.equals(isin) || UCITS_USD.equals(isin));
+                boolean supportedProxy = proxy && isin != null && DBMF_PROXY_ISINS.contains(isin);
                 if (fund == null || !(exact || supportedProxy))
                     overlayKnown = false;
                 else

@@ -79,3 +79,15 @@ avec sources réseau sont limités à 300 secondes.
 L'option `--commitments` vérifie hors réseau les calculs d'engagements sur des
 données synthétiques et le chargement des classes du menu/widget dans le produit
 assemblé. Elle ne lit aucun portefeuille personnel.
+
+### Carte DBi et correctif OAT/IPCH du 25 novembre 2026
+
+Sur la branche `fix/dbi-factor-map-hedged-share`, la part I EUR couverte et la part R EUR couverte utilisent le même proxy notionnel DBMF lorsqu’il est activé. Chaque part conserve sa propre valorisation. La couverture de change reste exclue du proxy.
+
+Depuis la racine du clone, sur un Mac Apple Silicon :
+
+```sh
+python3 tools/fork/rebuild-macos.py \
+  --release-file tools/fork/build-dbi-oat-2026-11-25.json \
+  --output ../PortfolioFork-DBi-OAT
+```

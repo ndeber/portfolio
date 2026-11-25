@@ -264,7 +264,8 @@ public final class DbiData
             Factor factor = factor(name);
             if (factor == null)
             {
-                if (!name.equals("TREASURY BILL") && !name.toUpperCase(Locale.ROOT).contains("CASH"))
+                if (!name.equals("TREASURY BILL") && !name.equals("UNITED STATES TREASURY BILL")
+                                && !name.toUpperCase(Locale.ROOT).contains("CASH"))
                     throw new IllegalArgumentException("Instrument DBMF non reconnu : " + name);
                 continue;
             }

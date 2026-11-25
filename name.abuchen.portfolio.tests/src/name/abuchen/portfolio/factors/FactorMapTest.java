@@ -118,6 +118,34 @@ public class FactorMapTest
     }
 
     @Test
+    public void bothEuroHedgedClassesUseTheirOwnValueWithProxyEnabled()
+    {
+        holding("Class R", FactorMap.UCITS_HEDGED, 50);
+        holding("Class I", "LU2550036318", 150);
+        deposit(800);
+        var mapped = result(true, false);
+        assertEquals(.2, mapped.dbiWeight(), 1e-10);
+        for (var axis : mapped.rows())
+        {
+            assertNotNull(axis.fund());
+            assertEquals(.2 * axis.fund(), axis.overlay(), 1e-10);
+            assertEquals(axis.baseline() + axis.overlay(), axis.knownAfter(), 1e-10);
+        }
+        assertNull(row(result(false, false), Factor.GOLD).overlay());
+    }
+
+    @Test
+    public void unknownDbiShareStillPreventsAnEstimatedOverlay()
+    {
+        holding("Class I", "LU2550036318", 150);
+        holding("DBi unverified share class", "OTHER", 50);
+        deposit(800);
+        var gold = row(result(true, false), Factor.GOLD);
+        assertNull(gold.overlay());
+        assertNull(gold.knownAfter());
+    }
+
+    @Test
     public void vaNeverAddsToNotionalBaseline()
     {
         holding("Gold", "IE00B4ND3602", 100);
@@ -278,6 +306,15 @@ public class FactorMapTest
         assertEquals(5207645294.86, parsed.nav(), .00001);
         assertEquals(-5162578619.16 / parsed.nav(), parsed.exposure(Factor.US_2Y, false, today), 1e-12);
         assertEquals(.36, DbiData.bundled().exposure(Factor.US_EQUITY, true, today), 1e-12);
+    }
+
+    @Test
+    public void acceptsPublishedTreasuryBillCollateralLabels() throws Exception
+    {
+        String html = fixture();
+        assertTrue(html.contains(">TREASURY BILL<"));
+        var original = DbiData.parse(html, today);
+        assertEquals(original, DbiData.parse(html.replace(">TREASURY BILL<", ">UNITED STATES TREASURY BILL<"), today));
     }
 
     @Test

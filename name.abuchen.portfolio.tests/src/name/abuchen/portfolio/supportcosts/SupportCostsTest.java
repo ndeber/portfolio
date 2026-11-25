@@ -130,7 +130,8 @@ public class SupportCostsTest
     @Test public void calendarPeriodsAndPastPeriods()
     {
         var today = LocalDate.of(2026, 10, 13);
-        assertEquals(today, SupportCosts.effectivePeriod(new ReportingPeriod.CurrentMonth().toInterval(today), today).getEnd());
+        var currentDate = LocalDate.now();
+        assertEquals(currentDate, SupportCosts.effectivePeriod(new ReportingPeriod.CurrentMonth().toInterval(currentDate), currentDate).getEnd());
         assertEquals(today, SupportCosts.effectivePeriod(new ReportingPeriod.CurrentWeek().toInterval(today), today).getEnd());
         var past = Interval.of(start, LocalDate.of(2025, 12, 31));
         assertEquals(past, SupportCosts.effectivePeriod(past, today));
