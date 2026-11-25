@@ -1,0 +1,52 @@
+name: Verify Portfolio Fork DBi and OAT on macOS
+
+on:
+  push:
+    branches: [verify/dbi-oat-2026-11-25]
+
+permissions: {}
+
+jobs:
+  rebuild:
+    runs-on: macos-15
+    timeout-minutes: 35
+    env:
+      SOURCE_COMMIT: 7f8e2a23074665bd43ea3305c4848e68fa67969c
+      SOURCE_TREE: 9a658d519f7bc1266974184c799d00a23e45d715
+    steps:
+      - name: Fetch the exact public sources without credentials
+        run: |
+          set -eu
+          git init -q source
+          git -C source -c credential.helper= fetch --depth=1 https://github.com/ndeber/portfolio.git "$SOURCE_COMMIT"
+          git -C source checkout -q --detach FETCH_HEAD
+          test "$(git -C source rev-parse HEAD)" = "$SOURCE_COMMIT"
+          test "$(git -C source rev-parse 'HEAD^{tree}')" = "$SOURCE_TREE"
+      - name: Download the build environment and rebuild from an empty cache
+        working-directory: source
+        run: |
+          python3 tools/fork/rebuild-macos.py \
+            --release-file tools/fork/build-dbi-oat-2026-11-25.json \
+            --cache-dir "$RUNNER_TEMP/fork-cache" \
+            --output "$RUNNER_TEMP/fork-build"
+      - name: Verify the Finder application name and print the test results
+        run: |
+          set -eu
+          cd "$RUNNER_TEMP/fork-build"
+          mv PortfolioPerformancePE.app PortfolioPerformanceFork.app
+          codesign --verify --deep --strict PortfolioPerformanceFork.app
+          cat Validation/Rebuild.json
+          cat Validation/Packaging-tests.log
+          cat Validation/Packaged-runtime.log
+          {
+            echo '### Portfolio Fork DBi and OAT'
+            echo '~~~json'
+            cat Validation/Rebuild.json
+            echo '~~~'
+          } >> "$GITHUB_STEP_SUMMARY"
+      - name: Show the build log if verification fails
+        if: failure()
+        run: |
+          for log in "$RUNNER_TEMP"/fork-cache/logs/*.log; do
+            if [ -f "$log" ]; then tail -60 "$log"; fi
+          done
